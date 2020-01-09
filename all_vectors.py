@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from os import environ, path
 import sys
 import subprocess

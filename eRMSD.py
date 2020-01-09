@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #A contact-map based clustering and flexibility quantification algorithm
 #Created by: Erik Poppleton

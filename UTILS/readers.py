@@ -6,7 +6,7 @@ from . import base
 #import base
 
 #helper for Cal_confs
-def blocks(file, size=65536):
+def blocks(file, size=1000000):
     while True:
         b = file.read(size)
         if not b: break
@@ -14,8 +14,8 @@ def blocks(file, size=65536):
 
 #calculates the length of a trajectory file
 def Cal_confs(traj_file, top_file):
-    with open(traj_file, "r", encoding='utf-8',errors='ignore') as f:
-        return (sum(bl.count("t") for bl in blocks(f)))
+    with open(traj_file, "rb") as f:
+        return (sum(bl.count(b"t") for bl in blocks(f)))
 
 #gets the value out of an oxDNA input file
 def get_input_parameter(input_file, parameter):
@@ -75,7 +75,7 @@ class LorenzoReader2:
   
     def _read(self, only_strand_ends=False, skip=False):
         timeline = self._conf.readline()
-        time = 0.
+        time = 0
         if  len(timeline) == 0:
             return False
         else:

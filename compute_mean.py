@@ -6,7 +6,7 @@ from sys import exit, stderr
 from UTILS.readers import LorenzoReader2, Cal_confs
 from random import randint
 import argparse
-from UTILS import parallelize
+from UTILS import parallelize2
 
 def pick_starting_configuration(traj_file, top_file, max_bound):
     """
@@ -133,7 +133,7 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
             i+=1
 
         # print the rmsd of the alignment in case anyone is interested...
-        print("Frame number:", confid, "RMSF:", sup.get_rms())
+        print("Frame:", confid, "Time:", mysystem._time, "RMSF:", sup.get_rms())
         # thats all we do for a frame
         confid += 1
         mysystem = reader._get_system()
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     #Each of those chunks is then calculated seperatley and the result is summed.
     if parallel:
         print("INFO: Computing mean of {} configurations using {} cores.".format(NUM_CONFS, n_cpus), file=stderr)
-        out = parallelize.fire_multiprocess(traj_file, top_file, compute_mean, NUM_CONFS, n_cpus, align_conf)
+        out = parallelize2.fire_multiprocess(traj_file, top_file, compute_mean, NUM_CONFS, n_cpus, align_conf)
         mean_pos_storage = np.sum(np.array([i[0] for i in out]), axis=0)
         mean_a1_storage = np.sum(np.array([i[1] for i in out]), axis=0)
         mean_a3_storage = np.sum(np.array([i[2] for i in out]), axis=0)

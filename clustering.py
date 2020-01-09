@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import numpy as np
 from os import environ, remove
 import subprocess

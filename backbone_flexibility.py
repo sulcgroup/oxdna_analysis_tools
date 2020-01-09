@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import numpy as np
 from UTILS.readers import LorenzoReader2, Cal_confs, get_input_parameter
 from UTILS import parallelize

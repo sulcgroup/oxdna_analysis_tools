@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 from sys import stderr
 from Bio.SVDSuperimposer import SVDSuperimposer
 from json import loads, dumps

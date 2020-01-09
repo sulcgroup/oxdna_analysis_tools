@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import numpy as np
 from sys import argv, stderr, exit #argv is much better than argparse for how I'm structuring my args
 from math import acos, sqrt
