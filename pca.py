@@ -139,8 +139,18 @@ if __name__ == "__main__":
     
     num_confs = Cal_confs(conf_file, top_file)
     
-    with open(mean_file) as file:
-        align_conf = load(file)['g_mean']
+    if mean_file.split(".")[-1] == "json":
+        with open(mean_file) as file:
+            align_conf = load(file)['g_mean']
+
+    elif mean_file.split(".")[-1] == "dat":
+        fetch_np = lambda conf: np.array([
+            n.cm_pos for n in conf._nucleotides
+        ])
+        with LorenzoReader2(conf_file, top_file) as reader:
+            s = reader._get_system()
+            align_conf = fetch_np(s)
+
     cms = compute_cms(align_conf) #all structures must have the same center of mass
     align_conf -= cms 
         
@@ -149,7 +159,7 @@ if __name__ == "__main__":
         deviations_matrix = get_pca(r, align_conf, num_confs)
     
     if parallel:
-        out = parallelize.fire_multiprocess(conf_file, top_file, get_pca, num_confs, align_conf)
+        out = parallelize.fire_multiprocess(conf_file, top_file, get_pca, num_confs, n_cpus, align_conf)
         deviations_matrix = np.concatenate([i for i in out])
     
     #now that we have the deviations matrix we're gonna get the covariance and PCA it
@@ -166,7 +176,7 @@ if __name__ == "__main__":
     import matplotlib.pyplot as plt
     plt.scatter(range(0, len(evalues)), evalues, s=6)
     plt.xlabel("component")
-    plt.ylabel("eigen value")
+    plt.ylabel("eigenvalue")
     plt.show()
 
     mul = np.einsum('ij,i->ij',evectors[0:3], evalues[0:3])
