@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # align_trajectory.py
 # Created by: Erik Poppleton
 # Date: 8/26/19

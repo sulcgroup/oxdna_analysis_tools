@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #A utility that prints out H-bond occupancy compared with the design
 #Created by: Erik Poppleton

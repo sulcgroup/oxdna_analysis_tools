@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 #superimpose.py
 #Created by: Erik Poppleton
 #Date: 2/27/19

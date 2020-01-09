@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 #centroid.py
 #Created by: Erik Poppleton 
 #Date = 5/1/19
