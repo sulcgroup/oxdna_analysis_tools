@@ -20,6 +20,8 @@ This software package was written and tested using the following outside resourc
 
 ## Brief script descriptions
 
+Running instructions can be obtained for all scripts by running them with no arguments or the -h flag.
+
  * `contact_map.py` Takes an input and configuration file and produces a visual contact map of internucleotide distances<br/>
  * `align_trajectory.py` Takes a trajectory and topology file pair and aligns all configurations in the trajectory to the first configuration.<br/>
  * `all_vectors.py` Takes an input and trajectory file pair and produces a matrix of vectors between every nucleotide at each step.<br/>
