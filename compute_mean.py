@@ -3,7 +3,7 @@ from Bio.SVDSuperimposer import SVDSuperimposer
 import numpy as np
 from json import loads, dumps
 from sys import exit, stderr
-from UTILS.readers import LorenzoReader2, Cal_confs
+from UTILS.readers import LorenzoReader2, cal_confs
 from random import randint
 import argparse
 from UTILS import parallelize2
@@ -54,10 +54,10 @@ def normalize(v):
         Return a normalized copy of vector v
 
         Parameters: 
-            v (numpy.array): the vector to be normalized
+            v (numpy.array): the vector to be normalized.
 
         Returns: 
-            v / norm(v) (numpy.array)
+            v / norm(v) (numpy.array).
     """
     norm = np.linalg.norm(v)
     if norm == 0:
@@ -75,14 +75,14 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
             align_conf (numpy.array): The position of each particle in the reference configuration.  A 3xN array.
             num_confs (int): The number of configurations in the reader.  
             <optional> start (int): The starting configuration ID to begin averaging at.  Used if parallel.
-            <optional> stop (int): The configuration ID on which to end the averaging.  Used if parallel
+            <optional> stop (int): The configuration ID on which to end the averaging.  Used if parallel.
         
         Returns:
-            mean_pos_storage (numpy.array): For each particle, the sum of positions in all configurations read
-            mean_a1_storage (numpy.array): For each particle, the sum of a1 orientation vectors in all configuraitons read
-            mean_a3_storage (numpy.array): For each particle, the sum of a3 orientation vectors in all configuraitons read
-            intermediate_mean_structures (list): mean structures computed periodically during the summing to check decoorrelation
-            confid (int): the number of configurations summed for the storage arrays
+            mean_pos_storage (numpy.array): For each particle, the sum of positions in all configurations read.
+            mean_a1_storage (numpy.array): For each particle, the sum of a1 orientation vectors in all configuraitons read.
+            mean_a3_storage (numpy.array): For each particle, the sum of a3 orientation vectors in all configuraitons read.
+            intermediate_mean_structures (list): mean structures computed periodically during the summing to check decoorrelation.
+            confid (int): the number of configurations summed for the storage arrays.
     """
     if stop is None:
         stop = num_confs
@@ -231,16 +231,16 @@ if __name__ == "__main__":
         n_cpus = args.parallel[0]
 
     #calculate the number of configurations in the trajectory 
-    NUM_CONFS = Cal_confs(traj_file, top_file)
+    num_confs = cal_confs(traj_file)
 
-    #This also computes the mean every NUM_CONFS/10 configurations to check decorrelation.
+    #This also computes the mean every num_confs/10 configurations to check decorrelation.
     #Only works when run in serial.
-    INTERMEDIATE_EVERY = np.floor(NUM_CONFS / 10)
+    INTERMEDIATE_EVERY = np.floor(num_confs / 10)
 
     # if we have no align_conf we need to chose one
     # and realign its cms to be @ 0,0,0
     if align_conf == []:
-        align_conf_id, align_conf = pick_starting_configuration(traj_file, top_file, NUM_CONFS)
+        align_conf_id, align_conf = pick_starting_configuration(traj_file, top_file, num_confs)
         # we are just interested in the nucleotide positions
         align_conf = fetch_np(align_conf)
         # calculate the cms of the init structure
@@ -250,15 +250,15 @@ if __name__ == "__main__":
 
     #Actually compute mean structure
     if not parallel:
-        print("INFO: Computing mean of {} configurations using 1 core.".format(NUM_CONFS), file=stderr)
+        print("INFO: Computing mean of {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
-        mean_pos_storage, mean_a1_storage, mean_a3_storage, intermediate_mean_structures, processed_frames = compute_mean(r, align_conf, NUM_CONFS)
+        mean_pos_storage, mean_a1_storage, mean_a3_storage, intermediate_mean_structures, processed_frames = compute_mean(r, align_conf, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the result is summed.
     if parallel:
-        print("INFO: Computing mean of {} configurations using {} cores.".format(NUM_CONFS, n_cpus), file=stderr)
-        out = parallelize2.fire_multiprocess(traj_file, top_file, compute_mean, NUM_CONFS, n_cpus, align_conf)
+        print("INFO: Computing mean of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
+        out = parallelize2.fire_multiprocess(traj_file, top_file, compute_mean, num_confs, n_cpus, align_conf)
         mean_pos_storage = np.sum(np.array([i[0] for i in out]), axis=0)
         mean_a1_storage = np.sum(np.array([i[1] for i in out]), axis=0)
         mean_a3_storage = np.sum(np.array([i[2] for i in out]), axis=0)

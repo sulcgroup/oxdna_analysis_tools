@@ -23,14 +23,14 @@ PROCESSDIR = '/home/erik/Simulations/oxdna-code/oxDNA/UTILS/'
 
 #read data from files
 inputfile = sys.argv[1]
-dat_file = sys.argv[2]
+traj_file = sys.argv[2]
 topfile = sys.argv[3]
 output = sys.argv[4]
 
 #Lanch output_bonds.py 
 #Theoretically "run" method is faster than "popen" method. 
 print("Launch output_bonds.py ...")
-launchargs = ['python2', PROCESSDIR + 'output_bonds.py',inputfile,dat_file]
+launchargs = ['python2', PROCESSDIR + 'output_bonds.py',inputfile,traj_file]
 myinput = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 out = myinput.stdout.split("\n")
 err = myinput.stderr.split("\n")

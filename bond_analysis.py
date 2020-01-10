@@ -7,7 +7,7 @@
 #Takes a trajectory and a pairs file (indicating the desired design) and prints out in how many configurations the 
 #designed pairs are present in.  Also prints out the list of missbonds found in the trajectory and their frequency.
 
-from UTILS.readers import LorenzoReader2, Cal_confs, get_input_parameter
+from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 import numpy as np
 import sys
 from output_bonds import output_bonds
@@ -16,6 +16,24 @@ from UTILS import parallelize
 from os import environ
 
 def bond_analysis(reader, pairs, num_confs, start=None, stop=None):
+    """
+    Compares a list of desired base pairs with the base pairs present in a trajectory.
+
+    Parameters:
+        reader (LorenzoReader2): A reader attached to the trajectory to analyze.
+        pairs (list): A list of the designed pairs.  Format is [[a, a'], [b, b']]
+        num_confs (int): The total number of configurations in the trajectory.
+        <optional> start (int): The starting configuration ID to begin averaging at.  Used if parallel.
+        <optional> stop (int): The configuration ID on which to end the averaging.  Used if parallel.
+
+    Returns:
+        tot_bonds (float): The average number of bonds found in the trajectory.
+        tot_missbonds (float): The average number of missbonded nucleotides in the trajectory.
+        out_array (numpy.array): The average occupancy of each designed bond in the trajectory.
+        confid (int): The number of configurations analyzed by this function.
+    """
+
+    #standard parallelization header
     if stop is None:
         stop = num_confs
     else: stop = int(stop)
@@ -32,11 +50,13 @@ def bond_analysis(reader, pairs, num_confs, start=None, stop=None):
     #bond_fraction = np.zeros(len(pairs))
     out_array = np.zeros(num_nuc)
     #missbonds = {}
+
+    #for every configuration in the trajectory, compare the hydrogen bonds to the design
     while mysystem != False and confid < stop:
         print("\nconf", mysystem._time)
         mysystem.map_nucleotides_to_strands()
         out = output_bonds(inputfile, mysystem)  
-        mysystem.read_H_bonds_output_bonds(out)
+        mysystem.read_H_bonds_output_bonds(out) #maps the output of output_bonds to the system object
         #count_bonds = 0
         count_correct_bonds = 0
         count_incorrect_bonds = 0
@@ -82,7 +102,7 @@ if __name__ == "__main__":
     
     args = parser.parse_args()
     inputfile = args.inputfile[0]
-    dat_file = args.trajectory[0]
+    traj_file = args.trajectory[0]
     designfile = args.designed_pairs[0]
     outfile = args.output_file[0]
     parallel = args.parallel
@@ -94,7 +114,7 @@ if __name__ == "__main__":
         environ["OXRNA"] = "1"
     else:
         environ["OXRNA"] = "0"
-    num_confs = Cal_confs(dat_file, top_file)
+    num_confs = cal_confs(traj_file)
 
     import UTILS.base #this needs to be imported after the model type is set
 
@@ -103,11 +123,11 @@ if __name__ == "__main__":
         pairs = file.readlines()
 
     if not parallel:
-        r = LorenzoReader2(dat_file,top_file)
+        r = LorenzoReader2(traj_file,top_file)
         tot_bonds, tot_missbonds, out_array, confid = bond_analysis(r, pairs, num_confs)
 
     if parallel:
-        out = parallelize.fire_multiprocess(dat_file, top_file, bond_analysis, num_confs, n_cpus, pairs)
+        out = parallelize.fire_multiprocess(traj_file, top_file, bond_analysis, num_confs, n_cpus, pairs)
         tot_bonds = sum((i[0] for i in out))
         tot_missbonds = sum((i[1] for i in out))
         out_array = sum((i[2] for i in out))

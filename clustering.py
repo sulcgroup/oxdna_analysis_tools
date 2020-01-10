@@ -50,7 +50,7 @@ def find_element(n, x, array):
 #Calculates the centroid for each cluster
 #Creates a .dat and .top file for each centroid
 #also makes a heatmap for each cluster and provides some information
-def get_centroid(differences, num_confs, labs, conf_file, inputfile):
+def get_centroid(differences, num_confs, labs, traj_file, inputfile):
     print("splitting clusters...")
     print ("cluster\tn\tavg_E\tE_dev\tavg_H\tH_dev\tcentroid_t")
     for cluster in (set(labs)):
@@ -66,7 +66,7 @@ def get_centroid(differences, num_confs, labs, conf_file, inputfile):
     
         import UTILS.base #this needs to be imported after the model type is set
 
-        r = LorenzoReader2(conf_file, top_file)
+        r = LorenzoReader2(traj_file, top_file)
         output = r._get_system(N_skip=centroid_id)
         filename = "centroid"+str(cluster)
 
@@ -78,7 +78,7 @@ def get_centroid(differences, num_confs, labs, conf_file, inputfile):
         energies = []
         H_counts = []
         confid = 0
-        r1 = LorenzoReader2(conf_file, top_file)
+        r1 = LorenzoReader2(traj_file, top_file)
         system = r1._get_system()
 
         #for making trajectories of each cluster
@@ -116,7 +116,7 @@ def get_centroid(differences, num_confs, labs, conf_file, inputfile):
 
 #Runs a DBSCAN on the differences matrix and creates a 3D plot showing the clusters
 #There is code for both animating the plot and just having an interactive 3D plot.  Comment out the one you don't want
-def perform_DBSCAN(differences, num_confs, conf_file, inputfile):
+def perform_DBSCAN(differences, num_confs, traj_file, inputfile):
     print("Running DBSCAN...")
     if (len(differences.shape) == 1):
         differences = np.abs(differences - differences.reshape(-1, 1))
@@ -128,7 +128,7 @@ def perform_DBSCAN(differences, num_confs, conf_file, inputfile):
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     print ("number of clusters:", n_clusters_)
 
-    get_centroid(differences, num_confs, labels, conf_file, inputfile)
+    get_centroid(differences, num_confs, labels, traj_file, inputfile)
     #components = perform_pca(differences, 3)
 
     x = []

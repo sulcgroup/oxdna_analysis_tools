@@ -8,7 +8,7 @@
 #between snapshots
 
 import numpy as np
-from UTILS.readers import LorenzoReader2, Cal_confs, get_input_parameter
+from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from os import environ
 import subprocess
 import pickle
@@ -91,7 +91,7 @@ def calc_eRMSD(mat1, mat2):
 
 #reads in every combination of configurations and calls calc_eRMSD()
 #only fills in half the matrix since eRMSDs are symmetric, though the connection matrix is not
-def get_eRMSDs(r1, r2, inputfile, conf_file, top_file, num_confs, start=None, stop=None):
+def get_eRMSDs(r1, r2, inputfile, traj_file, top_file, num_confs, start=None, stop=None):
     if stop is None:
         stop = num_confs
     else: stop = int(stop)
@@ -121,7 +121,7 @@ def get_eRMSDs(r1, r2, inputfile, conf_file, top_file, num_confs, start=None, st
         j = i+1
         confid += 1
         system1 = r1._get_system()
-        r2 = LorenzoReader2(conf_file, top_file)
+        r2 = LorenzoReader2(traj_file, top_file)
         system2 = r2._get_system(N_skip=j)
 
     return(eRMSDs)
@@ -137,7 +137,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
 
     args = parser.parse_args()
-    conf_file = args.trajectory[0]
+    traj_file = args.trajectory[0]
     inputfile = args.inputfile[0] 
     parallel = args.parallel
     if parallel:
@@ -148,19 +148,19 @@ if __name__ == "__main__":
         environ["OXRNA"] = "1"
     else:
         environ["OXRNA"] = "0"
-    num_confs = Cal_confs(conf_file, top_file)
+    num_confs = cal_confs(traj_file)
     import UTILS.base #this needs to be imported after the model type is set
 
 
-    r2 = LorenzoReader2(conf_file, top_file)
+    r2 = LorenzoReader2(traj_file, top_file)
 
     #how do you want to get your eRMSDs?  Do you need to do the time-consuming calculation or is it done and you have a pickle?
     if not parallel:
-        r1 = LorenzoReader2(conf_file, top_file)
+        r1 = LorenzoReader2(traj_file, top_file)
 
-        eRMSDs = get_eRMSDs(r1, r2, inputfile, conf_file, top_file, num_confs)
+        eRMSDs = get_eRMSDs(r1, r2, inputfile, traj_file, top_file, num_confs)
     if parallel:
-        out = parallelize.fire_multiprocess(conf_file, top_file, get_eRMSDs, num_confs, n_cpus, r2, inputfile, conf_file, top_file, matrix=True)
+        out = parallelize.fire_multiprocess(traj_file, top_file, get_eRMSDs, num_confs, n_cpus, r2, inputfile, traj_file, top_file, matrix=True)
         eRMSDs = np.sum((i for i in out), axis=0)
     #eRMSDs = pickle.load(open('tmp_eRMSDs', 'rb'))
 
@@ -177,6 +177,6 @@ if __name__ == "__main__":
 
     ###############################################################################################################
     #Next, we're going to perform a DBSCAN on that matrix of eRMSDs to find clusters of similar structures
-    perform_DBSCAN(eRMSDs, num_confs, conf_file, inputfile)
+    perform_DBSCAN(eRMSDs, num_confs, traj_file, inputfile)
 
     ##############################################################################################################

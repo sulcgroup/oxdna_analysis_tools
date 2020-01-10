@@ -3,7 +3,7 @@
 from sys import stderr
 from Bio.SVDSuperimposer import SVDSuperimposer
 from json import loads, dumps
-from UTILS.readers import LorenzoReader2, Cal_confs
+from UTILS.readers import LorenzoReader2, cal_confs
 import numpy as np
 import argparse
 from UTILS import parallelize
@@ -98,18 +98,18 @@ if __name__ == "__main__":
     parallel = args.parallel
     if parallel:
         n_cpus = args.parallel[0]
-    num_confs = Cal_confs(traj_file, top_file)
+    num_confs = cal_confs(traj_file)
 
     #Calculate deviations, in parallel if available
     if not parallel:
-        print("INFO: Computing deviations from the mean of {} configurations using 1 core.".format(NUM_CONFS), file=stderr)
+        print("INFO: Computing deviations from the mean of {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
         deviations = compute_deviations(r, mean_structure, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the results are compiled .
     if parallel:
-        print("INFO: Computing deviations from the mean of {} configurations using {} cores.".format(NUM_CONFS, n_cpus), file=stderr)
+        print("INFO: Computing deviations from the mean of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         deviations = []
         out = parallelize.fire_multiprocess(traj_file, top_file, compute_deviations, num_confs, n_cpus, mean_structure)
         [deviations.extend(i) for i in out]

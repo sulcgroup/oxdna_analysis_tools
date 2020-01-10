@@ -9,14 +9,30 @@ import numpy as np
 from config import PROCESSPROGRAM
 
 def contact_map (inputfile, mysystem, return_full_matrix):
+    """
+    Computes the distance between every pair of nucleotides and creates a matrix of these distances.
+
+    Parameters:
+        inputfile (string): the input file with which the simulation was run,
+        mysystem (base.System): a base.py system object containing the system to analyze.
+        return_full_matrix (bool): The matrix is symmetric. Return only the lower half or the whole matrix?
+    
+    Returns:
+        distances (numpy.array): The matrix containing pairwise distances between every pair of nucleotides.
+    """
     tempfile_obj = tempfile.NamedTemporaryFile()
+
+    #the algorithm to find the distances is written into an oxDNA observable for improved speed on large systems.
     command_for_data =  'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=contact_map \n } \n}'
     launchargs = [PROCESSPROGRAM, inputfile ,'trajectory_file='+tempfile_obj.name,command_for_data]
     n = mysystem.N
 
+    #write the system to a tempfile so it can be fed to oxDNA in a subprocess
     mysystem.print_lorenzo_output(tempfile_obj.name,'/dev/null')
     tempfile_obj.flush()
     process = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+    
+    #process output
     out = process.stdout.strip()
     err = process.stderr.strip()
     for line in err.split("\n"):
@@ -25,6 +41,8 @@ def contact_map (inputfile, mysystem, return_full_matrix):
            sys.exit(1)
     distances = np.array(out.split(' '), dtype=float)
 
+    #the distance matrix is diagonal, so the observable only calculates half in a compressed format
+    #if the full matrix is needed, this copies it out.
     if return_full_matrix:
         full_matrix = np.empty((n, n))
         for i in range(n):
@@ -43,6 +61,8 @@ if __name__ == "__main__":
     import argparse
     import matplotlib.pyplot as plt
     from UTILS.readers import LorenzoReader2
+
+    #get commandline arguments
     parser = argparse.ArgumentParser(description="Calculate and display the contact map for a structure")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
@@ -51,8 +71,9 @@ if __name__ == "__main__":
     args = parser.parse_args()
     visualize = args.visualize
     inputfile = args.inputfile[0]
-    dat_file = args.trajectory[0]
+    traj_file = args.trajectory[0]
 
+    #process files
     top_file = get_input_parameter(inputfile, "topology")
     if "RNA" in get_input_parameter(inputfile, "interaction_type"):
         environ["OXRNA"] = "1"
@@ -61,9 +82,11 @@ if __name__ == "__main__":
 
     import UTILS.base #this needs to be imported after the model type is set
 
-    r = LorenzoReader2(dat_file, top_file)
+    #create system object from first configuration in the trajectory
+    r = LorenzoReader2(traj_file, top_file)
     system = r._get_system()
 
+    #for every configuration, create a graphical contact map
     while system:
         m = contact_map(inputfile, system, True)
         if visualize:

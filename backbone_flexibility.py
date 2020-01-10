@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from UTILS.readers import LorenzoReader2, Cal_confs, get_input_parameter
+from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from UTILS import parallelize
 from os import environ
 import argparse
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     if parallel:
         n_cpus = args.parallel[0]
 
-    num_confs = Cal_confs(traj_file, top_file)
+    num_confs = cal_confs(traj_file)
 
     r = LorenzoReader2(traj_file, top_file)
 

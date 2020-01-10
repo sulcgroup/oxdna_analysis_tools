@@ -6,13 +6,32 @@ from math import acos, sqrt
 import argparse
 
 def rad2degree(angle):
+    """
+    Convert radians to degrees
+
+    Parameters:
+        angle (float): The angle in radians to convert.
+
+    Returns:
+        angle (float): The angle converted to degrees.
+    """
     return (angle * 180 / np.pi)
 
 def angle_between (axis1, axis2):
+    """
+    Find the angle between two vectors.
+
+    Parameters:
+        axis1 (numpy.array): The first vector.
+        axis2 (numpy.array): The second vector.
+    
+    Returns:
+        angle (float): The angle between the vectors in radians.
+    """
     return (acos(np.dot(axis1, axis2)/(np.linalg.norm(axis1)*np.linalg.norm(axis2))))
 
 if __name__ == "__main__":
-
+    #Get command line arguments.
     parser = argparse.ArgumentParser(description="Finds the ensemble of distances between any two particles in the system")
     parser.add_argument('-i', '--input', nargs=3, action='append', help='An angle file, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', nargs=1, help='The name to save the graph file to')
@@ -58,6 +77,7 @@ if __name__ == "__main__":
     stdevs = []
     representations = []
 
+    #For each input triplet
     for anglefile, search1, search2 in zip(files, p1s, p2s):
 
         steps = 1

@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     inputfile = args.inputfile[0]
-    dat_file = args.trajectory[0]
+    traj_file = args.trajectory[0]
 
     top_file = get_input_parameter(inputfile, "topology")
     if "RNA" in get_input_parameter(inputfile, "interaction_type"):
@@ -61,7 +61,7 @@ if __name__ == "__main__":
 
     import UTILS.base #this needs to be imported after the model type is set
 
-    r = LorenzoReader2(dat_file, top_file)
+    r = LorenzoReader2(traj_file, top_file)
     system = r._get_system()
 
     while system:

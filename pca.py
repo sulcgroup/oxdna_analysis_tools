@@ -7,7 +7,7 @@
 #the output JSON can be loaded into the viewere where it will overlay as arrows
 
 import numpy as np 
-from UTILS.readers import LorenzoReader2, Cal_confs, get_input_parameter
+from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from sys import exit
 import argparse
 from json import load, dumps
@@ -125,7 +125,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")    
     
     args = parser.parse_args()
-    conf_file = args.trajectory[0]
+    traj_file = args.trajectory[0]
     inputfile = args.inputfile[0] 
     mean_file = args.meanfile[0]
     outfile = args.outfile[0]
@@ -139,7 +139,7 @@ if __name__ == "__main__":
         environ["OXRNA"] = "0"
     import UTILS.base #this needs to be imported after the model type is set
     
-    num_confs = Cal_confs(conf_file, top_file)
+    num_confs = cal_confs(traj_file)
     
     with open(mean_file) as file:
         align_conf = load(file)['g_mean']
@@ -147,11 +147,11 @@ if __name__ == "__main__":
     align_conf -= cms 
         
     if not parallel:
-        r = LorenzoReader2(conf_file,top_file)
+        r = LorenzoReader2(traj_file,top_file)
         deviations_matrix = get_pca(r, align_conf, num_confs)
     
     if parallel:
-        out = parallelize.fire_multiprocess(conf_file, top_file, get_pca, num_confs, align_conf)
+        out = parallelize.fire_multiprocess(traj_file, top_file, get_pca, num_confs, align_conf)
         deviations_matrix = np.concatenate([i for i in out])
     
     #now that we have the deviations matrix we're gonna get the covariance and PCA it
@@ -196,16 +196,16 @@ if __name__ == "__main__":
 
     #Now we're going to reconstruct each conf from the eigenvectors and use those weights to cluster the structures
     if not parallel:
-        r = LorenzoReader2(conf_file,top_file)
+        r = LorenzoReader2(traj_file,top_file)
         linear_terms = change_basis(r, align_conf, num_confs)
 
     if parallel:
-        out = parallelize.fire_multiprocess(conf_file, top_file, change_basis, num_confs, n_cpus, align_conf)
+        out = parallelize.fire_multiprocess(traj_file, top_file, change_basis, num_confs, n_cpus, align_conf)
         linear_terms = np.concatenate([i for i in out])
 
     #truncated_terms = linear_terms[:,0:3]
 
     from clustering import perform_DBSCAN
-    labs = perform_DBSCAN(linear_terms, num_confs, conf_file, inputfile)
+    labs = perform_DBSCAN(linear_terms, num_confs, traj_file, inputfile)
 
     

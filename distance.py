@@ -58,11 +58,11 @@ if __name__ == "__main__":
     distances = []
 
     #for each input, launch DNAnalysis to use the faster C++ distance calculator
-    for i,inputfile, dat_file, particle_1, particle_2 in zip(range(len(inputfiles)), inputfiles, trajectories, p1s, p2s):
+    for i,inputfile, traj_file, particle_1, particle_2 in zip(range(len(inputfiles)), inputfiles, trajectories, p1s, p2s):
         command_for_data = 'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=step \n} \n col_2 = { \n type=distance \n particle_1='+str(particle_1)+'\n particle_2='+str(particle_2)+'\n PBC=true \n} \n}'
 
-        launchargs = [PROCESSPROGRAM,inputfile ,'trajectory_file='+dat_file,command_for_data]
-        print("INFO: running DNAnalysis on file {}...".format(dat_file), file=stderr)
+        launchargs = [PROCESSPROGRAM,inputfile ,'trajectory_file='+traj_file,command_for_data]
+        print("INFO: running DNAnalysis on file {}...".format(traj_file), file=stderr)
         myinput = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         out = myinput.stdout
         err = myinput.stderr
@@ -94,7 +94,7 @@ if __name__ == "__main__":
 
     #from clustering import perform_DBSCAN
     #for l in distances:
-    #    perform_DBSCAN(np.array(l), 10, dat_file, inputfile)
+    #    perform_DBSCAN(np.array(l), 10, traj_file, inputfile)
 
     print(hist, lineplt)
     #make a histogram
