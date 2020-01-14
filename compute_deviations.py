@@ -71,8 +71,8 @@ if __name__ == "__main__":
     parser.add_argument('mean_structure', type=str, nargs=1, help="The mean structure .json file from compute_mean.py")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('topology', type=str, nargs=1, help='the topology file associted with the trajectory')
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
-    parser.add_argument('-o', '--output', nargs=1, help='The filename to save the deviations json file to')
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the deviations json file to')
     args = parser.parse_args()
 
     #-o names the output file

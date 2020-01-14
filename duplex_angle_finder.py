@@ -137,10 +137,10 @@ def find_angles(reader, num_confs, start=None, stop=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fit vectors to every duplex in the structure")
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help="The trajectory file from the simulation")
-    parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the angle list to')
+    parser.add_argument('-o', '--output', metavar='output_file',  type=str, nargs=1, help='name of the file to write the angle list to')
 
     args = parser.parse_args()
 

@@ -156,10 +156,10 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Computes the mean structure of a trajectory file")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('topology', type=str, nargs=1, help="The topology file associated with the trajectory file")
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
-    parser.add_argument('-o', '--output', nargs=1, help='The filename to save the mean structure to')
-    parser.add_argument('-f', '--format', nargs=1, help='Output format for the mean file.  Defaults to json.  Options are \"json\", \"oxdna/oxDNA\", and \"both\"')
-    parser.add_argument('-d', '--deviations', nargs=1, help='Immediatley run compute_deviations.py from the output')
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the mean structure to')
+    parser.add_argument('-f', '--format', metavar='<json/oxDNA/both>', nargs=1, help='Output format for the mean file.  Defaults to json.  Options are \"json\", \"oxdna/oxDNA\", and \"both\"')
+    parser.add_argument('-d', , '--deviations',metavar='deviation_file' nargs=1, help='Immediatley run compute_deviations.py from the output')
     args = parser.parse_args()
 
     #-f defines the format of the output file
@@ -324,6 +324,6 @@ if __name__ == "__main__":
         #compute_deviations needs the json meanfile, but its not useful for visualization
         #so we dump it
         if not outjson:
-            print("INFO: deleting {}".format(jsonfile))
+            print("INFO: deleting {}".format(jsonfile), file=stderr)
             from os import remove
             remove(jsonfile)

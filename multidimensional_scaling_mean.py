@@ -9,7 +9,7 @@
 
 import numpy as np
 from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
-from sys import exit
+from sys import exit, stderr
 from json import dumps, loads
 from contact_map import contact_map
 import argparse
@@ -58,7 +58,7 @@ def get_mean(reader, num_confs, start=None, stop=None):
     confid = 0
 
     while mysystem != False and confid < stop:
-        print("-->", mysystem._time)
+        print(print("Frame:", confid, "Time:", mysystem._time)
         cartesian_distances += contact_map(inputfile, mysystem, True)
 
         confid += 1
@@ -93,7 +93,7 @@ def get_devs(reader, masked_mean, num_confs, start=None, stop=None):
 
     #now that we have a mean structure, we need to compute local deviations...
     while mysystem != False and confid < stop:
-        print("-->", confid)
+        print("Frame:", confid, "Time:", mysystem._time
 
         cartesian_distances = contact_map(inputfile, mysystem, True)
         masked_conf = np.ma.masked_array(cartesian_distances, ~(cartesian_distances < cutoff_distance))
@@ -122,7 +122,7 @@ if __name__ == "__main__":
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('meanfile', type=str, nargs=1, help='the name of the .dat file where the mean will be written')
     parser.add_argument('devfile', type=str, nargs=1, help='the name of the .json file where the devs will be written')
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
 
     #process commandline arguments
     args = parser.parse_args()
@@ -145,13 +145,14 @@ if __name__ == "__main__":
     num_confs = cal_confs(traj_file)
 
     #Get the mean distance to all other particles
-    print("computing mean structure...")
     if not parallel:
+        print("INFO: Computing interparticle distances of {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
         cartesian_distances = get_mean(r, num_confs)
         mean_distance_map = cartesian_distances * (1/(num_confs))
 
     if parallel:
+        print("INFO: Computing interparticle distances of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         out = parallelize.fire_multiprocess(traj_file, top_file, get_mean, num_confs, n_cpus)
         cartesian_distances = np.sum(np.array([i for i in out]), axis=0)
 
@@ -181,7 +182,7 @@ if __name__ == "__main__":
     #mean_distance_map[super_cutoff_ids] = 0
     #sparse_map = csr_matrix(mean_distance_map)
     
-    print("fitting local distance data")
+    print("INFO: fitting local distance data", file=stderr)
 
     #Many embedding algorithms were tried...
 
@@ -213,15 +214,16 @@ if __name__ == "__main__":
 
     #Write the mean structure out as a new .dat and .top pair
     output_system.print_lorenzo_output("{}.dat".format(meanfile), "{}.top".format(meanfile))
-    print("wrote files: {}.dat, {}.top".format(meanfile, meanfile))
+    print("INFO: wrote output files: {}.dat, {}.top".format(meanfile, meanfile), file=stderr)
 
     #Loop through the trajectory again and calculate deviations from the average distances
-    print("computing per-nucleotide deviations")
+    print("INFO: Computing distance deviations of {} configurations using 1 core.".format(num_confs), file=stderr)
     if not parallel:
         r = LorenzoReader2(traj_file,top_file)
         devs = get_devs(r, masked_mean, num_confs)
 
     if parallel:
+        print("INFO: Computing distance deviations of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         out = parallelize.fire_multiprocess(traj_file, top_file, get_devs, num_confs, n_cpus, masked_mean)
         devs = np.sum(np.array([i for i in out]), axis=0)
 
@@ -234,4 +236,4 @@ if __name__ == "__main__":
         file.write(
             dumps({"contact deviation" : list(devs)})
         )
-    print("wrote file {}.json".format(devfile))
+    print("INFO: wrote file {}.json".format(devfile), file=stderr)

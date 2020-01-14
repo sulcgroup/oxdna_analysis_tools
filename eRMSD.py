@@ -134,7 +134,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate differences between structures and automatically apply DBSCAN to retrieve clusters")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
 
     args = parser.parse_args()
     traj_file = args.trajectory[0]

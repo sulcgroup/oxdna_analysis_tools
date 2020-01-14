@@ -13,17 +13,22 @@ if __name__ == "__main__":
     #handle commandline arguments
     #this program has no positional arguments, only flags
     parser = argparse.ArgumentParser(description="Finds the ensemble of distances between any two particles in the system")
-    parser.add_argument('-i', '--input', nargs=4, action='append', help='An inputfile, trajectory, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
-    parser.add_argument('-o', '--output', nargs=1, help='The name to save the graph file to')
-    parser.add_argument('-f', '--format', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
-    parser.add_argument('-d', '--data', nargs=1, help='If set, the output from DNAnalysis will be dumped to the specified filename')
+    parser.add_argument('-i', metavar=('input_file', 'trajectory_file', 'particle1', 'particle2'), nargs=4, action='append', help='An inputfile, trajectory, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
+    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
+    parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
+    parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output from DNAnalysis will be dumped to the specified filename')
     args = parser.parse_args()
 
     #-i requires 4 arguments, the input file used to run the simulation, the trajectory to analyze, and the two particles to compute the distance between.
-    inputfiles = [i[0] for i in args.input]
-    trajectories = [i[1] for i in args.input]
-    p1s = [i[2] for i in args.input]
-    p2s = [i[3] for i in args.input]
+    try:
+        inputfiles = [i[0] for i in args.input]
+        trajectories = [i[1] for i in args.input]
+        p1s = [i[2] for i in args.input]
+        p2s = [i[3] for i in args.input]
+
+    except:
+        parser.print_help()
+        exit(1)
 
     #Make sure that the input is correctly formatted
     if(len(inputfiles) != len(trajectories) != len(p1s) != len(p2s)):

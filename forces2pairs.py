@@ -5,7 +5,6 @@
 #Python2
 #Converts the forces file printed out by tiamat2oxdna to a pairs file containing all designed H-bonds
 
-from __future__ import print_function
 import sys
 
 if len(sys.argv) < 1:

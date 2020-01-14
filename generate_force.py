@@ -1,51 +1,52 @@
 #!/usr/bin/env python3
-import sys
+from sys import stderr
 import subprocess
+from output_bonds import output_bonds
+import argparse
+from UTILS.readers import LorenzoReader2, get_input_parameter
 
 # Created by Hao Liu 
 # Date 01/22/2019 
 # A short script generating force file from the given .dat and .top
 
-'''
-***********************************************************************************************************************************
-#If you want the bash command to get sorted bonding pairs file:
-python ~/software/oxDNA/oxdna-code/oxDNA/UTILS/output_bonds.py input_DNA_left40 right40.dat | gawk '{if ($7 < -0.01){print $1 " " $2}}' > right40outputbonds.txt
-cat right10outputbonds.txt | gawk '{if($1 > max){max = $1} arr[$1]=$0} END{for(i = 1; i<=max; i++){print arr[i]}}' > sortedright10.txt
-***********************************************************************************************************************************
-'''
+parser = argparse.ArgumentParser(description="Create an external forces file enforcing the current base-pairing arrangement")
+parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
+parser.add_argument('trajectory', type=str, nargs=1, help="The trajectory file from the simulation")
+parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the angle list to')
+parser.add_argument('-f', '--pairs', type=str, nargs=1, help='name of the file to write the designed pairs list to')
 
-if len(sys.argv) < 4:
-    print("The usage is %s , input conf topology outputfilename"%(sys.argv[0]))
-    sys.exit()
+args = parser.parse_args()
 
-#PROCESSDIR = '/home/epopplet/oxDNA/oxdna-code/oxDNA/UTILS/'
-PROCESSDIR = '/home/erik/Simulations/oxdna-code/oxDNA/UTILS/'
+#Process command line arguments:
+inputfile = args.inputfile[0]
+conf_file = args.trajectory[0]
 
-#read data from files
-inputfile = sys.argv[1]
-traj_file = sys.argv[2]
-topfile = sys.argv[3]
-output = sys.argv[4]
+#-o names the output file
+if args.output:
+    outfile = args.output[0]
+else: 
+    outfile = "forces.txt"
+    print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
 
-#Lanch output_bonds.py 
-#Theoretically "run" method is faster than "popen" method. 
-print("Launch output_bonds.py ...")
-launchargs = ['python2', PROCESSDIR + 'output_bonds.py',inputfile,traj_file]
-myinput = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-out = myinput.stdout.split("\n")
-err = myinput.stderr.split("\n")
+if args.pairs:
+    pairsfile = args.pairs[0]     
 
-#Error reporting 
-for line in err:
-    if "CRITICAL" in line or "ERROR" in line or "python:" in line:
-        print (line)
-        sys.exit(1) 
+#Get relevant parameters from the input file
+top_file = get_input_parameter(inputfile, "topology")
+
+#get base pairs 
+r = LorenzoReader2(conf_file, top_file)
+mysystem = r._get_system()
+out = output_bonds(inputfile, mysystem)
+out = out.split('\n')
 
 #Find out the forming bonds series 
-print("Analyze the output...")
+print("INFO: Analyze the output...", file=stderr)
 Bonded = {}
 for i in out:
-    splitline = i.strip("\n").split()
+    if i[0] == '#':
+        continue
+    splitline = i.split(' ')
     try:
         HB = float(splitline[6])
     except:
@@ -59,18 +60,25 @@ for i in out:
             Bonded[ntid1] = ntid0
 
 lines = []
+pairlines = []
 mutual_trap_template = '{ \ntype = mutual_trap\nparticle = %d\nstiff = 0.9\nr0 = 1.2\nref_particle = %d\nPBC=1\n}\n'
 for key in sorted(Bonded):
-        print(key, Bonded[key])
-        from_particle_id = key
-        to_particle_id = Bonded[key]
-        if from_particle_id >= 0:
-                lines.append(mutual_trap_template % (from_particle_id,to_particle_id))
-                lines.append(mutual_trap_template % (to_particle_id,from_particle_id))
+    from_particle_id = key
+    to_particle_id = Bonded[key]
+    if from_particle_id < to_particle_id:
+        if pairsfile:
+            pairlines.append("{} {}\n".format(from_particle_id, to_particle_id))
+        lines.append(mutual_trap_template % (from_particle_id,to_particle_id))
+        lines.append(mutual_trap_template % (to_particle_id,from_particle_id))
 
-with open(output, "w") as file:
+if pairsfile:
+    with open(pairsfile, "w") as file:
+        file.writelines(pairlines)
+        print("INFO: Wrote pairs to {}".format(pairsfile), file=stderr)
+
+with open(outfile, "w") as file:
         file.writelines(lines)
-        print("Job finished. Force file created")
+        print("INFO: Job finished. Wrote forces to {}".format(outfile), file=stderr)
         
 
 

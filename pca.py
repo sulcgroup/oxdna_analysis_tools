@@ -122,7 +122,7 @@ if __name__ == "__main__":
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('meanfile', type=str, nargs=1, help='The mean structure .json file from compute_mean.py')
     parser.add_argument('outfile', type=str, nargs=1, help='the name of the .json file where the PCA will be written')
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")    
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")    
     
     args = parser.parse_args()
     traj_file = args.trajectory[0]

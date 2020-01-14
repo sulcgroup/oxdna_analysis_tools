@@ -9,7 +9,7 @@
 
 from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 import numpy as np
-import sys
+from sys import exit, stderr
 from output_bonds import output_bonds
 import argparse
 from UTILS import parallelize
@@ -53,7 +53,6 @@ def bond_analysis(reader, pairs, num_confs, start=None, stop=None):
 
     #for every configuration in the trajectory, compare the hydrogen bonds to the design
     while mysystem != False and confid < stop:
-        print("\nconf", mysystem._time)
         mysystem.map_nucleotides_to_strands()
         out = output_bonds(inputfile, mysystem)  
         mysystem.read_H_bonds_output_bonds(out) #maps the output of output_bonds to the system object
@@ -83,7 +82,7 @@ def bond_analysis(reader, pairs, num_confs, start=None, stop=None):
                 #    missbonds[m] = 1
                 #else:
                 #    missbonds[m] += 1                   
-
+        print("Frame:", confid, "Time:", mysystem._time)
         print("formed", count_correct_bonds, "out of", len(pairs))
         print("missbonds:", count_incorrect_bonds)
         confid += 1
@@ -98,7 +97,7 @@ if __name__ == "__main__":
     parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
     parser.add_argument('designed_pairs', type=str, nargs=1, help="The file containing the desired nucleotides pairings in the format \n a b\nc d")
     parser.add_argument('output_file', type=str, nargs=1, help="name of the file to save the output json to")
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     
     args = parser.parse_args()
     inputfile = args.inputfile[0]
@@ -123,10 +122,12 @@ if __name__ == "__main__":
         pairs = file.readlines()
 
     if not parallel:
+        print("INFO: Computing base pairs in {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
         tot_bonds, tot_missbonds, out_array, confid = bond_analysis(r, pairs, num_confs)
 
     if parallel:
+        print("INFO: Computing base pairs in {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         out = parallelize.fire_multiprocess(traj_file, top_file, bond_analysis, num_confs, n_cpus, pairs)
         tot_bonds = sum((i[0] for i in out))
         tot_missbonds = sum((i[1] for i in out))
@@ -135,6 +136,7 @@ if __name__ == "__main__":
 
     print("\nSummary:\navg bonds: {}\navg_missbonds: {}".format(tot_bonds/(int(confid)),tot_missbonds/int(confid)))
 
+    print("INFO: Writing bond occupancy data to {}".format(outfile))
     with open(outfile, "w+") as file:
         file.write("{\n\"occupancy\" : [")
         file.write(str(out_array[0]/int(confid)))

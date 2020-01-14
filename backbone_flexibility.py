@@ -49,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('topology', type=str, nargs=1, help="The topology file associated with the trajectory file")
     parser.add_argument('outfile', type=str, nargs=1, help='The file name for the output .json file.')
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     args = parser.parse_args()
 
     top_file  = args.topology[0]
