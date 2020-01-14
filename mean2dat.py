@@ -34,17 +34,20 @@ def make_dat(mean_info, outfile):
                         "0 0 0 "
                     ]) + "\n"
             )
-if __name__ == "__main__":  
+if __name__ == "__main__": 
+    #get commandline arguments 
     parser = argparse.ArgumentParser(description="Converts a mean structure .json from compute_mean.py to an oxDNA-readable .dat")
     parser.add_argument('inp', type=str, nargs=1, help="A mean structure from compute_mean.py")
     parser.add_argument('out', type=str, nargs=1, help="The name of the output file")
     args = parser.parse_args()
 
+    #load the mean file, which is in .json format
     with open(args.inp[0], "r") as file:
         mean_info = loads(
             file.read()
         )
 
+    #write the file out in oxDNA format
     outfile = args.out[0]
     make_dat(mean_info, outfile)
 

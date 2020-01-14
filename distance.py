@@ -13,17 +13,22 @@ if __name__ == "__main__":
     #handle commandline arguments
     #this program has no positional arguments, only flags
     parser = argparse.ArgumentParser(description="Finds the ensemble of distances between any two particles in the system")
-    parser.add_argument('-i', '--input', nargs=4, action='append', help='An inputfile, trajectory, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
-    parser.add_argument('-o', '--output', nargs=1, help='The name to save the graph file to')
-    parser.add_argument('-f', '--format', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
-    parser.add_argument('-d', '--data', nargs=1, help='If set, the output from DNAnalysis will be dumped to the specified filename')
+    parser.add_argument('-i', metavar=('input_file', 'trajectory_file', 'particle1', 'particle2'), nargs=4, action='append', help='An inputfile, trajectory, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
+    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
+    parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
+    parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output from DNAnalysis will be dumped to the specified filename')
     args = parser.parse_args()
 
     #-i requires 4 arguments, the input file used to run the simulation, the trajectory to analyze, and the two particles to compute the distance between.
-    inputfiles = [i[0] for i in args.input]
-    trajectories = [i[1] for i in args.input]
-    p1s = [i[2] for i in args.input]
-    p2s = [i[3] for i in args.input]
+    try:
+        inputfiles = [i[0] for i in args.input]
+        trajectories = [i[1] for i in args.input]
+        p1s = [i[2] for i in args.input]
+        p2s = [i[3] for i in args.input]
+
+    except:
+        parser.print_help()
+        exit(1)
 
     #Make sure that the input is correctly formatted
     if(len(inputfiles) != len(trajectories) != len(p1s) != len(p2s)):
@@ -58,11 +63,11 @@ if __name__ == "__main__":
     distances = []
 
     #for each input, launch DNAnalysis to use the faster C++ distance calculator
-    for i,inputfile, dat_file, particle_1, particle_2 in zip(range(len(inputfiles)), inputfiles, trajectories, p1s, p2s):
+    for i,inputfile, traj_file, particle_1, particle_2 in zip(range(len(inputfiles)), inputfiles, trajectories, p1s, p2s):
         command_for_data = 'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=step \n} \n col_2 = { \n type=distance \n particle_1='+str(particle_1)+'\n particle_2='+str(particle_2)+'\n PBC=true \n} \n}'
 
-        launchargs = [PROCESSPROGRAM,inputfile ,'trajectory_file='+dat_file,command_for_data]
-        print("INFO: running DNAnalysis on file {}...".format(dat_file), file=stderr)
+        launchargs = [PROCESSPROGRAM,inputfile ,'trajectory_file='+traj_file,command_for_data]
+        print("INFO: running DNAnalysis on file {}...".format(traj_file), file=stderr)
         myinput = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
         out = myinput.stdout
         err = myinput.stderr
@@ -94,7 +99,7 @@ if __name__ == "__main__":
 
     #from clustering import perform_DBSCAN
     #for l in distances:
-    #    perform_DBSCAN(np.array(l), 10, dat_file, inputfile)
+    #    perform_DBSCAN(np.array(l), 10, traj_file, inputfile)
 
     print(hist, lineplt)
     #make a histogram

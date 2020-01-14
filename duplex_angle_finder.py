@@ -6,7 +6,7 @@
 #Calculates a vector corresponding to every duplex in a structure.  
 #The output from this file is used by axis_analysis.R to make plots of structure flexibility.
 
-from UTILS.readers import LorenzoReader2, Cal_confs, get_input_parameter
+from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 import numpy as np
 import argparse
 from os import environ
@@ -137,16 +137,16 @@ def find_angles(reader, num_confs, start=None, stop=None):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Fit vectors to every duplex in the structure")
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help="The trajectory file from the simulation")
-    parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the angle list to')
+    parser.add_argument('-o', '--output', metavar='output_file',  type=str, nargs=1, help='name of the file to write the angle list to')
 
     args = parser.parse_args()
 
     #Process command line arguments:
     inputfile = args.inputfile[0]
-    dat_file = args.trajectory[0]
+    traj_file = args.trajectory[0]
     parallel = args.parallel
     if parallel:
         n_cpus = args.parallel[0]
@@ -168,24 +168,25 @@ if __name__ == "__main__":
 
     import UTILS.base #this needs to be imported after the model type is set
 
-    #Calculate the number of configurations
-    NUM_CONFS = Cal_confs(dat_file, top_file)
+    #Calculate the number of configurations.
+    num_confs = cal_confs(traj_file)
 
-    r0 = LorenzoReader2(dat_file, top_file)
+    r0 = LorenzoReader2(traj_file, top_file)
     r0._get_system()
     
-
+    #launch find_angle using the appropriate number of threads to find all duplexes.
     if not parallel:
-        print("INFO: Fitting duplexes to {} configurations using 1 core.".format(NUM_CONFS), file=stderr)
-        r = LorenzoReader2(dat_file,top_file)
-        duplexes_at_step = find_angles(r, NUM_CONFS)
+        print("INFO: Fitting duplexes to {} configurations using 1 core.".format(num_confs), file=stderr)
+        r = LorenzoReader2(traj_file,top_file)
+        duplexes_at_step = find_angles(r, num_confs)
 
     if parallel:
-        print("INFO: Fitting duplexes to {} configurations using {} cores.".format(NUM_CONFS, n_cpus), file=stderr)
+        print("INFO: Fitting duplexes to {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         duplexes_at_step = []
-        out = parallelize.fire_multiprocess(dat_file, top_file, find_angles, NUM_CONFS, n_cpus)
+        out = parallelize.fire_multiprocess(traj_file, top_file, find_angles, num_confs, n_cpus)
         [duplexes_at_step.extend(i) for i in out]
 
+    #print duplexes to a file
     print("INFO: Writing duplex data to {}.  Use axis_analysis_overlay.py to graph data".format(out_file), file=stderr)
     output = open(outfile, 'w')
     output.write("time\tduplex\tstart1\tend1\tstart2\tend2\taxisX\taxisY\taxisZ\thel_pos\n")

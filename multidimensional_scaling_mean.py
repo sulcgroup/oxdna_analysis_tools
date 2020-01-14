@@ -8,8 +8,8 @@
 #This is used to compute a per-nucleotide deviation in the contact map, which can be visualized with oxView
 
 import numpy as np
-from UTILS.readers import LorenzoReader2, Cal_confs, get_input_parameter
-from sys import exit
+from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
+from sys import exit, stderr
 from json import dumps, loads
 from contact_map import contact_map
 import argparse
@@ -17,6 +17,12 @@ from UTILS import parallelize
 from os import environ
 
 def make_heatmap(contact_map):
+    """
+    Convert a matrix of contact distances to a visual contact map.
+
+    Parameters:
+        contact_map (numpy.array): An array of all pairwise distances between nucleotides.
+    """
     import matplotlib.pyplot as plt
     fig, ax = plt.subplots()
     a = ax.imshow(contact_map, cmap='viridis', origin='lower')
@@ -28,6 +34,18 @@ def make_heatmap(contact_map):
     plt.show()
 
 def get_mean(reader, num_confs, start=None, stop=None):
+    """
+    Computes the mean distance between every pair of nucleotides.
+
+    Parameters:
+        reader (readers.LorenzoReader2): An active reader on the trajectory file to process.
+        num_confs (int): The number of configurations in the reader.  
+        <optional> start (int): The starting configuration ID to begin averaging at.  Used if parallel.
+        <optional> stop (int): The configuration ID on which to end the averaging.  Used if parallel.
+    
+    Returns:
+        cartesian_distances (numpy.array): A matrix containing all pairwise distances between nucleotides.
+    """
     if stop is None:
         stop = num_confs
     else: stop = int(stop)
@@ -36,13 +54,11 @@ def get_mean(reader, num_confs, start=None, stop=None):
     else: start = int(start)
 
     mysystem = reader._get_system(N_skip = start)
-    #mysystem.inbox_system()
     cartesian_distances = np.zeros((mysystem.N, mysystem.N))
     confid = 0
 
     while mysystem != False and confid < stop:
-        print("-->", mysystem._time)
-        #mysystem.inbox_system()
+        print(print("Frame:", confid, "Time:", mysystem._time)
         cartesian_distances += contact_map(inputfile, mysystem, True)
 
         confid += 1
@@ -51,6 +67,19 @@ def get_mean(reader, num_confs, start=None, stop=None):
     return (cartesian_distances)
 
 def get_devs(reader, masked_mean, num_confs, start=None, stop=None):
+    """
+    Computes the RMSD in each particle's distance to other particles in its neighborhood.
+
+    Parameters:
+        reader (readers.LorenzoReader2): An active reader on the trajectory file to process.
+        num_confs (int): The number of configurations in the reader.
+        masked_mean (numpy.ma.masked_array): A masked array containing average distances to other particles in each nucleotides's local neighborhood.
+        <optional> start (int): The starting configuration ID to begin averaging at.  Used if parallel.
+        <optional> stop (int): The configuration ID on which to end the averaging.  Used if parallel.
+    
+    Returns:
+        devs (np.array): The per-nucleotide RMSD in the distance to neighboring nucleotides.
+    """
     if stop is None:
         stop = num_confs
     else: stop = int(stop)
@@ -59,14 +88,12 @@ def get_devs(reader, masked_mean, num_confs, start=None, stop=None):
     else: start = int(start)
 
     mysystem = reader._get_system(N_skip = start)
-    #mysystem.inbox_system()
     devs = np.zeros((mysystem.N, mysystem.N))
     confid = 0
 
     #now that we have a mean structure, we need to compute local deviations...
     while mysystem != False and confid < stop:
-        print("-->", confid)
-        #mysystem.inbox_system()
+        print("Frame:", confid, "Time:", mysystem._time
 
         cartesian_distances = contact_map(inputfile, mysystem, True)
         masked_conf = np.ma.masked_array(cartesian_distances, ~(cartesian_distances < cutoff_distance))
@@ -89,15 +116,17 @@ if __name__ == "__main__":
     #2 seems like a good number, at 2.5 you start to see the hard edges caused by end-loops and see some loop interactions
     cutoff_distance = 2.5
 
+    #get commandline arguments
     parser = argparse.ArgumentParser(description="Calculate molecular contacts, and assembles an average set of contacts based on MDS")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('meanfile', type=str, nargs=1, help='the name of the .dat file where the mean will be written')
     parser.add_argument('devfile', type=str, nargs=1, help='the name of the .json file where the devs will be written')
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
 
+    #process commandline arguments
     args = parser.parse_args()
-    conf_file = args.trajectory[0]
+    traj_file = args.trajectory[0]
     inputfile = args.inputfile[0]
     meanfile = args.meanfile[0]
     devfile = args.devfile[0]
@@ -112,64 +141,72 @@ if __name__ == "__main__":
 
     import UTILS.base #this needs to be imported after the model type is set
 
+    #get the number of configurations in the trajectory
+    num_confs = cal_confs(traj_file)
 
-    num_confs = Cal_confs(conf_file, top_file)
-
-    print("computing mean structure...")
-
+    #Get the mean distance to all other particles
     if not parallel:
-        r = LorenzoReader2(conf_file,top_file)
+        print("INFO: Computing interparticle distances of {} configurations using 1 core.".format(num_confs), file=stderr)
+        r = LorenzoReader2(traj_file,top_file)
         cartesian_distances = get_mean(r, num_confs)
         mean_distance_map = cartesian_distances * (1/(num_confs))
 
     if parallel:
-        out = parallelize.fire_multiprocess(conf_file, top_file, get_mean, num_confs, n_cpus)
+        print("INFO: Computing interparticle distances of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
+        out = parallelize.fire_multiprocess(traj_file, top_file, get_mean, num_confs, n_cpus)
         cartesian_distances = np.sum(np.array([i for i in out]), axis=0)
-
 
     mean_distance_map = cartesian_distances * (1/(num_confs))
 
-    r = LorenzoReader2(conf_file,top_file)
-    out_conf = r._get_system()
+    #Making a new configuration file from scratch is hard, so we're just going to read in one and then overwrite the positional information
+    r = LorenzoReader2(traj_file,top_file)
+    output_system = r._get_system()
 
     #make heatmap of the summed distances
     #make_heatmap(mean_distance_map)
-
-    #compute the mean structure using multidimensional scaling on the distances
-    output_system = out_conf
-    init = np.array([p.cm_pos for p in out_conf._nucleotides])
-    from sklearn.manifold import MDS
-    #from sklearn.manifold import LocallyLinearEmbedding
-    #from megaman.geometry import Geometry
-    #from scipy.sparse import csr_matrix
+    
     masked_mean = np.ma.masked_array(mean_distance_map, ~(mean_distance_map < cutoff_distance))
-    f = open('test_dist.nmr', 'w+')
-    for i, line in enumerate(masked_mean):
-        for j, dist in enumerate(line):
-            if dist != "--" and dist != 0 and i < j:
-                if j%2 == 0:
-                    f.write("{}\t{}\t1\t1\t{}\t{}\tn\tn\tn\tn\n".format(i+1, j+1, dist, dist))
-                else:
-                    f.write("{}\t{}\t1\t1\t{}\t{}\tn\tn\tn\tn\n".format(j+1, i+1, dist, dist))
+    
+    #I tried to use DGSOL to analytically solve this, but origamis were too big
+    #f = open('test_dist.nmr', 'w+')
+    #for i, line in enumerate(masked_mean):
+    #    for j, dist in enumerate(line):
+    #        if dist != "--" and dist != 0 and i < j:
+    #            if j%2 == 0:
+    #                f.write("{}\t{}\t1\t1\t{}\t{}\tn\tn\tn\tn\n".format(i+1, j+1, dist, dist))
+    #            else:
+    #                f.write("{}\t{}\t1\t1\t{}\t{}\tn\tn\tn\tn\n".format(j+1, i+1, dist, dist))
 
         
     #super_cutoff_ids = mean_distance_map > cutoff_distance
     #mean_distance_map[super_cutoff_ids] = 0
     #sparse_map = csr_matrix(mean_distance_map)
-    mds = MDS(n_components=3, metric=True, max_iter=3000, eps=1e-12, dissimilarity="precomputed", n_jobs=1, n_init=1)
-    #lle = LocallyLinearEmbedding(n_neighbors=5, n_components=3, eigen_solver='arpack', max_iter=3000)
-    print("fitting local distance data")
+    
+    print("INFO: fitting local distance data", file=stderr)
+
+    #Many embedding algorithms were tried...
+
+    #from sklearn.manifold import LocallyLinearEmbedding
+    #from megaman.geometry import Geometry
+    #from scipy.sparse import csr_matrix
 
     #geom = Geometry()
     #geom = Geometry(adjacency_kwds={'radius':cutoff_distance})#, laplacian_kwds={'scaling_epps':cutoff_distance})
     #geom.set_data_matrix(masked_mean)
     #geom.set_adjacency_matrix(masked_mean)
     #from megaman.embedding import LocallyLinearEmbedding
+    #lle = LocallyLinearEmbedding(n_neighbors=5, n_components=3, eigen_solver='arpack', max_iter=3000)
     #lle = LocallyLinearEmbedding(n_components=3, eigen_solver='arpack', geom=geom)
     #out_coords = lle.fit_transform(masked_mean, input_type='adjacency')
-
-    out_coords = mds.fit_transform(masked_mean)#, init=init)
     #out_coords = lle.fit_transform(masked_mean)
+    #init = np.array([p.cm_pos for p in out_conf._nucleotides])
+
+    #Run multidimensional scaling on the average distances to find average positions
+    from sklearn.manifold import MDS
+    mds = MDS(n_components=3, metric=True, max_iter=3000, eps=1e-12, dissimilarity="precomputed", n_jobs=1, n_init=1)
+    out_coords = mds.fit_transform(masked_mean)#, init=init) #this one worked best
+    
+    #Overwrite the system we made earlier with the coordinates calculated via MDS
     for i, n in enumerate(output_system._nucleotides):
         n.cm_pos = out_coords[i]
         n._a1 = np.array([0,0,0])
@@ -177,17 +214,20 @@ if __name__ == "__main__":
 
     #Write the mean structure out as a new .dat and .top pair
     output_system.print_lorenzo_output("{}.dat".format(meanfile), "{}.top".format(meanfile))
-    print("wrote files: {}.dat, {}.top".format(meanfile, meanfile))
+    print("INFO: wrote output files: {}.dat, {}.top".format(meanfile, meanfile), file=stderr)
 
-    print("computing per-nucleotide deviations")
+    #Loop through the trajectory again and calculate deviations from the average distances
+    print("INFO: Computing distance deviations of {} configurations using 1 core.".format(num_confs), file=stderr)
     if not parallel:
-        r = LorenzoReader2(conf_file,top_file)
+        r = LorenzoReader2(traj_file,top_file)
         devs = get_devs(r, masked_mean, num_confs)
 
     if parallel:
-        out = parallelize.fire_multiprocess(conf_file, top_file, get_devs, num_confs, n_cpus, masked_mean)
+        print("INFO: Computing distance deviations of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
+        out = parallelize.fire_multiprocess(traj_file, top_file, get_devs, num_confs, n_cpus, masked_mean)
         devs = np.sum(np.array([i for i in out]), axis=0)
 
+    #Dump the deviations to an oxView overlay file
     devs = np.ma.masked_array(devs, ~(devs != 0.0)) #mask all the 0s so they don't contribute to the mean
     devs *= (1/num_confs)
     devs = np.mean(devs, axis=0)
@@ -196,4 +236,4 @@ if __name__ == "__main__":
         file.write(
             dumps({"contact deviation" : list(devs)})
         )
-    print("wrote file {}.json".format(devfile))
+    print("INFO: wrote file {}.json".format(devfile), file=stderr)

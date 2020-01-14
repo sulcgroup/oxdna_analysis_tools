@@ -3,25 +3,49 @@
 import numpy as np
 from sys import argv, stderr, exit #argv is much better than argparse for how I'm structuring my args
 from math import acos, sqrt
+from os import environ
 import argparse
 
 def rad2degree(angle):
+    """
+    Convert radians to degrees
+
+    Parameters:
+        angle (float): The angle in radians to convert.
+
+    Returns:
+        angle (float): The angle converted to degrees.
+    """
     return (angle * 180 / np.pi)
 
 def angle_between (axis1, axis2):
+    """
+    Find the angle between two vectors.
+
+    Parameters:
+        axis1 (numpy.array): The first vector.
+        axis2 (numpy.array): The second vector.
+    
+    Returns:
+        angle (float): The angle between the vectors in radians.
+    """
     return (acos(np.dot(axis1, axis2)/(np.linalg.norm(axis1)*np.linalg.norm(axis2))))
 
 if __name__ == "__main__":
-
+    #Get command line arguments.
     parser = argparse.ArgumentParser(description="Finds the ensemble of distances between any two particles in the system")
-    parser.add_argument('-i', '--input', nargs=3, action='append', help='An angle file, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
-    parser.add_argument('-o', '--output', nargs=1, help='The name to save the graph file to')
-    parser.add_argument('-f', '--format', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
+    parser.add_argument('-i',, metavar=('angle_file', 'particle1', 'particle2'), nargs=3, action='append', help='An angle file, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
+    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
+    parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
     args = parser.parse_args()
 
-    files = [i[0] for i in args.input]
-    p1s = [i[1] for i in args.input]
-    p2s = [i[2] for i in args.input]
+    try:
+        files = [i[0] for i in args.input]
+        p1s = [i[1] for i in args.input]
+        p2s = [i[2] for i in args.input]
+    except:
+        parser.print_help()
+        exit(1)
 
     #Make sure that the input is correctly formatted
     if(len(files) != len(p1s) != len(p2s)):
@@ -32,8 +56,12 @@ if __name__ == "__main__":
     if args.output:
         outfile = args.output[0]
     else: 
-        print("INFO: No outfile name provided, defaulting to \"distance.png\"", file=stderr)
-        outfile = "distance.png"
+        if environ.get('DISPLAY', None) != "":
+            print("INFO: No display detected, outputting to \"distance.png\"")
+            outfile=False
+        else:
+            print("INFO: No outfile name provided, defaulting to \"distance.png\"", file=stderr)
+            outfile = "distance.png"
 
     #-f defines which type of graph to produce
     hist = False
@@ -58,6 +86,7 @@ if __name__ == "__main__":
     stdevs = []
     representations = []
 
+    #For each input triplet
     for anglefile, search1, search2 in zip(files, p1s, p2s):
 
         steps = 1
@@ -146,7 +175,7 @@ if __name__ == "__main__":
 
     #make a histogram
     import matplotlib.pyplot as plt
-    if hist == True:
+    if outfile and hist == True:
         if line == True:
             out = outfile[:outfile.find(".")]+"_hist"+outfile[outfile.find("."):]
         else:
@@ -164,12 +193,14 @@ if __name__ == "__main__":
         plt.xlim((0, 180))
         plt.xlabel("Angle (degrees)")
         plt.ylabel("Normalized frequency")
-        plt.show()
-        #plt.save(out)
-    print(all_angles)
+        if outfile:
+            print("INFO: Saving histogram to {}".format(out), file=stderr)
+            plt.save(out)
+        else:
+            plt.show()
 
     #make a trajectory plot
-    if line == True:
+    if outfile and line == True:
         if hist == True:
             plt.clf()
             out = outfile[:outfile.find(".")]+"_traj"+outfile[outfile.find("."):]
@@ -183,5 +214,8 @@ if __name__ == "__main__":
         plt.legend(labels=names)
         plt.xlabel("Simulation Steps")
         plt.ylabel("Angle (degrees)")
-        plt.show()
-        #plt.save(out)
+        if outfile:
+            print("INFO: Saving line plot to {}".format(out), file=stderr)
+            plt.save(out)
+        else:
+            plt.show()

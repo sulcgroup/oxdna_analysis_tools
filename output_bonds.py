@@ -36,7 +36,7 @@ if __name__ == "__main__":
 	parser.add_argument('-v', type=str, nargs=1, dest='outfile', help='if you want instead average per-particle energy as a viewer JSON')
 
 	args = parser.parse_args()
-	conf_file = args.trajectory[0]
+	traj_file = args.trajectory[0]
 	inputfile = args.inputfile[0]
 	try:
 		outfile = args.outfile[0]
@@ -52,7 +52,7 @@ if __name__ == "__main__":
 	import UTILS.base #this needs to be imported after the model type is set
 
 
-	myreader = LorenzoReader2(conf_file,top_file)
+	myreader = LorenzoReader2(traj_file,top_file)
 	mysystem = myreader._get_system()
 
 	energies = np.zeros(mysystem.N)

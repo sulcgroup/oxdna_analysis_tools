@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from UTILS.readers import LorenzoReader2, Cal_confs, get_input_parameter
+from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from UTILS import parallelize
 from os import environ
 import argparse
@@ -49,7 +49,7 @@ if __name__ == "__main__":
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('topology', type=str, nargs=1, help="The topology file associated with the trajectory file")
     parser.add_argument('outfile', type=str, nargs=1, help='The file name for the output .json file.')
-    parser.add_argument('-p', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     args = parser.parse_args()
 
     top_file  = args.topology[0]
@@ -58,7 +58,7 @@ if __name__ == "__main__":
     if parallel:
         n_cpus = args.parallel[0]
 
-    num_confs = Cal_confs(traj_file, top_file)
+    num_confs = cal_confs(traj_file)
 
     r = LorenzoReader2(traj_file, top_file)
 

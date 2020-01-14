@@ -5,15 +5,28 @@ import numpy as np
 from . import base
 #import base
 
-#helper for Cal_confs
+#helper for cal_confs
 def blocks(file, size=1000000):
+    """
+    An iterator that returns chunks of the given file
+
+    Parameters:
+        file (file): An open file handler to chunk.
+        <optional> size (int): The size of the chunks.  Defaults to 1 MB
+
+    Yields:
+        Chunks of the provided file.
+    """
     while True:
         b = file.read(size)
         if not b: break
         yield b
 
 #calculates the length of a trajectory file
-def Cal_confs(traj_file, top_file):
+def cal_confs(traj_file):
+    """
+    Calculates the number of 
+    """
     with open(traj_file, "rb") as f:
         return (sum(bl.count(b"t") for bl in blocks(f)))
 
