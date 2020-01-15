@@ -159,7 +159,7 @@ if __name__ == "__main__":
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the mean structure to')
     parser.add_argument('-f', '--format', metavar='<json/oxDNA/both>', nargs=1, help='Output format for the mean file.  Defaults to json.  Options are \"json\", \"oxdna/oxDNA\", and \"both\"')
-    parser.add_argument('-d', , '--deviations',metavar='deviation_file' nargs=1, help='Immediatley run compute_deviations.py from the output')
+    parser.add_argument('-d', '--deviations', metavar='deviation_file', nargs=1, help='Immediatley run compute_deviations.py from the output')
     args = parser.parse_args()
 
     #-f defines the format of the output file
