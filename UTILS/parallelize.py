@@ -1,5 +1,5 @@
 import pathos.multiprocessing as pp
-from os import getenv
+from os import getenv, unlink
 from UTILS.readers import LorenzoReader2
 import numpy as np
 from tempfile import NamedTemporaryFile
@@ -46,7 +46,7 @@ def split_trajectory(traj_file, top_file, num_confs, n_cpus, confs_per_processor
 
         #create a number of temporary file equal to the number of CPUs
         while n_files < n_cpus:
-            out = NamedTemporaryFile(mode='w+b')
+            out = NamedTemporaryFile(mode='w+b', delete=False)
             conf_count = 0
             
             #If there is a remainder after dividing the number of configurations by the number of CPUs
@@ -76,7 +76,7 @@ def split_trajectory(traj_file, top_file, num_confs, n_cpus, confs_per_processor
             files.append(out)
             n_files += 1
         
-    return(readers)
+    return(readers, files)
             
 
 #partitions the trajectory file to the number of workers defined by n_cpus
@@ -104,7 +104,7 @@ def fire_multiprocess(traj_file, top_file, function, num_confs, n_cpus, *args):
     processor_pool = pp.Pool(n_cpus)
 
     #split_starts and split_ends are around for backwards compatability with the old parallelize algorithm
-    reader_pool = split_trajectory(traj_file, top_file, num_confs, n_cpus, confs_per_processor)
+    reader_pool, tmpfiles = split_trajectory(traj_file, top_file, num_confs, n_cpus, confs_per_processor)
     split_starts = [0 for  r in reader_pool]
     split_ends = [confs_per_processor for r in reader_pool]
     rem = num_confs % n_cpus
@@ -121,5 +121,8 @@ def fire_multiprocess(traj_file, top_file, function, num_confs, n_cpus, *args):
     #async because we don't actually care what order stuff finishes in.
     results = processor_pool.starmap_async(function, lst).get()
     processor_pool.close()
+    for f in tmpfiles:
+        f.close()
+        unlink(f.name)
 
     return(results)
