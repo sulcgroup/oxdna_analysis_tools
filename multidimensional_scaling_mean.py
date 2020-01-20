@@ -58,7 +58,7 @@ def get_mean(reader, num_confs, start=None, stop=None):
     confid = 0
 
     while mysystem != False and confid < stop:
-        print(print("Frame:", confid, "Time:", mysystem._time)
+        print("Frame:", confid, "Time:", mysystem._time)
         cartesian_distances += contact_map(inputfile, mysystem, True)
 
         confid += 1
@@ -93,7 +93,7 @@ def get_devs(reader, masked_mean, num_confs, start=None, stop=None):
 
     #now that we have a mean structure, we need to compute local deviations...
     while mysystem != False and confid < stop:
-        print("Frame:", confid, "Time:", mysystem._time
+        print("Frame:", confid, "Time:", mysystem._time)
 
         cartesian_distances = contact_map(inputfile, mysystem, True)
         masked_conf = np.ma.masked_array(cartesian_distances, ~(cartesian_distances < cutoff_distance))
@@ -113,7 +113,7 @@ def get_devs(reader, masked_mean, num_confs, start=None, stop=None):
     return devs
 
 if __name__ == "__main__":
-    #2 seems like a good number, at 2.5 you start to see the hard edges caused by end-loops and see some loop interactions
+    #at 2.5 you start to see the hard edges caused by end-loops and see some loop interactions
     cutoff_distance = 2.5
 
     #get commandline arguments

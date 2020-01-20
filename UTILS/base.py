@@ -1019,7 +1019,7 @@ class System(object):
     #brings the system in box such that the first nucleotide is in the box and attempts to keep the structure contiguous.
     #if this results in a broken structure, change _nucleotides[0] to _nucleotides[<something in the middle of the structure>]
     def inbox_system(self):
-        ref_pos = np.array(self._nucleotides[0].cm_pos) #<-- change this line if structure is broken
+        ref_pos = np.array(self._nucleotides[926].cm_pos) #<-- change this line if structure is broken
         for n in self._strands[0]._nucleotides:
             n.cm_pos = n.cm_pos - ref_pos
         for s in self._strands[1:]:

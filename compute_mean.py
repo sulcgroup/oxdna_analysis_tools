@@ -6,7 +6,7 @@ from sys import exit, stderr
 from UTILS.readers import LorenzoReader2, cal_confs
 from random import randint
 import argparse
-from UTILS import parallelize2
+from UTILS import parallelize
 
 def pick_starting_configuration(traj_file, top_file, max_bound):
     """
@@ -258,7 +258,7 @@ if __name__ == "__main__":
     #Each of those chunks is then calculated seperatley and the result is summed.
     if parallel:
         print("INFO: Computing mean of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        out = parallelize2.fire_multiprocess(traj_file, top_file, compute_mean, num_confs, n_cpus, align_conf)
+        out = parallelize.fire_multiprocess(traj_file, top_file, compute_mean, num_confs, n_cpus, align_conf)
         mean_pos_storage = np.sum(np.array([i[0] for i in out]), axis=0)
         mean_a1_storage = np.sum(np.array([i[1] for i in out]), axis=0)
         mean_a3_storage = np.sum(np.array([i[2] for i in out]), axis=0)
