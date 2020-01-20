@@ -187,7 +187,7 @@ if __name__ == "__main__":
         [duplexes_at_step.extend(i) for i in out]
 
     #print duplexes to a file
-    print("INFO: Writing duplex data to {}.  Use axis_analysis_overlay.py to graph data".format(out_file), file=stderr)
+    print("INFO: Writing duplex data to {}.  Use axis_analysis_overlay.py to graph data".format(outfile), file=stderr)
     output = open(outfile, 'w')
     output.write("time\tduplex\tstart1\tend1\tstart2\tend2\taxisX\taxisY\taxisZ\thel_pos\n")
     for i in range (0, len(duplexes_at_step)):
