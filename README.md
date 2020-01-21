@@ -22,24 +22,24 @@ This software package was written and tested using the following outside resourc
 
 Running instructions can be obtained for all scripts by running them with no arguments or the -h flag.
 
- * `contact_map.py` Takes an input and configuration file and produces a visual contact map of internucleotide distances<br/>
- * `align_trajectory.py` Takes a trajectory and topology file pair and aligns all configurations in the trajectory to the first configuration.<br/>
- * `all_vectors.py` Takes an input and trajectory file pair and produces a matrix of vectors between every nucleotide at each step.<br/>
- * `backbone_flexibility.py` *WIP* Takes an input and trajectory file pair and produces a color map of the deviation in backbone torsion angles over the course of the simulation.<br/>
- * `bond_analysis.py` Takes an input and trajectory file pair along with a text file specifying the designed bonded pairs.  Produces and oxView overlay showing fractional occupancy of each designed pair.<br/>
+ * `align_trajectory.py` <trajectory> <topology> <output> Aligns all configurations in the trajectory to the first configuration.<br/>
+ * `all_vectors.py` <input> <trajectory> produces a matrix of vectors between every nucleotide at each step.<br/>
+ * `backbone_flexibility.py` *WIP* (-p <n_cpus>) <trajectory> <topology> <output> Produces a color map of the deviation in backbone torsion angles over the course of the simulation.<br/>
+ * `bond_analysis.py` (-p <n_cpus>) <input> <trajectory> <designed pairs file> <output>  Produces and oxView overlay showing fractional occupancy of each designed pair.<br/>
  * `centroid.py` *WIP* Takes a set of configuration coordinates from other scripts and produces the configuration file for the centroid along that coordinate.<br/>
  * `clustering.py` Takes a set of configuration coordinates from other scripts and performs a DBSCAN clustering.  Produces trajectory files for each cluster and a visual representation of the clusters.<br/>
- * `distance.py` Takes any number of input and trajectory file pairs along with specific nucleotide pairs to find distances between and produces the user's choice of histograms, timeseries or text outputs.<br/>
- * `duplex_angle_finder.py` Takes an input and trajectory file pair and produces a text file containing identification information for all duplexes at each configuration in the trajectory.<br/>
- * `duplex_angle_plotter.py` Takes the duplex text file from `duplex_angle_finder.py` and produces either histograms or timeseries of the angle between specified duplexes.<br/>
- *  `eRMSD.py` Takes an input and trajectory file and computes the [eRMSD](https://academic.oup.com/nar/article/42/21/13306/2903225) between each pair of configurations.  This is a very computationally intense operation and not recommended for large structures or large trajectories. <br/>
- * `forces2pairs.py` Takes an oxDNA external forces file and produces a list of space-separated pairs.  This output is used as an input for `bond_analysis.py`. <br/>
- * `generate_force.py` Takes an input and configuration file and produces an external force file enforcing the current base pair arrangement.  Useful for generating pairs files using `forces2pairs.py` or for enforcing relaxation to a particular configuration during an oxDNA simulation.<br/>
- * `mean2dat.py` Converts the .json configuration file produced by `compute_mean.py` to a .dat file readable by oxDNA or oxView.<br/>
- * `multidimensional_scaling_mean.py` Takes an input and configuration file and computes the mean structure based on local pairwise distances An alternative to `compute_mean.py` that works better for highly flexible structures.<br.>
- * `output_bonds.py` Takes an input and configuration file and lists all the interactions between nucleotides.  The output is the same as the `output_bonds.py` found in the oxDNA UTILS, this one is written in Python3, has a parallelization option and has the option of an oxView overlay showing average total energy per nucleotide. <br/>
- * `pca.py` Takes an input, a mean structure, and a configuration file and computes the principal components of deviations away from the mean.  The principal components are written as an oxView overlay file.  Also has the option to run the clustering script on each configuration's position in principal component space. <br/>
- * `superimpose.py` Takes a topology file and any number of configuration files that correspond to that topology and superimposes all further configurations onto the first file provided.
+ * `contact_map.py` (-v) <input> <trajectory> produces a visual contact map of internucleotide distances if the -v option is given.  Otherwise lists all distances.<br/>
+ * `distance.py` (-o <output> -f <histogram/trajectory/both> -d <data file output>) -i <input> <trajectory> <particleID 1> <particleID 2> The -i option can be called as many times as needed.  Additional calls will be overlaid on the same graph. Produces the user's choice of histograms, timeseries or text outputs (set by -f and -d options).<br/>
+ * `duplex_angle_finder.py` (-p <n_cpus> -o <output>) <input> <trajectory> Produces a text file containing identification information for all duplexes at each configuration in the trajectory.<br/>
+ * `duplex_angle_plotter.py` (-o <output> -f <histogram/trajectory/both>) -i <angle file> <particleID 1> <particleID 2> Produces either histograms or timeseries of the angle between specified duplexes.<br/>
+ *  `eRMSD.py` (-p <n_cpus>) <input> <trajectory> Computes the [eRMSD](https://academic.oup.com/nar/article/42/21/13306/2903225) between each pair of configurations.  This is a very computationally intense operation and not recommended for large structures or large trajectories. <br/>
+ * `forces2pairs.py` <force file> (<output>) Takes an oxDNA external forces file and produces a list of space-separated pairs.  This output is used as an input for `bond_analysis.py`. <br/>
+ * `generate_force.py` (-o <output> -f <pairs file>) <input> <configuration> Produces an external force file enforcing the current base pair arrangement.  Useful for generating pairs files using `forces2pairs.py` or for enforcing relaxation to a particular configuration during an oxDNA simulation.<br/>
+ * `mean2dat.py` <mean.json> <output>  Converts the .json configuration file produced by `compute_mean.py` to a .dat file readable by oxDNA or oxView.<br/>
+ * `multidimensional_scaling_mean.py` (-p n_cpus) <input> <trajectory> <mean prefix> <dev prefix> Computes the mean structure based on local pairwise distances An alternative to `compute_mean.py` that works better for highly flexible structures.<br.>
+ * `output_bonds.py` (-v <output>) <input> <trajectory> Lists all the interactions between nucleotides.  The output is the same as the `output_bonds.py` found in the oxDNA UTILS, this one is written in Python3, and has the option of an oxView overlay showing average total energy per nucleotide. <br/>
+ * `pca.py` (-p <n_cpus> -c) <input> <trajectory> <mean file> <output> Computes the principal components of deviations away from the mean.  The principal components are written as an oxView overlay file.  If the -c flag is used it will also run the clustering script on each configuration's position in principal component space. <br/>
+ * `superimpose.py` <topology> <configuration> <configuration> (<configuration> <configuration> ...) Superimposes all further configurations onto the first file provided.
  
 ### UTILS
 The UTILS directory contains utility modules used by other scripts in this package.
