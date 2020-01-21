@@ -149,7 +149,10 @@ class LorenzoReader2:
             v = [float(x) for x in ls[9:12]]
             L = [float(x) for x in ls[12:15]]
             if not only_strand_ends or n3 == -1 or n5 == -1:
-                s.add_nucleotide(base.Nucleotide(cm, a1, a3, b, bb, v, L, n3))
+                try:
+                    s.add_nucleotide(base.Nucleotide(cm, a1, a3, b, bb, v, L, n3))
+                except Exception as e:
+                    print("ERROR: Reader died while reading configuration with t = {}.\n\nError message:\n{}".format(time, e))
 
         system.add_strand(s, self._check_overlap)
 
