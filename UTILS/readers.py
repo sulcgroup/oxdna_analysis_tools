@@ -153,6 +153,7 @@ class LorenzoReader2:
                     s.add_nucleotide(base.Nucleotide(cm, a1, a3, b, bb, v, L, n3))
                 except Exception as e:
                     print("ERROR: Reader died while reading configuration with t = {}.\n\nError message:\n{}".format(time, e))
+                    return False
 
         system.add_strand(s, self._check_overlap)
 

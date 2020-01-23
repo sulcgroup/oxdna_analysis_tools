@@ -34,7 +34,7 @@ def angle_between (axis1, axis2):
 if __name__ == "__main__":
     #Get command line arguments.
     parser = argparse.ArgumentParser(description="Finds the ensemble of distances between any two particles in the system")
-    parser.add_argument('-i',, metavar=('angle_file', 'particle1', 'particle2'), nargs=3, action='append', help='An angle file, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
+    parser.add_argument('-i', metavar=('angle_file', 'particle1', 'particle2'), dest="input", nargs=3, action='append', help='An angle file, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
     args = parser.parse_args()
@@ -43,7 +43,9 @@ if __name__ == "__main__":
         files = [i[0] for i in args.input]
         p1s = [i[1] for i in args.input]
         p2s = [i[2] for i in args.input]
-    except:
+    except Exception as e:
+        print("ERROR: Failed to read files")
+        print(e)
         parser.print_help()
         exit(1)
 
@@ -109,11 +111,18 @@ if __name__ == "__main__":
 
         with open(anglefile) as file:
             for l in file.readlines()[1:]: #the first line is a header, so it can be dropped
-                l = l.split("\t")
-                t = float(l[0])
+                try:
+                    l = l.split("\t")
+                    t = float(l[0])
+                except Exception as e:
+                    print("ERROR: The following line is incorrectly formatted:")
+                    print(l)
+                    print("The error was:\n",e)
+                    print("skiping the line")
+                    continue
 
                 #reset if we're in a new time
-                if (t > last_step):
+                if (t != last_step):
                     found = False
                     steps += 1
                     axis1 = axis2 = np.array([0,0,0])
@@ -150,7 +159,7 @@ if __name__ == "__main__":
         representations.append(representation)
 
     #PUT THE NAMES OF YOUR DATA SERIES HERE
-    names = ["Run1", "Run2", "Run3"]
+    names = ["Original", "Soft"]
     
     #print statistical information
     print("task:\t", end='')
@@ -195,7 +204,7 @@ if __name__ == "__main__":
         plt.ylabel("Normalized frequency")
         if outfile:
             print("INFO: Saving histogram to {}".format(out), file=stderr)
-            plt.save(out)
+            plt.savefig(out)
         else:
             plt.show()
 
@@ -212,10 +221,10 @@ if __name__ == "__main__":
             a = plt.plot(alist)
             artists.append(a)
         plt.legend(labels=names)
-        plt.xlabel("Simulation Steps")
+        plt.xlabel("Configuration Number")
         plt.ylabel("Angle (degrees)")
         if outfile:
             print("INFO: Saving line plot to {}".format(out), file=stderr)
-            plt.save(out)
+            plt.savefig(out)
         else:
             plt.show()

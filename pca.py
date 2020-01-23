@@ -40,7 +40,7 @@ def make_heatmap(covariance):
        xlabel="nucleotide id*3")
     b = fig.colorbar(a, ax=ax)
     b.set_label("covariance", rotation = 270)
-    plt.save("heatmap.png")
+    plt.savefig("heatmap.png")
 
 def get_pca(reader, align_conf, num_confs, start=None, stop=None):
     """
@@ -181,7 +181,7 @@ if __name__ == "__main__":
     plt.scatter(range(0, len(evalues)), evalues, s=6)
     plt.xlabel("component")
     plt.ylabel("eigenvalue")
-    plt.save("scree.png")
+    plt.savefig("scree.png")
 
     mul = np.einsum('ij,i->ij',evectors[0:3], evalues[0:3])
     out = np.matmul(deviations_matrix, mul.T).astype(float)
@@ -189,7 +189,7 @@ if __name__ == "__main__":
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.scatter(out[:,0], out[:,1], out[:,2], c='g', s=25)
-    plt.save("coordinates.png")
+    plt.savefig("coordinates.png")
     
     weighted_sum = np.zeros_like(evectors[0])
     for i in range(0, 1): #how many eigenvalues do you want?

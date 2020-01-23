@@ -4,7 +4,7 @@
 #Date: before 6/21/18
 #Python3
 #Calculates a vector corresponding to every duplex in a structure.  
-#The output from this file is used by axis_analysis.R to make plots of structure flexibility.
+#The output from this file is used by duplex_angle_finder.py to make plots of structure flexibility.
 
 from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 import numpy as np

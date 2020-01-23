@@ -137,4 +137,4 @@ if __name__ == "__main__":
         print("INFO: Writing trajectory plot to file {}".format(out), file=stderr)
         plt.savefig("{}".format(out))
 
-    if cluster == True:
+    #if cluster == True:

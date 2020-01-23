@@ -77,7 +77,7 @@ if __name__ == "__main__":
 
     #-o names the output file
     if args.output:
-        outfile = args.output[0]
+        outfile = args.output[0].strip()
     else: 
         outfile = "devs.json"
         print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
