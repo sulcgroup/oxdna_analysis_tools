@@ -13,7 +13,7 @@ if __name__ == "__main__":
     #handle commandline arguments
     #this program has no positional arguments, only flags
     parser = argparse.ArgumentParser(description="Finds the ensemble of distances between any two particles in the system")
-    parser.add_argument('-i', metavar=('input_file', 'trajectory_file', 'particle1', 'particle2'), nargs=4, action='append', help='An inputfile, trajectory, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
+    parser.add_argument('-i', '--input', metavar=('input_file', 'trajectory_file', 'particle1', 'particle2'), nargs=4, action='append', help='An inputfile, trajectory, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
     parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output from DNAnalysis will be dumped to the specified filename')
@@ -26,7 +26,8 @@ if __name__ == "__main__":
         p1s = [i[2] for i in args.input]
         p2s = [i[3] for i in args.input]
 
-    except:
+    except Exception as e:
+        print("ERROR:", e)
         parser.print_help()
         exit(1)
 
@@ -101,7 +102,6 @@ if __name__ == "__main__":
     #for l in distances:
     #    perform_DBSCAN(np.array(l), 10, traj_file, inputfile)
 
-    print(hist, lineplt)
     #make a histogram
     if hist == True:
         if lineplt == True:
