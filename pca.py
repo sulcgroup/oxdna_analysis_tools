@@ -123,7 +123,7 @@ if __name__ == "__main__":
     parser.add_argument('meanfile', type=str, nargs=1, help='The mean structure .json file from compute_mean.py')
     parser.add_argument('outfile', type=str, nargs=1, help='the name of the .json file where the PCA will be written')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")    
-    parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the parallelizer on each configuration's position in PCA space?")
+    parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the clusterer on each configuration's position in PCA space?")
 
     args = parser.parse_args()
     traj_file = args.trajectory[0]
@@ -218,7 +218,7 @@ if __name__ == "__main__":
     #truncated_terms = linear_terms[:,0:3]
 
     if cluster:
-        from clustering import perform_DBSCAN
+        from UTILS.clustering import perform_DBSCAN
         labs = perform_DBSCAN(linear_terms, num_confs, traj_file, inputfile, "euclidean")
 
     

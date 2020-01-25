@@ -159,7 +159,7 @@ if __name__ == "__main__":
         representations.append(representation)
 
     #PUT THE NAMES OF YOUR DATA SERIES HERE
-    names = ["Original", "Soft"]
+    names = ["run1", "run2", "run3"]
     
     #print statistical information
     print("task:\t", end='')

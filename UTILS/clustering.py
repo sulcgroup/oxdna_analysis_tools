@@ -119,8 +119,30 @@ def get_centroid(points, num_confs, labs, traj_file, inputfile):
 #There is code for both animating the plot and just having an interactive 3D plot.  Comment out the one you don't want
 def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
     print("INFO: Running DBSCAN...", file=stderr)
-    EPS=12
-    MIN_SAMPLES=10
+    EPS=3
+    MIN_SAMPLES=8
+
+    #prepping to show the plot later
+    #components = perform_pca(points, 3)
+    dimensions = []
+    x = []
+    dimensions.append(x)
+
+    if len(points.shape) > 1:
+        y = []
+        dimensions.append(y)
+
+    if len(points.shape) > 2:
+        z = []
+        dimensions.append(z)
+    
+    for i in points:
+        i = [i]
+        for j, dim in enumerate(dimensions):
+            dim.append(i[j])
+
+    if len(points.shape) == 1:
+        points = points.reshape(-1, 1)
 
     #DBSCAN parameters:
     #eps: the pairwise distance that configurations below are considered neighbors
@@ -136,39 +158,47 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     print ("Number of clusters:", n_clusters_)
 
-    #components = perform_pca(points, 3)
-
-    x = []
-    y = []
-    z = []
-    for i in points:
-        x.append(i[0])
-        y.append(i[1])
-        z.append(i[2])
+    
 
     fig = plt.figure()
-    ax = fig.gca(projection='3d')
+    if len(dimensions) == 3:
+        ax = fig.gca(projection='3d')
+        ax.set_zlabel("component2")
+    else:
+        ax = fig.add_subplot(1, 1, 1)
+
     plt.xlabel("component0")
     plt.ylabel("component1")
-    ax.set_zlabel("component2")
+    
     #to show the plot immediatley and interactivley
     '''a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', 7))
     b = fig.colorbar(a, ax=ax)
     plt.show()
     '''
-    #to make a video showing a rotating plot
-    def init():
-        a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
-        fig.colorbar(a, ax=ax)
-        return fig,
 
-    def animate(i):
-        ax.view_init(elev=10., azim=i)
-        return fig,
+    if len(dimensions) == 3:
+        #to make a video showing a rotating plot
+        def init():
+            a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
+            fig.colorbar(a, ax=ax)
+            return fig,
 
-    anim = animation.FuncAnimation(fig, animate, init_func=init, frames=360, interval=20, blit=True)
+        def animate(i):
+            ax.view_init(elev=10., azim=i)
+            return fig,
 
-    anim.save('animated.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=360, interval=20, blit=True)
+
+        anim.save('animated.mp4', fps=30, extra_args=['-vcodec', 'libx264'])
+
+    else:
+        if len(dimensions) == 1:
+            dimensions.append(np.arange(len(dimensions[0])))
+            a = ax.scatter(dimensions[1], dimensions[0], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
+        else:
+            a = ax.scatter(dimensions[0], dimensions[1], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
+        b = fig.colorbar(a, ax=ax)
+        plt.show()
 
     get_centroid(points, num_confs, labels, traj_file, inputfile)
 

@@ -17,6 +17,7 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
     parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output from DNAnalysis will be dumped to the specified filename')
+    parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the clusterer on each configuration's distance?")
     args = parser.parse_args()
 
     #-i requires 4 arguments, the input file used to run the simulation, the trajectory to analyze, and the two particles to compute the distance between.
@@ -61,6 +62,10 @@ if __name__ == "__main__":
         print("INFO: No graph format specified, defaulting to histogram", file=stderr)
         hist = True
 
+    #-c makes it run the clusterer on the output
+    if args.cluster:
+        cluster = args.cluster
+
     distances = []
 
     #for each input, launch DNAnalysis to use the faster C++ distance calculator
@@ -76,6 +81,7 @@ if __name__ == "__main__":
             if "CRITICAL" in line or "ERROR" in line:
                 print("ERROR: DNAnalysis encountered an error", file=stderr)
                 print(err, file=stderr)
+                exit(1)
         out = out.rstrip()
         distances.append([float(i.split()[1])*0.85 for i in out.strip().split('\n')]) # 1 simulation unit is 0.85 nm
 
@@ -137,4 +143,10 @@ if __name__ == "__main__":
         print("INFO: Writing trajectory plot to file {}".format(out), file=stderr)
         plt.savefig("{}".format(out))
 
-    #if cluster == True:
+    if cluster == True:
+        if len(distances) > 1:
+            print("ERROR: Clustering can only be run on a single trajectory", file=stderr)
+            exit(1)
+        from UTILS.clustering import perform_DBSCAN
+
+        labs = perform_DBSCAN(np.array(distances[0]), len(distances[0]), traj_file, inputfile, "euclidean")

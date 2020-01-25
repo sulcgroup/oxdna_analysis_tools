@@ -15,7 +15,7 @@ import pickle
 import matplotlib.pyplot as plt
 import all_vectors
 import argparse
-from clustering import perform_DBSCAN
+from UTILS.clustering import perform_DBSCAN
 from UTILS import parallelize
 
 #a matrix of vectors in local cylindrical coordinates
