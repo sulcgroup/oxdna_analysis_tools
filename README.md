@@ -59,4 +59,4 @@ To load an overlay, drag and drop the json file along with the configuration and
 ## Citation
 
 If you use these scripts or oxView in your published work, please cite:<br/>
-PAPER CITATION HERE
+Erik Poppleton, Joakim Bohlin, Michael Matthies, Shuchi Sharma, Fei Zhang, Petr Sulc: Design, optimization, and analysis of large DNA and RNA nanostructures through interactive visualization, editing, and molecular simulation (bioarxiv preprint: https://doi.org/10.1101/2020.01.24.91741)
