@@ -56,6 +56,12 @@ The UTILS directory contains utility modules used by other scripts in this packa
 Many scripts in this package produce data overlay json files that can be used with [oxView](https://github.com/sulcgroup/oxdna-viewer).
 To load an overlay, drag and drop the json file along with the configuration and topology files, or drag and drop the json file once the load is completed.
 
+## A note on defaults
+The config.py script needs to be modified to contain your own path to DNAnalysis.  If you are pushing modifications back to GitHub, you need to set `git update-index --skip-worktree config.py` so that your changes don't overwrite other user's path when they do a pull. See:  
+https://stackoverflow.com/questions/4348590/how-can-i-make-git-ignore-future-revisions-to-a-file
+
+The function used to bring structures back in the simulation box, inbox_system() in UTILS/base.py requires a reference nucleotide to overcome the combination of periodic boundary conditions and fix_diffusion artifacts.  This nucleotide should be something in the center of the structure as a particle on the edge can cause improper inboxing.  The ID of the reference is hard-coded in the script, so if you encounter issues with your structure and periodic boundaries, change this number.
+
 ## Citation
 
 If you use these scripts or oxView in your published work, please cite:<br/>
