@@ -167,19 +167,19 @@ if __name__ == "__main__":
     print("")
 
     print("mean:\t", end='')
-    [print("{}\t".format(m), end='') for m in means]
+    [print("{:.2f}\t".format(m), end='') for m in means]
     print("")
 
     print("stdevs:\t", end='')
-    [print("{}\t".format(s), end='') for s in stdevs]
+    [print("{:.2f}\t".format(s), end='') for s in stdevs]
     print("")
 
     print("median:\t", end='')
-    [print("{}\t".format(m), end='') for m in medians]
+    [print("{:.2f}\t".format(m), end='') for m in medians]
     print("")
 
     print("freqs:\t", end='')
-    [print("{}\t".format(r), end='') for r in representations]
+    [print("{:.2f}\t".format(r), end='') for r in representations]
     print("")
 
     #make a histogram

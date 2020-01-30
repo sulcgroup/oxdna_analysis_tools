@@ -68,10 +68,33 @@ if __name__ == "__main__":
 
     distances = []
 
-    #for each input, launch DNAnalysis to use the faster C++ distance calculator
-    for i,inputfile, traj_file, particle_1, particle_2 in zip(range(len(inputfiles)), inputfiles, trajectories, p1s, p2s):
-        command_for_data = 'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=step \n} \n col_2 = { \n type=distance \n particle_1='+str(particle_1)+'\n particle_2='+str(particle_2)+'\n PBC=true \n} \n}'
+    #Analyze each trajectory seperatley if they're not all the same
+    if not all([x == trajectories[0] for x in trajectories]):
+        #for each input, launch DNAnalysis to use the faster C++ distance calculator
+        for i,inputfile, traj_file, particle_1, particle_2 in zip(range(len(inputfiles)), inputfiles, trajectories, p1s, p2s):
+            command_for_data = 'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=step \n} \n col_2 = { \n type=distance \n particle_1='+str(particle_1)+'\n particle_2='+str(particle_2)+'\n PBC=true \n} \n}'
+            launchargs = [PROCESSPROGRAM,inputfile ,'trajectory_file='+traj_file,command_for_data]
+            print("INFO: running DNAnalysis on file {}...".format(traj_file), file=stderr)
+            myinput = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+            out = myinput.stdout
+            err = myinput.stderr
+            for line in err.split('\n'):
+                if "CRITICAL" in line or "ERROR" in line:
+                    print("ERROR: DNAnalysis encountered an error", file=stderr)
+                    print(err, file=stderr)
+                    exit(1)
+            out = out.rstrip()
+            distances.append([float(i.split()[1])*0.85 for i in out.strip().split('\n')]) # 1 simulation unit is 0.85 nm
 
+    #if all trajectory files are the same file, just run distance once
+    else:
+        traj_file = trajectories[0]
+        inputfile = inputfiles[0]
+        command_for_data = 'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=step \n} \n' 
+        for i, (particle_1, particle_2) in enumerate(zip(p1s, p2s)):
+            command_for_data = command_for_data + 'col_' + str(i+2) + ' = { \n type=distance \n particle_1='+str(particle_1) + '\n particle_2=' + str(particle_2) + '\n PBC=true \n} \n'
+        
+        command_for_data = command_for_data + '\n}'
         launchargs = [PROCESSPROGRAM,inputfile ,'trajectory_file='+traj_file,command_for_data]
         print("INFO: running DNAnalysis on file {}...".format(traj_file), file=stderr)
         myinput = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
@@ -83,8 +106,11 @@ if __name__ == "__main__":
                 print(err, file=stderr)
                 exit(1)
         out = out.rstrip()
-        distances.append([float(i.split()[1])*0.85 for i in out.strip().split('\n')]) # 1 simulation unit is 0.85 nm
-
+        out = out.strip().split('\n')
+        for i,_ in enumerate(p1s):
+            distances.append([float(l.split()[i+1])*0.85 for l in out])
+    
+    
     # -d will dump the DNAnalysis output to a text file.
     if args.data:
         datafile = args.data[0]
@@ -144,9 +170,9 @@ if __name__ == "__main__":
         plt.savefig("{}".format(out))
 
     if cluster == True:
-        if len(distances) > 1:
+        if not all([x == trajectories[0] for x in trajectories]):
             print("ERROR: Clustering can only be run on a single trajectory", file=stderr)
             exit(1)
         from UTILS.clustering import perform_DBSCAN
 
-        labs = perform_DBSCAN(np.array(distances[0]), len(distances[0]), traj_file, inputfile, "euclidean")
+        labs = perform_DBSCAN(np.array(distances).T, len(distances[0]), traj_file, inputfile, "euclidean")

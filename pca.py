@@ -8,7 +8,7 @@
 
 import numpy as np 
 from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
-from sys import exit
+from sys import exit, stderr
 import argparse
 from json import load, dumps
 from Bio.SVDSuperimposer import SVDSuperimposer
@@ -72,7 +72,7 @@ def get_pca(reader, align_conf, num_confs, start=None, stop=None):
     #for every configuration in the trajectory chunk, align it to the mean and compute positional difference for every particle
     while mysystem != False and confid < stop:
         print("-->", mysystem._time)
-        #mysystem.inbox_system()
+        mysystem.inbox_system()
         cur_conf = fetch_np(mysystem)
         sup.set(align_conf, cur_conf)
         sup.run()
@@ -98,6 +98,7 @@ def change_basis(reader, align_conf, num_confs, start=None, stop=None):
     mysystem = reader._get_system(N_skip=start)
     i = 0
     sup = SVDSuperimposer()
+    alignment_pancake = align_conf.flatten()
     while mysystem != False and i < stop:
         print("-->", mysystem._time)
         mysystem.inbox_system()
@@ -110,7 +111,7 @@ def change_basis(reader, align_conf, num_confs, start=None, stop=None):
         cur_conf = cur_conf.flatten()
         with catch_warnings(): #this produces an annoying warning about casting complex values to real values that is not relevant
             simplefilter("ignore")
-            linear_terms[i] = np.linalg.solve(evectors, cur_conf)
+            linear_terms[i] = np.linalg.solve(evectors, alignment_pancake - cur_conf)
         i += 1
         mysystem = reader._get_system()
 
@@ -133,6 +134,8 @@ if __name__ == "__main__":
     parallel = args.parallel
     if parallel:
         n_cpus = args.parallel[0]
+    if args.cluster:
+        cluster = args.cluster
     top_file = get_input_parameter(inputfile, "topology")
     if "RNA" in get_input_parameter(inputfile, "interaction_type"):
         environ["OXRNA"] = "1"
@@ -150,39 +153,42 @@ if __name__ == "__main__":
         fetch_np = lambda conf: np.array([
             n.cm_pos for n in conf._nucleotides
         ])
-        with LorenzoReader2(conf_file, top_file) as reader:
+        with LorenzoReader2(traj_file, top_file) as reader:
             s = reader._get_system()
             align_conf = fetch_np(s)
 
     cms = compute_cms(align_conf) #all structures must have the same center of mass
     align_conf -= cms 
         
+    #Compute the deviations
     if not parallel:
         r = LorenzoReader2(traj_file,top_file)
         deviations_matrix = get_pca(r, align_conf, num_confs)
     
     if parallel:
-        out = parallelize.fire_multiprocess(conf_file, top_file, get_pca, num_confs, n_cpus, align_conf)
+        out = parallelize.fire_multiprocess(traj_file, top_file, get_pca, num_confs, n_cpus, align_conf)
         deviations_matrix = np.concatenate([i for i in out])
     
     #now that we have the deviations matrix we're gonna get the covariance and PCA it
     #note that in the future we might want a switch for covariance vs correlation matrix because correlation (cov/stdev so all diagonals are 1) is better for really floppy structures
-    print("calculating covariance")
+    print("INFO: calculating covariance", file=stderr)
     covariance = np.cov(deviations_matrix.T)
     #make_heatmap(covariance)
-    print("calculating eigenvectors")
+    print("INFO: calculating eigenvectors", file=stderr)
     evalues, evectors = np.linalg.eig(covariance)
     sort = evalues.argsort()[::-1]
     evalues = evalues[sort]
     evectors = evectors[sort].T
-    print("eigenvectors calculated")
+    print("INFO: eigenvectors calculated", file=stderr)
     
     import matplotlib.pyplot as plt
+    print("INFO: Saving scree plot to scree.png", file=stderr)
     plt.scatter(range(0, len(evalues)), evalues, s=6)
     plt.xlabel("component")
     plt.ylabel("eigenvalue")
     plt.savefig("scree.png")
 
+    print("INFO: Creating coordinate plot from first three eigenvectors.  Saving to coordinates.png", file=stderr)
     mul = np.einsum('ij,i->ij',evectors[0:3], evalues[0:3])
     out = np.matmul(deviations_matrix, mul.T).astype(float)
     from mpl_toolkits.mplot3d import Axes3D
@@ -191,8 +197,10 @@ if __name__ == "__main__":
     ax.scatter(out[:,0], out[:,1], out[:,2], c='g', s=25)
     plt.savefig("coordinates.png")
     
+    SUM = 1
+    print("INFO: Change the number of eigenvalues to sum and display by modifying the SUM variable in the script.  Current value: {}".format(SUM), file=stderr)
     weighted_sum = np.zeros_like(evectors[0])
-    for i in range(0, 1): #how many eigenvalues do you want?
+    for i in range(0, SUM): #how many eigenvalues do you want?
         weighted_sum += evalues[i]*evectors[i]
 
     prep_pos_for_json = lambda conf: list(
@@ -206,18 +214,21 @@ if __name__ == "__main__":
             "pca" : prep_pos_for_json(output_vectors)
         }))
 
-    #Now we're going to reconstruct each conf from the eigenvectors and use those weights to cluster the structures
-    if not parallel:
-        r = LorenzoReader2(traj_file,top_file)
-        linear_terms = change_basis(r, align_conf, num_confs)
-
-    if parallel:
-        out = parallelize.fire_multiprocess(traj_file, top_file, change_basis, num_confs, n_cpus, align_conf)
-        linear_terms = np.concatenate([i for i in out])
-
-    #truncated_terms = linear_terms[:,0:3]
-
+    #If we're running clustering, feed the linear terms into the clusterer
     if cluster:
+        print("INFO: Mapping configurations to component space...", file=stderr)
+        #Now we're going to reconstruct each conf from the eigenvectors and use those weights to cluster the structures
+        if not parallel:
+            r = LorenzoReader2(traj_file,top_file)
+            linear_terms = change_basis(r, align_conf, num_confs)
+
+        if parallel:
+            out = parallelize.fire_multiprocess(traj_file, top_file, change_basis, num_confs, n_cpus, align_conf)
+            linear_terms = np.concatenate([i for i in out]) #this seems to take forever??
+
+        #If you want to cluster on only some of the components, change this and switch out the input to DBSCAN below
+        #truncated_terms = linear_terms[:,0:3]
+
         from UTILS.clustering import perform_DBSCAN
         labs = perform_DBSCAN(linear_terms, num_confs, traj_file, inputfile, "euclidean")
 
