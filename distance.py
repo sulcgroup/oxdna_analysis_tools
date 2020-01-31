@@ -63,8 +63,7 @@ if __name__ == "__main__":
         hist = True
 
     #-c makes it run the clusterer on the output
-    if args.cluster:
-        cluster = args.cluster
+    cluster = args.cluster
 
     distances = []
 
