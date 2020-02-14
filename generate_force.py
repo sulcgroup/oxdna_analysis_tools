@@ -29,7 +29,9 @@ else:
     print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
 
 if args.pairs:
-    pairsfile = args.pairs[0]     
+    pairsfile = args.pairs[0]
+else:
+    pairsfile = False     
 
 #Get relevant parameters from the input file
 top_file = get_input_parameter(inputfile, "topology")
