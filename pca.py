@@ -86,37 +86,6 @@ def get_pca(reader, align_conf, num_confs, start=None, stop=None):
 
     return deviations_matrix
 
-def change_basis(reader, align_conf, num_confs, start=None, stop=None):
-    if stop is None:
-        stop = num_confs
-    else: stop = int(stop)
-    if start is None:
-        start = 0
-    else: start = int(start)
-
-    linear_terms = np.empty((stop, len(evectors[1])))
-    mysystem = reader._get_system(N_skip=start)
-    i = 0
-    sup = SVDSuperimposer()
-    alignment_pancake = align_conf.flatten()
-    while mysystem != False and i < stop:
-        print("-->", mysystem._time)
-        mysystem.inbox_system()
-        cur_conf = fetch_np(mysystem)
-        sup.set(align_conf, cur_conf)
-        sup.run()
-        rot, tran = sup.get_rotran()
-        #equivalent to taking the dot product of the rotation array and every vector in the deviations array
-        cur_conf = np.einsum('ij, ki -> kj', rot, cur_conf) + tran
-        cur_conf = cur_conf.flatten()
-        with catch_warnings(): #this produces an annoying warning about casting complex values to real values that is not relevant
-            simplefilter("ignore")
-            linear_terms[i] = np.linalg.solve(evectors, alignment_pancake - cur_conf)
-        i += 1
-        mysystem = reader._get_system()
-
-    return linear_terms
-
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculates a principal component analysis of nucleotide deviations over a trajectory")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
@@ -153,7 +122,7 @@ if __name__ == "__main__":
         fetch_np = lambda conf: np.array([
             n.cm_pos for n in conf._nucleotides
         ])
-        with LorenzoReader2(traj_file, top_file) as reader:
+        with LorenzoReader2(mean_file, top_file) as reader:
             s = reader._get_system()
             align_conf = fetch_np(s)
 
@@ -189,14 +158,21 @@ if __name__ == "__main__":
     plt.savefig("scree.png")
 
     print("INFO: Creating coordinate plot from first three eigenvectors.  Saving to coordinates.png", file=stderr)
-    mul = np.einsum('ij,i->ij',evectors[0:3], evalues[0:3])
+    #if you want to weight the components by their eigenvectors
+    #mul = np.einsum('ij,i->ij',evectors[0:3], evalues[0:3])
+    mul = evectors
+
+    #reconstruct configurations in component space
     out = np.matmul(deviations_matrix, mul.T).astype(float)
+
+    #make a quick plot from the first three components
     from mpl_toolkits.mplot3d import Axes3D
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.scatter(out[:,0], out[:,1], out[:,2], c='g', s=25)
     plt.savefig("coordinates.png")
     
+    #Create an oxView overlay showing the first SUM
     SUM = 1
     print("INFO: Change the number of eigenvalues to sum and display by modifying the SUM variable in the script.  Current value: {}".format(SUM), file=stderr)
     weighted_sum = np.zeros_like(evectors[0])
@@ -217,19 +193,11 @@ if __name__ == "__main__":
     #If we're running clustering, feed the linear terms into the clusterer
     if cluster:
         print("INFO: Mapping configurations to component space...", file=stderr)
-        #Now we're going to reconstruct each conf from the eigenvectors and use those weights to cluster the structures
-        if not parallel:
-            r = LorenzoReader2(traj_file,top_file)
-            linear_terms = change_basis(r, align_conf, num_confs)
-
-        if parallel:
-            out = parallelize.fire_multiprocess(traj_file, top_file, change_basis, num_confs, n_cpus, align_conf)
-            linear_terms = np.concatenate([i for i in out]) #this seems to take forever??
 
         #If you want to cluster on only some of the components, uncomment this
-        #linear_terms = linear_terms[:,0:3]
+        #out = out[:,0:3]
 
-        from UTILS.clustering import perform_DBSCAN
-        labs = perform_DBSCAN(linear_terms, num_confs, traj_file, inputfile, "euclidean")
+        from clustering import perform_DBSCAN
+        labs = perform_DBSCAN(out, num_confs, traj_file, inputfile, "euclidean")
 
     

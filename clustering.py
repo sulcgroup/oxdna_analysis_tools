@@ -247,17 +247,16 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
 
     plt.xlabel("OP0")
     plt.ylabel("OP1")
-   
-    #to show the plot immediatley and interactivley
-    '''a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', 7))
-    b = fig.colorbar(a, ax=ax)
-    plt.show()
-    '''
 
     if len(dimensions) == 3:
-        plot_file = "animated.mp4"
         ax.set_zlabel("OP2")
+        #to show the plot immediatley and interactivley
+        '''a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', 7))
+        b = fig.colorbar(a, ax=ax)
+        plt.show()'''
+        
         #to make a video showing a rotating plot
+        plot_file = "animated.mp4"
         def init():
             a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
             fig.colorbar(a, ax=ax)
