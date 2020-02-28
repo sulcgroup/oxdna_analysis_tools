@@ -85,7 +85,7 @@ def split_trajectory(traj_file, inputfile, labs, n_clusters):
 
         #for making trajectories of each cluster
         try:
-            remove(trajfile_name)
+            remove("cluster_"+str(cluster)+".dat")
         except: pass
 
     confid = 0

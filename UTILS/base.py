@@ -10,6 +10,7 @@ base.py includes the classes: System, Strand, Nucleotide
 """
 import sys, os
 import numpy as np
+from config import INBOXING_REFERENCE_PARTICLE
 
 def partition(s, d):
     if d in s:
@@ -1017,9 +1018,8 @@ class System(object):
         return
 
     #brings the system in box such that the first nucleotide is in the box and attempts to keep the structure contiguous.
-    #if this results in a broken structure, change _nucleotides[0] to _nucleotides[<something in the middle of the structure>]
     def inbox_system(self):
-        ref_pos = np.array(self._nucleotides[0].cm_pos) #<-- change this line if structure is broken or script crashes
+        ref_pos = np.array(self._nucleotides[INBOXING_REFERENCE_PARTICLE].cm_pos) #<-- change this line if structure is broken or script crashes
         for n in self._strands[0]._nucleotides:
             n.cm_pos = n.cm_pos - ref_pos
         for s in self._strands[1:]:

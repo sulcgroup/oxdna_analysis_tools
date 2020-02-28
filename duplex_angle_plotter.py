@@ -48,6 +48,8 @@ if __name__ == "__main__":
         print(e)
         parser.print_help()
         exit(1)
+    
+    n_angles = len(p1s)
 
     #Make sure that the input is correctly formatted
     if(len(files) != len(p1s) != len(p2s)):
@@ -135,7 +137,7 @@ if __name__ == "__main__":
                 if l[2] == search1 or l[3] == search1:
                     axis1 = np.array([float(l[6]), float(l[7]), float(l[8])])
                 if l[2] == search2 or l[3] == search2:
-                    axis2 = np.array([float(l[6]), float(l[7]), float(l[8])])
+                    axis2 = -1*np.array([float(l[6]), float(l[7]), float(l[8])])
 
                 #once both are found, add them to angle list
                 if np.linalg.norm(axis1) > 0 and np.linalg.norm(axis2) > 0:
@@ -158,12 +160,23 @@ if __name__ == "__main__":
         stdevs.append(stdev)
         representations.append(representation)
 
+    for i, m in enumerate(means):
+        if m > 90:
+            all_angles[i] = [180 - a for a in all_angles[i]]
+            means[i] = 180 - m
+            medians[i] = 180 - medians[i]
+
     #PUT THE NAMES OF YOUR DATA SERIES HERE
-    names = ["run1", "run2", "run3"]
-    
+    names = ["1", "2", "3", "4", "5", "6", "7", "8"]
+    print("INFO: Name your data series by modifying the \"names\" variable in the script", file=stderr)
+    if len(names) < n_angles:
+        print("ERROR: Not enough names provided.  There are {} items in the names list and {} data series".format(len(names), n_angles), file=stderr)
+        print("INFO: Defaulting to particle IDs as data series names")
+        names = ["{}-{}".format(p1, p2) for p1, p2 in zip(p1s, p2s)]
+
     #print statistical information
-    print("task:\t", end='')
-    [print("{}\t".format(t), end='') for t in names]
+    print("name:\t", end='')
+    [print("{}\t".format(t), end='') for t in names[:n_angles]]
     print("")
 
     print("mean:\t", end='')
@@ -191,8 +204,6 @@ if __name__ == "__main__":
             out = outfile
     
         bins = np.linspace(0, 180, 60)
-
-        print("NOTE: Name your data series by modifying the \"names\" variable in the script", file=stderr)
     
         artists = []
         for i,alist in enumerate(all_angles):

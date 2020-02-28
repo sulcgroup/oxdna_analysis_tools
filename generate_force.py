@@ -11,7 +11,7 @@ from UTILS.readers import LorenzoReader2, get_input_parameter
 
 parser = argparse.ArgumentParser(description="Create an external forces file enforcing the current base-pairing arrangement")
 parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
-parser.add_argument('trajectory', type=str, nargs=1, help="The trajectory file from the simulation")
+parser.add_argument('configuration', type=str, nargs=1, help="The configuration to generate the forces from")
 parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the angle list to')
 parser.add_argument('-f', '--pairs', type=str, nargs=1, help='name of the file to write the designed pairs list to')
 
@@ -19,7 +19,7 @@ args = parser.parse_args()
 
 #Process command line arguments:
 inputfile = args.inputfile[0]
-conf_file = args.trajectory[0]
+conf_file = args.configuration[0]
 
 #-o names the output file
 if args.output:

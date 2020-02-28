@@ -226,8 +226,8 @@ if __name__ == "__main__":
             out = parallelize.fire_multiprocess(traj_file, top_file, change_basis, num_confs, n_cpus, align_conf)
             linear_terms = np.concatenate([i for i in out]) #this seems to take forever??
 
-        #If you want to cluster on only some of the components, change this and switch out the input to DBSCAN below
-        #truncated_terms = linear_terms[:,0:3]
+        #If you want to cluster on only some of the components, uncomment this
+        #linear_terms = linear_terms[:,0:3]
 
         from UTILS.clustering import perform_DBSCAN
         labs = perform_DBSCAN(linear_terms, num_confs, traj_file, inputfile, "euclidean")
