@@ -4,7 +4,7 @@ A suite of Python tools for performing generic structural analyses of oxDNA simu
 Our goal in developing these tools is to provide a foundation of common analyses applicable to most simulations and to provide code examples for researchers looking to implement tools to meet their own research needs.
 Running any script without arguments will print a brief description and list of required files.
 
-An overarching description can be found at INSERT PAPER LINK HERE.
+An overarching description can be found in our preprint: https://doi.org/10.1101/2020.01.24.917419.
 
 
 ## Dependencies
