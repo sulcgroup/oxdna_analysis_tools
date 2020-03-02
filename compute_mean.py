@@ -110,10 +110,12 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
     while mysystem != False and confid < stop:
         mysystem.inbox_system()
         cur_conf_pos = fetch_np(mysystem)
+        indexed_cur_conf_pos = indexed_fetch_np(mysystem)
         cur_conf_a1 =  fetch_a1(mysystem)
         cur_conf_a3 =  fetch_a3(mysystem)
+
         # calculate alignment
-        sup.set(align_conf, cur_conf_pos)
+        sup.set(align_conf, indexed_cur_conf_pos)
         sup.run()
         rot, tran = sup.get_rotran()
         # align structures and collect global mean
@@ -124,8 +126,7 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
             poses[i] = nucleotide_position
             a1 = normalize(np.dot(a1,rot))
             a3 = normalize(np.dot(a3,rot))
-            #if (np.linalg.norm(nucleotide_position) > 200):
-            #    print(i, nucleotide_position)
+
             # collect values
             mean_nucleotide_pos += nucleotide_position
             mean_a1 += a1
@@ -160,7 +161,15 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the mean structure to')
     parser.add_argument('-f', '--format', metavar='<json/oxDNA/both>', nargs=1, help='Output format for the mean file.  Defaults to json.  Options are \"json\", \"oxdna/oxDNA\", and \"both\"')
     parser.add_argument('-d', '--deviations', metavar='deviation_file', nargs=1, help='Immediatley run compute_deviations.py from the output')
+    parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
     args = parser.parse_args()
+
+    #get file names
+    top_file  = args.topology[0]
+    traj_file = args.trajectory[0]
+    parallel = args.parallel
+    if parallel:
+        n_cpus = args.parallel[0]
 
     #-f defines the format of the output file
     outjson = False
@@ -197,9 +206,27 @@ if __name__ == "__main__":
     dev_file = None
     if args.deviations:
         dev_file = args.deviations[0]
+
+    #-i will make it only run on a subset of nucleotides.
+    #The index file is a space-separated list of particle IDs
+    if args.index_file:
+        index_file = args.index_file[0]
+        with open(index_file, 'r') as f:
+            indexes = f.readline().split()
+            try:
+                indexes = [int(i) for i in indexes]
+            except:
+                print("ERROR: The index file must be a space-seperated list of particles.  These can be generated using oxView by clicking the \"Download Selected Base List\" button")
+    else: 
+        with open(top_file, 'r') as f:
+            indexes = list(range(f.readline()[0]))
     
 
     # helpers to fetch nucleotide positions and orientations
+    indexed_fetch_np = lambda conf: np.array([
+        n.cm_pos for n in conf._nucleotides if n.index in indexes
+    ])
+
     fetch_np = lambda conf: np.array([
         n.cm_pos for n in conf._nucleotides
     ])
@@ -223,13 +250,6 @@ if __name__ == "__main__":
     # before the mean structure can be calculated
     align_conf = []
 
-    #get file names
-    top_file  = args.topology[0]
-    traj_file = args.trajectory[0]
-    parallel = args.parallel
-    if parallel:
-        n_cpus = args.parallel[0]
-
     #calculate the number of configurations in the trajectory 
     num_confs = cal_confs(traj_file)
 
@@ -242,7 +262,7 @@ if __name__ == "__main__":
     if align_conf == []:
         align_conf_id, align_conf = pick_starting_configuration(traj_file, top_file, num_confs)
         # we are just interested in the nucleotide positions
-        align_conf = fetch_np(align_conf)
+        align_conf = indexed_fetch_np(align_conf)
         # calculate the cms of the init structure
         cms = compute_cms(align_conf)
         # now shift the structure to 0,0,0 for simplicity
