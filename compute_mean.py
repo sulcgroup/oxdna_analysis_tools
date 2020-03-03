@@ -98,13 +98,11 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
     # the class doing the alignment of 2 structures
     sup = SVDSuperimposer()
 
-    mean_pos_storage = np.array([np.zeros(3) for _ in align_conf])
-    mean_a1_storage  = np.array([np.zeros(3) for _ in align_conf])
-    mean_a3_storage  = np.array([np.zeros(3) for _ in align_conf])
+    mean_pos_storage = np.array([np.zeros(3) for _ in range(n_nuc)])
+    mean_a1_storage  = np.array([np.zeros(3) for _ in range(n_nuc)])
+    mean_a3_storage  = np.array([np.zeros(3) for _ in range(n_nuc)])
 
     # for every conf in the current trajectory we calculate the global mean
-
-    poses = np.array([np.zeros(3) for _ in align_conf])
     confid = 0
 
     while mysystem != False and confid < stop:
@@ -119,19 +117,14 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
         sup.run()
         rot, tran = sup.get_rotran()
         # align structures and collect global mean
-        i=0
-        for nucleotide_position, a1, a3, mean_nucleotide_pos, mean_a1, mean_a3 in zip(cur_conf_pos, cur_conf_a1, cur_conf_a3, mean_pos_storage, mean_a1_storage, mean_a3_storage):
-            # align to reference
-            nucleotide_position = np.dot(nucleotide_position,rot) + tran
-            poses[i] = nucleotide_position
-            a1 = normalize(np.dot(a1,rot))
-            a3 = normalize(np.dot(a3,rot))
+        #i=0
 
-            # collect values
-            mean_nucleotide_pos += nucleotide_position
-            mean_a1 += a1
-            mean_a3 += a3
-            i+=1
+        cur_conf_pos = np.einsum('ij, ki -> kj', rot, cur_conf_pos) + tran
+        cur_conf_a1 = np.einsum('ij, ki -> kj', rot, cur_conf_a1)
+        cur_conf_a3 = np.einsum('ij, ki -> kj', rot, cur_conf_a3)
+        mean_pos_storage += cur_conf_pos
+        mean_a1_storage += cur_conf_a1
+        mean_a3_storage += cur_conf_a3
 
         # print the rmsd of the alignment in case anyone is interested...
         print("Frame:", confid, "Time:", mysystem._time, "RMSF:", sup.get_rms())
@@ -219,7 +212,7 @@ if __name__ == "__main__":
                 print("ERROR: The index file must be a space-seperated list of particles.  These can be generated using oxView by clicking the \"Download Selected Base List\" button")
     else: 
         with open(top_file, 'r') as f:
-            indexes = list(range(f.readline()[0]))
+            indexes = list(range(int(f.readline().split(' ')[0])))
     
 
     # helpers to fetch nucleotide positions and orientations
@@ -261,6 +254,7 @@ if __name__ == "__main__":
     # and realign its cms to be @ 0,0,0
     if align_conf == []:
         align_conf_id, align_conf = pick_starting_configuration(traj_file, top_file, num_confs)
+        n_nuc = align_conf._N
         # we are just interested in the nucleotide positions
         align_conf = indexed_fetch_np(align_conf)
         # calculate the cms of the init structure
