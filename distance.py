@@ -6,7 +6,6 @@ from sys import exit, stderr
 import subprocess
 import argparse
 import matplotlib.pyplot as plt
-from config import PROCESSPROGRAM
 from UTILS.readers import get_input_parameter
 import time
 start = time.time()
