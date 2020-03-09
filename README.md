@@ -30,7 +30,7 @@ Running instructions can be obtained for all scripts by running them with no arg
  * `clustering.py` \<serialized data input> Takes a set of configuration coordinates from other scripts and performs a DBSCAN clustering.  Produces trajectory files for each cluster and a visual representation of the clusters.  The -c option on pca.py and distance.py will call this script, which serializes its own data so you can re-launch the script to modify clustering parameters without re-running the analysis.<br/>
  * `compute_mean.py` (-p \<n_cpus> -f \<oxDNA/json/both> -o \<mean file> -d \<deviations file>) \<trajectory file> \<topology> Produces the mean structure of a trajectory via single-value decomposition superposition.
  * `compute_deviations.py`(-p \<n_cpus> -o \<deviations file>) \<mean structure> \<trajectory file> \<topology> Computes the per-nucleotide RMSF from the mean structure.  Can be called automatically by compute_mean with the -d option.
- * `config.py` Contains system specific information.  Update before you start running these scripts.
+ * `config.py` Contains system specific information.  Update before you start running these scripts.  Running with no arguments will run a dependency check on your environment.
  * `contact_map.py` (-v) \<input> \<trajectory> produces a visual contact map of internucleotide distances if the -v option is given.  Otherwise lists all distances.<br/>
  * `distance.py` (-o \<output> -f \<histogram/trajectory/both> -d \<data file output>) -i \<\<input> \<trajectory> \<particleID 1> \<particleID 2>> The -i option can be called as many times as needed.  Additional calls will be overlaid on the same graph. Produces the user's choice of histograms, timeseries or text outputs (set by -f and -d options).<br/>
  * `duplex_angle_finder.py` (-p \<n_cpus> -o \<output>) \<input> \<trajectory> Produces a text file containing identification information for all duplexes at each configuration in the trajectory.<br/>
@@ -63,7 +63,7 @@ To load an overlay, drag and drop the json file along with the configuration and
 The config.py script needs to be modified to contain your own path to DNAnalysis.  If you are pushing modifications back to GitHub, you need to set `git update-index --skip-worktree config.py` so that your changes don't overwrite other user's path when they do a pull. See:  
 https://stackoverflow.com/questions/4348590/how-can-i-make-git-ignore-future-revisions-to-a-file
 
-The function used to bring structures back in the simulation box, `inbox_system()` in UTILS/base.py requires a reference nucleotide to overcome the combination of periodic boundary conditions and fix_diffusion artifacts.  This nucleotide should be something in the center of the structure as a particle on the edge can cause improper inboxing.  The ID of the reference is hard-coded in the script, so if you encounter issues with your structure and periodic boundaries, change this number.
+The function used to bring structures back in the simulation box, `inbox_system()` in UTILS/base.py requires a reference nucleotide to overcome the combination of periodic boundary conditions and fix_diffusion artifacts.  This nucleotide should be something in the center of the structure as a particle on the edge can cause improper inboxing.  The ID of the reference is set in config.py, so if you encounter issues with your structure and periodic boundaries, change this number.
 
 ## Citation
 
