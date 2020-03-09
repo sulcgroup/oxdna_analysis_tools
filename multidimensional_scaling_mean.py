@@ -139,6 +139,9 @@ if __name__ == "__main__":
     else:
         environ["OXRNA"] = "0"
 
+    from config import check_dependencies
+    check_dependencies(["python", "numpy"])
+
     import UTILS.base #this needs to be imported after the model type is set
 
     #get the number of configurations in the trajectory

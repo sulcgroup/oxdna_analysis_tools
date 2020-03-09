@@ -39,6 +39,9 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
     args = parser.parse_args()
 
+    from config import check_dependencies
+    check_dependencies(["python", "numpy", "matplotlib"])
+
     try:
         files = [i[0] for i in args.input]
         p1s = [i[1] for i in args.input]

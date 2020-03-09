@@ -7,7 +7,8 @@ import tempfile
 import numpy as np
 from functools import partial
 
-from config import PROCESSPROGRAM
+from config import set_analysis_path
+PROCESSPROGRAM = set_analysis_path()
 
 def all_vectors (inputfile, mysystem, return_full_matrix):
     tempfile_obj = tempfile.NamedTemporaryFile()
@@ -44,12 +45,15 @@ def all_vectors (inputfile, mysystem, return_full_matrix):
 if __name__ == "__main__":
     #doesn't actually do anything...
     import argparse
-    from UTILS.readers import LorenzoReader2
+    from UTILS.readers import LorenzoReader2, get_input_parameter
     parser = argparse.ArgumentParser(description="A python wrapper for getting all vectors between nucleotides from a simulation")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
-
     args = parser.parse_args()
+
+    from config import check_dependencies
+    check_dependencies(["python", "numpy"])
+
     inputfile = args.inputfile[0]
     traj_file = args.trajectory[0]
 

@@ -24,6 +24,12 @@ parser.add_argument('topology', type=str, nargs=1, help="The topology file corre
 parser.add_argument('outfile', type=str, nargs=1, help='The name of the new trajectory file to write out')
 args = parser.parse_args()
 
+#run system checks
+from config import check_dependencies
+check_dependencies(["python", "numpy", "Bio"])
+from config import set_reference
+INBOXING_REFERENCE_PARTICLE = set_reference()
+
 #prepare the data files and calculate how many configurations there are to align
 top_file = args.topology[0]
 traj_file = args.traj[0]

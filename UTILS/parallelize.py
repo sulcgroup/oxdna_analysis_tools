@@ -98,6 +98,9 @@ def fire_multiprocess(traj_file, top_file, function, num_confs, n_cpus, *args):
 
     Note: The manner in which to concatenate the results is function-specific so should be handled in the calling module.
     """
+
+    from config import check_dependencies
+    check_dependencies(["pathos"])
     confs_per_processor = int(np.floor(num_confs/n_cpus))
 
     reader_pool = []

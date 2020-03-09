@@ -99,6 +99,10 @@ if __name__ == "__main__":
     parser.add_argument('output_file', type=str, nargs=1, help="name of the file to save the output json to")
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     
+    #run system checks
+    from config import check_dependencies
+    check_dependencies(["python", "numpy"])
+
     args = parser.parse_args()
     inputfile = args.inputfile[0]
     traj_file = args.trajectory[0]

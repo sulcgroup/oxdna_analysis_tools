@@ -22,8 +22,12 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculate the 'most normal' configuration in a trajectory")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
-
     args = parser.parse_args()
+
+    #run system checks
+    from config import check_dependencies
+    check_dependencies(["python", "numpy"])
+
     traj_file = args.trajectory[0]
     inputfile = args.inputfile[0]
     top_file = get_input_parameter(inputfile, "topology")

@@ -7,8 +7,6 @@ import subprocess
 import argparse
 import matplotlib.pyplot as plt
 from UTILS.readers import get_input_parameter
-import time
-start = time.time()
 
 #Calculates distance taking PBC into account
 def min_image(p1, p2, box):
@@ -28,6 +26,9 @@ if __name__ == "__main__":
     parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a tsv to this filename')
     parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the clusterer on each configuration's distance?")
     args = parser.parse_args()
+
+    from config import check_dependencies
+    check_dependencies(["python", "matplotlib", "numpy"])
 
     #-i requires 4 or more arguments, the topology file of the structure, the trajectory to analyze, and any number of particle pairs to compute the distance between.
     try:

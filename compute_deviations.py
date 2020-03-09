@@ -75,6 +75,12 @@ if __name__ == "__main__":
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the deviations json file to')
     args = parser.parse_args()
 
+    #system check
+    from config import check_dependencies
+    check_dependencies(["python", "Bio", "numpy"])
+    from config import set_reference
+    INBOXING_REFERENCE_PARTICLE = set_reference()
+
     #-o names the output file
     if args.output:
         outfile = args.output[0].strip()

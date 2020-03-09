@@ -52,6 +52,10 @@ if __name__ == "__main__":
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     args = parser.parse_args()
 
+    #run system checks
+    from config import check_dependencies
+    check_dependencies(["python", "numpy"])
+
     top_file  = args.topology[0]
     traj_file = args.trajectory[0]
     parallel = args.parallel

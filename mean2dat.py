@@ -37,9 +37,12 @@ def make_dat(mean_info, outfile):
 if __name__ == "__main__": 
     #get commandline arguments 
     parser = argparse.ArgumentParser(description="Converts a mean structure .json from compute_mean.py to an oxDNA-readable .dat")
-    parser.add_argument('inp', type=str, nargs=1, help="A mean structure from compute_mean.py")
-    parser.add_argument('out', type=str, nargs=1, help="The name of the output file")
+    parser.add_argument('mean', type=str, nargs=1, help="A mean structure from compute_mean.py")
+    parser.add_argument('output', type=str, nargs=1, help="The name of the output file")
     args = parser.parse_args()
+
+    from config import check_dependencies
+    check_dependencies(["python", "numpy"])
 
     #load the mean file, which is in .json format
     with open(args.inp[0], "r") as file:

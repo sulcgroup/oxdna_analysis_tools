@@ -15,7 +15,7 @@ import pickle
 import matplotlib.pyplot as plt
 import all_vectors
 import argparse
-from UTILS.clustering import perform_DBSCAN
+from clustering import perform_DBSCAN
 from UTILS import parallelize
 
 #a matrix of vectors in local cylindrical coordinates
@@ -135,8 +135,11 @@ if __name__ == "__main__":
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
-
     args = parser.parse_args()
+
+    from config import check_dependencies
+    check_dependencies(["python", "numpy", "matplotlib"])
+
     traj_file = args.trajectory[0]
     inputfile = args.inputfile[0] 
     parallel = args.parallel

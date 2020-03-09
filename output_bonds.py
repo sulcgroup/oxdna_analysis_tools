@@ -4,11 +4,13 @@
 
 import numpy as np
 from os import environ, path
-import sys
+from sys import stderr, exit
 from UTILS.readers import LorenzoReader2, get_input_parameter
 import subprocess
 import tempfile
-from config import PROCESSPROGRAM
+
+from config import set_analysis_path
+PROCESSPROGRAM = set_analysis_path()
 
 command_for_data =  'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=pair_energy \n} \n}'
 
@@ -24,8 +26,8 @@ def output_bonds (inputfile, system):
 	err = myinput.stderr.strip()
 	for line in err.split('\n'):
 		if "CRITICAL" in line or "ERROR" in line:
-			print(err)
-			sys.exit(1)
+			print(err, file=stderr)
+			exit(1)
 	return out
 
 if __name__ == "__main__":
@@ -34,8 +36,11 @@ if __name__ == "__main__":
 	parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
 	parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
 	parser.add_argument('-v', type=str, nargs=1, dest='outfile', help='if you want instead average per-particle energy as a viewer JSON')
-
 	args = parser.parse_args()
+
+	from config import check_dependencies
+	check_dependencies(["python", "numpy"])
+
 	traj_file = args.trajectory[0]
 	inputfile = args.inputfile[0]
 	try:

@@ -6,7 +6,11 @@ import subprocess
 import tempfile
 import numpy as np
 
-from config import PROCESSPROGRAM
+from config import set_analysis_path
+PROCESSPROGRAM = set_analysis_path()
+
+from config import check_dependencies
+check_dependencies(["numpy"])
 
 def contact_map (inputfile, mysystem, return_full_matrix):
     """
@@ -61,6 +65,9 @@ if __name__ == "__main__":
     import argparse
     import matplotlib.pyplot as plt
     from UTILS.readers import LorenzoReader2
+
+    from config import check_dependencies
+    check_dependencies(["python", "numpy", "matplotlib"])
 
     #get commandline arguments
     parser = argparse.ArgumentParser(description="Calculate and display the contact map for a structure")

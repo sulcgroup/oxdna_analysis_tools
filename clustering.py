@@ -189,6 +189,10 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
     Returns:
         labels (numpy.array): The clusterID of each configuration in the trajectory.
     """
+
+    #run system checks
+    from config import check_dependencies
+    check_dependencies(["python", "sklearn", "matplotlib"])
     
     print("INFO: Running DBSCAN...", file=stderr)
     EPS=12
@@ -294,7 +298,7 @@ if __name__ == "__main__":
     parser.add_argument('serialized_data', type=str, nargs=1, help="The json-formatted input file")
     args = parser.parse_args()
     data_file = args.serialized_data[0]
-    
+
     #load a previously serialized dataset
     data = codecs.open(data_file, 'r', encoding='utf-8').read()
     unpacked = loads(data)

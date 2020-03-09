@@ -157,6 +157,11 @@ if __name__ == "__main__":
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
     args = parser.parse_args()
 
+    from config import check_dependencies
+    check_dependencies(["python", "Bio", "numpy"])
+    from config import set_reference
+    INBOXING_REFERENCE_PARTICLE = set_reference()
+
     #get file names
     top_file  = args.topology[0]
     traj_file = args.trajectory[0]
@@ -179,8 +184,8 @@ if __name__ == "__main__":
             print("ERROR: unrecognized output format\nAccepted formats are \"json\", \"oxDNA/oxdna\", and \"both\"", file=stderr)
             exit(1)
     else:
-        print("INFO: No output format specified, defaulting to json", file=stderr)
-        outjson = True
+        print("INFO: No output format specified, defaulting to oxDNA", file=stderr)
+        outoxdna = True
 
     #-o names the output file
     if args.output:

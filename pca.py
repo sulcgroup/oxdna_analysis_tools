@@ -17,6 +17,7 @@ from UTILS import parallelize
 from warnings import catch_warnings, simplefilter
 from os import environ
 from compute_mean import compute_cms
+from config import check_dependencies
 
 fetch_np = lambda conf: np.array([
     n.cm_pos for n in conf._nucleotides 
@@ -94,8 +95,10 @@ if __name__ == "__main__":
     parser.add_argument('outfile', type=str, nargs=1, help='the name of the .json file where the PCA will be written')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")    
     parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the clusterer on each configuration's position in PCA space?")
-
     args = parser.parse_args()
+
+    check_dependencies(["python", "numpy", "Bio"])
+
     traj_file = args.trajectory[0]
     inputfile = args.inputfile[0] 
     mean_file = args.meanfile[0]
@@ -103,8 +106,8 @@ if __name__ == "__main__":
     parallel = args.parallel
     if parallel:
         n_cpus = args.parallel[0]
-    if args.cluster:
-        cluster = args.cluster
+    #-c makes it run the clusterer on the output
+    cluster = args.cluster
     top_file = get_input_parameter(inputfile, "topology")
     if "RNA" in get_input_parameter(inputfile, "interaction_type"):
         environ["OXRNA"] = "1"
