@@ -116,8 +116,6 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
         sup.set(align_conf, indexed_cur_conf_pos)
         sup.run()
         rot, tran = sup.get_rotran()
-        # align structures and collect global mean
-        #i=0
 
         cur_conf_pos = np.einsum('ij, ki -> kj', rot, cur_conf_pos) + tran
         cur_conf_a1 = np.einsum('ij, ki -> kj', rot, cur_conf_a1)

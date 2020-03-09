@@ -95,7 +95,6 @@ if __name__ == "__main__":
             file.read()
         )
     mean_structure = np.array(mean_data["g_mean"])
-    processed_frames = mean_data["p_frames"]
     print("INFO: mean structure loaded", file=stderr)
 
     #prepare the data files and calculate how many configurations there are to run
