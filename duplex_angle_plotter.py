@@ -64,11 +64,11 @@ if __name__ == "__main__":
         outfile = args.output[0]
     else: 
         if environ.get('DISPLAY', None) != "":
-            print("INFO: No display detected, outputting to \"distance.png\"")
+            print("INFO: No display detected, outputting to \"angle.png\"", file=stderr)
             outfile=False
         else:
-            print("INFO: No outfile name provided, defaulting to \"distance.png\"", file=stderr)
-            outfile = "distance.png"
+            print("INFO: No outfile name provided, defaulting to \"angle.png\"", file=stderr)
+            outfile = "angle.png"
 
     #-f defines which type of graph to produce
     hist = False

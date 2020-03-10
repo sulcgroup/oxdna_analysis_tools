@@ -19,7 +19,7 @@ def make_dat(mean_info, outfile):
     #box size is 1.5x the longest dimension of the structure
     box_size = (mmax - mmin).max() * 1.5
     with open(outfile, "w") as file:
-        print("INFO: Writing mean configuration to", outfile, file=stderr)
+        print("INFO: Writing configuration to", outfile, file=stderr)
         file.writelines([
             't = %d\n' % 0,                                       # set time
             'b = %d %d %d\n' % (box_size, box_size, box_size),    # set box size

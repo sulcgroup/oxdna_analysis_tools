@@ -55,9 +55,10 @@ def compute_centroid(reader, mean_structure, num_confs, start=None, stop=None):
         mysystem.inbox_system()
         # calculate alignment transform
         cur_conf = fetch_np(mysystem)
+        indexed_cur_conf = indexed_fetch_np(mysystem)
         cur_conf_a1 = fetch_a1(mysystem)
         cur_conf_a3 = fetch_a3(mysystem)
-        sup.set(mean_structure, cur_conf)
+        sup.set(mean_structure, indexed_cur_conf)
         sup.run()
         rot, tran = sup.get_rotran()
 
@@ -71,11 +72,12 @@ def compute_centroid(reader, mean_structure, num_confs, start=None, stop=None):
             centroid_a1 = cur_conf_a1
             centroid_a3 = cur_conf_a3
             lowest_rmsf = RMSF
+            centroid_t = mysystem._time
         
         confid += 1
         mysystem = reader._get_system()
 
-    return centroid_candidate, centroid_a1, centroid_a3, lowest_rmsf
+    return centroid_candidate, centroid_a1, centroid_a3, lowest_rmsf, centroid_t
 
 if __name__ == "__main__":
     #handle commandline arguments
@@ -89,6 +91,7 @@ if __name__ == "__main__":
     parser.add_argument('topology', type=str, nargs=1, help='the topology file associted with the trajectory')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the centroid to')
+    parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
     args = parser.parse_args()
 
     #system check
@@ -112,26 +115,42 @@ if __name__ == "__main__":
         n_cpus = args.parallel[0]
     num_confs = cal_confs(traj_file)
 
+    #handle the index file case
+    indexed_fetch_np = lambda conf: np.array([
+        n.cm_pos for n in conf._nucleotides if n.index in indexes
+    ])
+
+    #-i will make it only run on a subset of nucleotides.
+    #The index file is a space-separated list of particle IDs
+    if args.index_file:
+        index_file = args.index_file[0]
+        with open(index_file, 'r') as f:
+            indexes = f.readline().split()
+            try:
+                indexes = [int(i) for i in indexes]
+            except:
+                print("ERROR: The index file must be a space-seperated list of particles.  These can be generated using oxView by clicking the \"Download Selected Base List\" button")
+    else: 
+        with open(top_file, 'r') as f:
+            indexes = list(range(int(f.readline().split(' ')[0])))
+
     # load mean structure 
     mean_file = args.mean_structure[0]
     if mean_file.split(".")[-1] == "json":
         with open(mean_file) as file:
-            mean_structure = load(file)['g_mean']
+            mean_structure = load(file)['g_mean'][indexes]
 
     elif mean_file.split(".")[-1] == "dat":
-        fetch_np = lambda conf: np.array([
-            n.cm_pos for n in conf._nucleotides
-        ])
         with LorenzoReader2(mean_file, top_file) as reader:
             s = reader._get_system()
-            mean_structure = fetch_np(s)
+            mean_structure = indexed_fetch_np(s)
     print("INFO: mean structure loaded", file=stderr)
 
     #Calculate centroid, in parallel if available
     if not parallel:
         print("INFO: Computing centroid from the mean of {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
-        centroid, centroid_a1s, centroid_a3s, rmsf = compute_centroid(r, mean_structure, num_confs)
+        centroid, centroid_a1s, centroid_a3s, centroid_rmsf, centroid_time = compute_centroid(r, mean_structure, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the results are compiled .
@@ -141,16 +160,22 @@ if __name__ == "__main__":
         rmsfs = []
         a1s = []
         a3s = []
+        ts = []
         out = parallelize.fire_multiprocess(traj_file, top_file, compute_centroid, num_confs, n_cpus, mean_structure)
         [candidates.append(i[0]) for i in out]
         [rmsfs.append(i[3]) for i in out]
         [a1s.append(i[1]) for i in out]
         [a3s.append(i[2]) for i in out]
+        [ts.append(i[4]) for i in out]
         min_id = rmsfs.index(min(rmsfs))
         centroid = candidates[min_id]
         centroid_a1s = a1s[min_id]
         centroid_a3s = a3s[min_id]
+        centroid_time = ts[min_id]
+        centroid_rmsf = rmsfs[min_id]
+
+    print("INFO: Centroid configuration found at configuration t = {}, RMSF = {}".format(centroid_time, centroid_rmsf), file=stderr)
     
     from mean2dat import make_dat
 
-    make_dat({'g_mean' : centroid, 'a1_mean': centroid_a1s, 'a3_mean': centroid_a3s}, "centroid.dat")
+    make_dat({'g_mean' : centroid, 'a1_mean': centroid_a1s, 'a3_mean': centroid_a3s}, outfile)

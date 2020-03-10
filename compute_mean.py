@@ -28,7 +28,7 @@ def pick_starting_configuration(traj_file, top_file, max_bound):
         print("INFO: We chose {} as reference".format(stop_at), file=stderr)
         initial_structure = reader._get_system(N_skip=stop_at) #this is way faster than using next(), but doesn't automatically inbox the system
         if not initial_structure:
-            print("ERROR: Couldn't read structure at conf num {0}.  Check the num_confs".format(stop_at), file=stderr)
+            print("ERROR: Couldn't read structure at conf num {0}.  Something has gone weird".format(stop_at), file=stderr)
         print("INFO: reference structure loaded", file=stderr)
         initial_structure.inbox_system()
     return stop_at, initial_structure
