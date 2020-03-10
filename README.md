@@ -23,7 +23,6 @@ This software package was written and tested using the following outside resourc
 Running instructions can be obtained for all scripts by running them with no arguments or the -h flag.
 
  * `align_trajectory.py` \<trajectory> \<topology> \<output> Aligns all configurations in the trajectory to the first configuration.<br/>
- * `all_vectors.py` \<input> <trajectory> produces a matrix of vectors between every nucleotide at each step.<br/>
  * `backbone_flexibility.py` *WIP* (-p \<n_cpus>) \<trajectory> \<topology> \<output> Produces a color map of the deviation in backbone torsion angles over the course of the simulation.<br/>
  * `bond_analysis.py` (-p \<n_cpus>) \<input> \<trajectory> \<designed pairs file> \<output>  Produces and oxView overlay showing fractional occupancy of each designed pair.<br/>
  * `centroid.py` (-p \<n_cpus> -o \<centroid file> -i \<index file>) \<mean_structure> \<trajectory> \<topology> Takes a reference structure (usually a mean structure) and a trajectory and returns the structure in the trajectory with the lowest RMSF to the reference.<br/>
