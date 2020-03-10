@@ -24,7 +24,10 @@ def pick_starting_configuration(traj_file, top_file, max_bound):
             initial_structure (base.System): The oxDNA system representing the reference configuration.
     """
     with LorenzoReader2(traj_file, top_file) as reader:
-        stop_at = randint(0, max_bound-1)
+        if args.align:
+            stop_at = int(args.align[0])
+        else:
+            stop_at = randint(0, max_bound-1)
         print("INFO: We chose {} as reference".format(stop_at), file=stderr)
         initial_structure = reader._get_system(N_skip=stop_at) #this is way faster than using next(), but doesn't automatically inbox the system
         if not initial_structure:
@@ -153,6 +156,7 @@ if __name__ == "__main__":
     parser.add_argument('-f', '--format', metavar='<json/oxDNA/both>', nargs=1, help='Output format for the mean file.  Defaults to json.  Options are \"json\", \"oxdna/oxDNA\", and \"both\"')
     parser.add_argument('-d', '--deviations', metavar='deviation_file', nargs=1, help='Immediatley run compute_deviations.py from the output')
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
+    parser.add_argument('-a', '--align', metavar='alignment_configuration', nargs=1, help='The id of the configuration to align to, otherwise random')
     args = parser.parse_args()
 
     from config import check_dependencies
