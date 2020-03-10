@@ -13,7 +13,7 @@ from os import environ
 import subprocess
 import pickle
 import matplotlib.pyplot as plt
-import all_vectors
+import UTILS.all_vectors
 import argparse
 from clustering import perform_DBSCAN
 from UTILS import parallelize
