@@ -16,7 +16,9 @@ This software package was written and tested using the following outside resourc
 [MatPlotLib](https://matplotlib.org/index.html): 3.0.3 (minimum version 3.0),<br/>
 [BioPython](https://biopython.org/): 1.73,<br/>
 [Scikit-Learn](https://scikit-learn.org/stable/): 0.21.2,<br/>
-[Pathos](https://github.com/uqfoundation/pathos): 0.2.3
+[Pathos](https://github.com/uqfoundation/pathos): 0.2.3</br>
+
+To check if dependencies are correcly installed, run `config.py` with no arguments, this will check your environment and inform you which packages are incorrect.
 
 ## Brief script descriptions
 
