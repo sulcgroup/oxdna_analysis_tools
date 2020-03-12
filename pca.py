@@ -155,7 +155,7 @@ if __name__ == "__main__":
     
     import matplotlib.pyplot as plt
     print("INFO: Saving scree plot to scree.png", file=stderr)
-    plt.scatter(range(0, len(evalues)), evalues, s=6)
+    plt.scatter(range(0, len(evalues)), evalues, s=25)
     plt.xlabel("component")
     plt.ylabel("eigenvalue")
     plt.savefig("scree.png")
@@ -175,7 +175,7 @@ if __name__ == "__main__":
     ax.scatter(out[:,0], out[:,1], out[:,2], c='g', s=25)
     plt.savefig("coordinates.png")
     
-    #Create an oxView overlay showing the first SUM
+    #Create an oxView overlay showing the first SUM components
     SUM = 1
     print("INFO: Change the number of eigenvalues to sum and display by modifying the SUM variable in the script.  Current value: {}".format(SUM), file=stderr)
     weighted_sum = np.zeros_like(evectors[0])
