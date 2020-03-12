@@ -18,7 +18,7 @@ This software package was written and tested using the following outside resourc
 [Scikit-Learn](https://scikit-learn.org/stable/): 0.21.2,<br/>
 [Pathos](https://github.com/uqfoundation/pathos): 0.2.3</br>
 
-To check if dependencies are correcly installed, run `config.py` with no arguments, this will check your environment and inform you which packages are incorrect.
+To check if dependencies are correcly installed, run `config.py` with no arguments, this will check your environment and inform you which packages are incorrect.  There is not currently a good way to check oxDNA version.  If `bond_analysis.py` or `duplex_angle_finder.py` throw an error from oxDNA, then your version is probably out of date.
 
 ## Brief script descriptions
 
