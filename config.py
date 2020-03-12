@@ -77,6 +77,6 @@ def check_dependencies(to_check):
 	return flag
 
 if __name__ == "__main__":
-	check_dependencies(["python", "numpy" "matplotlib", "Bio", "sklearn", "pathos"])
+	check_dependencies(["python", "numpy", "matplotlib", "Bio", "sklearn", "pathos"])
 	p = set_analysis_path()
 	print("INFO: DNAnalysis found at:", p, file=stderr)
