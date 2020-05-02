@@ -1,5 +1,4 @@
 import os.path
-from os import O_NONBLOCK
 import sys
 import numpy as np
 from . import base
