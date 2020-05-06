@@ -6,7 +6,6 @@ from sys import exit, stderr
 from UTILS.readers import LorenzoReader2, cal_confs
 from random import randint
 import argparse
-from UTILS import parallelize
 
 def pick_starting_configuration(traj_file, top_file, max_bound):
     """
@@ -32,8 +31,9 @@ def pick_starting_configuration(traj_file, top_file, max_bound):
         initial_structure = reader._get_system(N_skip=stop_at) #this is way faster than using next(), but doesn't automatically inbox the system
         if not initial_structure:
             print("ERROR: Couldn't read structure at conf num {0}.  Something has gone weird".format(stop_at), file=stderr)
+            exit(1)
         print("INFO: reference structure loaded", file=stderr)
-        initial_structure.inbox_system()
+        initial_structure.inbox()
     return stop_at, initial_structure
 
 
@@ -109,7 +109,7 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
     confid = 0
 
     while mysystem != False and confid < stop:
-        mysystem.inbox_system()
+        mysystem.inbox()
         cur_conf_pos = fetch_np(mysystem)
         indexed_cur_conf_pos = indexed_fetch_np(mysystem)
         cur_conf_a1 =  fetch_a1(mysystem)
@@ -161,14 +161,13 @@ if __name__ == "__main__":
 
     from config import check_dependencies
     check_dependencies(["python", "Bio", "numpy"])
-    from config import set_reference
-    INBOXING_REFERENCE_PARTICLE = set_reference()
 
     #get file names
     top_file  = args.topology[0]
     traj_file = args.trajectory[0]
     parallel = args.parallel
     if parallel:
+        from UTILS import parallelize
         n_cpus = args.parallel[0]
 
     #-f defines the format of the output file

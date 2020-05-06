@@ -73,7 +73,7 @@ def get_pca(reader, align_conf, num_confs, start=None, stop=None):
     #for every configuration in the trajectory chunk, align it to the mean and compute positional difference for every particle
     while mysystem != False and confid < stop:
         print("-->", mysystem._time)
-        mysystem.inbox_system()
+        mysystem.inbox()
         cur_conf = fetch_np(mysystem)
         sup.set(align_conf, cur_conf)
         sup.run()

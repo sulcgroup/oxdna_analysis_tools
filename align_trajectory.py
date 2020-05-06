@@ -27,8 +27,6 @@ args = parser.parse_args()
 #run system checks
 from config import check_dependencies
 check_dependencies(["python", "numpy", "Bio"])
-from config import set_reference
-INBOXING_REFERENCE_PARTICLE = set_reference()
 
 #prepare the data files and calculate how many configurations there are to align
 top_file = args.topology[0]
@@ -38,7 +36,7 @@ outfile = args.outfile[0]
 #read the first configuration and use it as the reference configuration for the rest
 r = LorenzoReader2(traj_file, top_file)
 ref = r._get_system()
-ref.inbox_system() #if you get something weird out of this, modify the reference particle ID for this function in base.py
+ref.inbox() #if you get something weird out of this, modify the reference particle ID for this function in base.py
 ref_conf = fetch_np(ref)
 sup = SVDSuperimposer()
 
@@ -50,7 +48,7 @@ mysystem = r._get_system()
 while mysystem != False:
     print("working on t = ", mysystem._time)
     #Need to get rid of fix_diffusion artifacts of SVD doesn't work
-    mysystem.inbox_system()
+    mysystem.inbox()
     cur_conf = fetch_np(mysystem)
 
     #Superimpose the configuration to the reference

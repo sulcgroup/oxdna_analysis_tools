@@ -18,7 +18,6 @@ This directory contains an example to compute the principal components of a holl
    `python ../../pca.py input_dna trajectory_trap.dat mean.dat pca.json`
 
    **A few notes on the PCA script:**
-   Because of the fix diffusion process that oxDNA uses to maintain correct physics, ensuring that a structure is not cut by the periodic boundary is a non-trivial task.  To solve this problem, some analysis scripts require a reference nucleotide which everything else is centered around. By default, this is nucleotide 0.  In this case, nucleotide 0 is fine, however in other structures, if you observe an area with very high RMSF in the mean structure or unreasonably high displacement in the PCA, change the INBOXING_REFERENCE_PARTICLE in config.py.
    If you are running on a computer with multiple CPUs, you can additionally specify the `-p <number>` option to compute principal components in parallel using tht many CPUs.  This results in significant performance gains up to around 30 cpus
    The `-c` option will run the clustering algorithm on reconstructions of each configuration in principal component space.  By default this uses all components, but if you want to use only the top few components, uncomment the line that truncates the linear terms in the last block of code in the script.
 

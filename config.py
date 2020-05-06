@@ -4,18 +4,9 @@ from __future__ import print_function
 from os import path
 from sys import exit, stderr
 
-#The inboxing method used here moves everything relative to a reference particle because of oxDNA's fix_diffusion artifacts
-#If the largest dimension of the structure is further away from the reference particle than half the box size the structure will be broken by the PBC
-#This particle needs to be in the first strand to avoid having to map nucleotides to strands, which would significantly slow down many scripts
-def set_reference():
-	INBOXING_REFERENCE_PARTICLE = 0
-	print("INFO: Particle {} will be used as inboxing reference".format(INBOXING_REFERENCE_PARTICLE), file=stderr)
-	print("INFO: The reference should be in the middle of the structure and can be set in config.py", file=stderr)
-	return INBOXING_REFERENCE_PARTICLE
-
 #set the path to your compiled copy of DNAnalysis here
 def set_analysis_path():
-	PROCESSPROGRAM = '/home/erik/Simulations/oxdna-code/oxDNA/bin/DNAnalysis'
+	PROCESSPROGRAM = '/home/erik/software/oxdna-code/oxDNA/bin/DNAnalysis'
 
 	if not path.isfile(PROCESSPROGRAM):
 		print ("ERROR: Cannot execute DNAnalysis program. Please edit config.py to point to your compiled DNAnalysis. Current target:", PROCESSPROGRAM, file=stderr)
@@ -65,6 +56,7 @@ def check_dependencies(to_check):
 		except:
 			flag = True
 			print("ERROR: Unable to find package {}.  Please check your environment or follow the installation instructions at {}".format(real_names[package], websites[package]), file=stderr)
+			continue
 		ver = float('.'.join(mod.__version__.split(".")[0:2]))
 		if ver < dependencies[package]:
 			flag = True

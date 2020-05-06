@@ -29,8 +29,6 @@ This folder contains example files to perform the svd-based mean structures show
    python -f oxDNA -o mean.dat -d devs.json trajectory_trap.dat rna_rectangle.top
    ```
    **A couple of notes on the compute_mean script:**
-     Because of the fix diffusion process that oxDNA uses to maintain correct physics, ensuring that a structure is not cut by the periodic boundary is a non-trivial task.  To solve this problem, these analysis scripts require a reference nucleotide which everything else is centered around. By default, this is nucleotide 0, however for the wireframe, nucleotide 0 is on an edge, which can cause the opposite corner to be cut by the box.  If you observe an area with very high RMSF in the mean structure, change the `INBOXING_REFERENCE_PARTICLE` in `config.py`.  Any nucleotide in the center of the structure works, for example, 1066 is a good choice.
- 
      `-f` sets the output format.  The options are an oxDNA .dat file or a json file containing the positions.
      
      `-o` sets the ouput file name

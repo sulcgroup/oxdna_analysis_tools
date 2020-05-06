@@ -80,7 +80,7 @@ class LorenzoReader2:
     def __next__(self):
         s = self._get_system()
         if s:
-            s.inbox_system()
+            s.system()
             return s
         else:
             raise StopIteration

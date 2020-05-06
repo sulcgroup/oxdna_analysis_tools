@@ -107,11 +107,11 @@ def get_eRMSDs(r1, r2, inputfile, traj_file, top_file, num_confs, start=None, st
     j = start+1
     while system1 != False and confid < stop: 
         print ("working on configuration", i, "t =", system1._time)
-        system1.inbox_system()
+        system1.inbox()
         mat1 = calc_matrix(system1, inputfile)
         while system2:
             print ("working on configuration", i, "compared to", j)
-            system2.inbox_system()
+            system2.inbox()
             mat2 = calc_matrix(system2, inputfile)
             eRMSDs[i][j] = calc_eRMSD(mat1, mat2)
             system2 = r2._get_system()

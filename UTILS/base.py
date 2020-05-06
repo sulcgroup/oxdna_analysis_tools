@@ -11,10 +11,6 @@ base.py includes the classes: System, Strand, Nucleotide
 import sys, os
 import numpy as np
 
-#it gets set to the value in config.py in other scripts
-#But gotta declare it as something to avoid annoying error messages
-INBOXING_REFERENCE_PARTICLE = 0
-
 def partition(s, d):
     if d in s:
         sp = s.split(d, 1)
@@ -1021,13 +1017,25 @@ class System(object):
         return
 
     #brings the system in box such that the first nucleotide is in the box and attempts to keep the structure contiguous.
-    def inbox_system(self):
-        ref_pos = np.array(self._nucleotides[INBOXING_REFERENCE_PARTICLE].cm_pos)
-        for n in self._strands[0]._nucleotides:
-            n.cm_pos = n.cm_pos - ref_pos
-        for s in self._strands[1:]:
-            for n in s._nucleotides:
-                n.cm_pos = PBC_distance( ref_pos, n.cm_pos,self._box[0])
+    def inbox(self):
+        def realMod (n, m):
+            return(((n % m) + m) % m)
+
+        def coord_in_box(p, center):
+            shift = (self._box / 2) - center
+            p += shift
+            p[0] = realMod(p[0], self._box[0])
+            p[1] = realMod(p[1], self._box[1])
+            p[2] = realMod(p[2], self._box[2])
+            p -= shift
+            return(p)
+
+        center = np.array([0, 0, 0])
+
+        for n in self._nucleotides:
+            p_old = n.cm_pos.copy()
+            p_new = coord_in_box(p_old.copy(), center)
+            n.cm_pos = n.cm_pos + (p_new - p_old)
 
     def do_cells (self):
         self._N_cells = np.array(np.floor (self._box / 3.), np.int)

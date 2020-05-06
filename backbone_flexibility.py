@@ -10,7 +10,7 @@ from json import dumps
 def rad2degree(angle):
     return (angle * 180 / np.pi)
 
-def get_torsions(reader, num_confs, start = None, stop = None): #YOU ALSO NEED TO RECORD AVERAGE A1, A2, A3 SO YOU CAN BACK CARTESIAN COORDS OUT AT THE END!!!
+def get_internal_coords(reader, num_confs, start = None, stop = None):
     if stop is None:
         stop = num_confs
     else: stop = int(stop)
@@ -22,27 +22,50 @@ def get_torsions(reader, num_confs, start = None, stop = None): #YOU ALSO NEED T
 
     mysystem = reader._get_system(N_skip = start)
     torsions = np.zeros((len(mysystem._nucleotides)-2, stop))
+    dihedrals = np.zeros((len(mysystem._nucleotides)-3, stop))
 
     while mysystem != False and confid < stop:
         for i, strand in enumerate(mysystem._strands):
             for j, n in enumerate(strand._nucleotides):
+                #store first nucleotide
                 if j == 0:
+                    back3 = n.cm_pos
+                    continue
+                #store second nucleotide
+                if j == 1:
                     back2 = n.cm_pos
                     continue
-                if j == 1:
+                #store third nucleotide and calculate first torsion
+                if j == 2:
                     back1 = n.cm_pos
+                    A = back2 - back3
+                    B = back2 - back1
+                    torsions[n.index-2][confid] = rad2degree(
+                        np.arccos((np.dot(A, B))/(np.linalg.norm(A)*np.linalg.norm(B))))
                     continue
+
+                #actually begin the loop of calculating torsions and dihedrals
                 curr = n.cm_pos
-                A = back1 - back2
-                B = back1 - curr
+                A = back3 - back2
+                B = back2 - back1
+                C = back1 - curr
+
+                #get torsion angle
                 torsions[n.index-2][confid] = rad2degree(
-                    np.arccos((np.dot(A, B))/(np.linalg.norm(A)*np.linalg.norm(B))))
+                    np.arccos((np.dot(B, -C))/(np.linalg.norm(B)*np.linalg.norm(-C))))
+
+                #get dihedral angle
+                n1 = np.cross(A, B)
+                n2 = np.cross(B, C)
+                dihedrals[n.index-3][confid] = rad2degree(
+                    np.arccos(np.linalg.norm(np.dot(n1, n2)) / (np.linalg.norm(n1)*np.linalg.norm(n2))))
+                back3 = back2
                 back2 = back1
                 back1 = curr
         confid += 1
         mysystem = reader._get_system()
     
-    return(torsions)
+    return(torsions, dihedrals)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Computes the deviations in the backbone torsion angles")
@@ -67,20 +90,25 @@ if __name__ == "__main__":
     r = LorenzoReader2(traj_file, top_file)
 
     if not parallel:
-        torsions = get_torsions(r, num_confs)
+        torsions, dihedrals = get_internal_coords(r, num_confs)
 
     if parallel:
-        out = parallelize.fire_multiprocess(traj_file, top_file, get_torsions, num_confs, n_cpus)
-        torsions = np.concatenate([i for i in out], axis=1)
+        out = parallelize.fire_multiprocess(traj_file, top_file, get_internal_coords, num_confs, n_cpus)
+        torsions = np.concatenate([i for i in out[0]], axis=1)
+        dihedrals = np.concatenate([i for i in out[1]], axis=1)
 
-    torsions = np.std(torsions, axis=1).tolist()
-    torsions.append(torsions[len(torsions)-1])
-    torsions.insert(0, torsions[0])
+    torsion_mean = np.mean(torsions, axis=1).tolist()
+    dihedral_mean = np.mean(dihedrals, axis=1).tolist()
+    #make something akin to a ramachandran plot for DNA origami??
+    import matplotlib.pyplot as plt
+    plt.scatter(torsion_mean[1:], dihedral_mean)
+    plt.xlabel("torsion_angle")
+    plt.ylabel("dihedral_angle")
+    plt.show()
 
-    print(torsions)
-
-    with open(args.outfile[0],"w") as file:
-        file.write(
-            dumps({
-            "StDev(torsion) (deg)" : torsions
+    torsion_mean.insert(0, torsion_mean[0])
+    torsion_mean.insert(0, torsion_mean[0])
+    with open(args.outfile[0], "w") as file:
+        file.write(dumps({
+            "torsion" : torsion_mean
         }))

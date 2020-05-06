@@ -42,7 +42,7 @@ def compute_deviations(reader, mean_structure, num_confs, start=None, stop=None)
     mysystem = reader._get_system(N_skip = start)
     
     while mysystem != False and confid < stop:
-        mysystem.inbox_system()
+        mysystem.inbox()
         # calculate alignment transform
         cur_conf = fetch_np(mysystem)
         sup.set(mean_structure, cur_conf)
@@ -78,8 +78,6 @@ if __name__ == "__main__":
     #system check
     from config import check_dependencies
     check_dependencies(["python", "Bio", "numpy"])
-    from config import set_reference
-    INBOXING_REFERENCE_PARTICLE = set_reference()
 
     #-o names the output file
     if args.output:
