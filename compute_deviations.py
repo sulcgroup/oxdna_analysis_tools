@@ -123,7 +123,7 @@ if __name__ == "__main__":
     for i, devs in enumerate(np.transpose(deviations)):
         devs = np.square(devs)
         mean = np.mean(devs)
-        means.append(np.sqrt(mean)*0.85)
+        means.append(np.sqrt(mean)*0.8518)
 
     #write the deviations to a json file
     print("INFO: writing deviations to {}".format(outfile), file=stderr)
