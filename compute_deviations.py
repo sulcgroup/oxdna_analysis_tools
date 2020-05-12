@@ -121,8 +121,9 @@ if __name__ == "__main__":
     #take the mean of the per-configuration deviations to get the RMSF
     means = []
     for i, devs in enumerate(np.transpose(deviations)):
+        devs = np.square(devs)
         mean = np.mean(devs)
-        means.append(mean*0.85)
+        means.append(np.sqrt(mean)*0.85)
 
     #write the deviations to a json file
     print("INFO: writing deviations to {}".format(outfile), file=stderr)
