@@ -26,7 +26,7 @@ This folder contains example files to perform the svd-based mean structures show
    ```
    For the RNA origami:
    ```
-   python -f oxDNA -o mean.dat -d devs.json trajectory_trap.dat rna_rectangle.top
+   python ../../compute_mean.py -f oxDNA -o mean.dat -d devs.json trajectory_trap.dat rna_rectangle.top
    ```
    **A couple of notes on the compute_mean script:**
      `-f` sets the output format.  The options are an oxDNA .dat file or a json file containing the positions.
@@ -41,5 +41,5 @@ This folder contains example files to perform the svd-based mean structures show
 
    **Notes on visualization:**
    The default colormap is a red -> blue map called cooltowarm.  If you want to switch the colormap, open the developer console (`Ctrl-shift-J` on Chrome) and type `api.changeColormap('colormapName')`.  The two colormaps used in the figure are `'viridis'` and `'rainbow'`
-   Pressing the `P` key will take a screencap of the current scene.  The colorbar is drawn in a different scene than the structure, so we use the computer's built-in screenshot tool to capture it.
+   Pressing the `P` key will take a screencap of the current scene.
    The colorbar is dynamic, if you drag and drop multiple mean+topology+deviations file triplets, the upper and lower bounds will automatically rescale to accomodate the new data.
