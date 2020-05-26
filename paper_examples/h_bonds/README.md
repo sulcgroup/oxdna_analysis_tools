@@ -29,5 +29,5 @@ This directory contains and example to calculate the hydrogen bond occupancies c
 
    **Notes on visualization:**
    The default colormap is a red -> blue map called `'cooltowarm'`.  If you want to switch the colormap, open the developer console (`Ctrl-shift-J` on Chrome) and type `api.changeColormap('colormapName')`.  The colormap used in the figure is `'viridis'`.
-   Pressing the `P` key will take a screencap of the current scene.  The colorbar is drawn in a different scene than the structure, so we use the computer's built-in screenshot tool to capture it.
+   Pressing the `P` key will take a screencap of the current scene.
    The colorbar is dynamic, if you drag and drop multiple mean+topology+occupancy file triplets, the upper and lower bounds will automatically rescale to accomodate the new data.
