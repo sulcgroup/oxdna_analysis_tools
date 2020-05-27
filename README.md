@@ -70,7 +70,7 @@ Running instructions can be obtained for all scripts by running them with no arg
 ### UTILS
 The UTILS directory contains utility modules used by other scripts in this package.
 
-* `all_vectors.py` A wrapper for the all_vectors observable in oxDNA that computes the relative position of all particles in a configuration. <br\>
+* `all_vectors.py` A wrapper for the all_vectors observable in oxDNA that computes the relative position of all particles in a configuration. <br/>
 * `base.py` A python3 update of the `base.py` script found in the oxDNA distribution.  This contains class definitions for nucleotide/strand/system.  These are used to create, modify and write oxDNA systems in a Python environment. <br/>
 * `geom.py` A set of algorithms to find various geometric parameters of DNA/RNA helices.  Currently only the axis fitting function is used. <br/>
 * `model.h` The model parameters of the oxDNA model.  Used by base.py. <br\>
