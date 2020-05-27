@@ -54,9 +54,18 @@ def check_dependencies(to_check):
 			mod = __import__(package)
 			print("INFO: Package {} found. Version: {}".format(real_names[package], mod.__version__), file=stderr)
 		except:
-			flag = True
-			print("ERROR: Unable to find package {}.  Please check your environment or follow the installation instructions at {}".format(real_names[package], websites[package]), file=stderr)
-			continue
+			if package == "Bio":
+				try:
+					mod = __import__('bio')
+					print("INFO: Package {} found. Version: {}".format(real_names[package], mod.__version__), file=stderr)
+				except:
+					flag = True
+					print("ERROR: Unable to find package {}.  Please check your environment or follow the installation instructions at {}".format(real_names[package], websites[package]), file=stderr)
+					continue
+			else:
+				flag = True
+				print("ERROR: Unable to find package {}.  Please check your environment or follow the installation instructions at {}".format(real_names[package], websites[package]), file=stderr)
+				continue
 		ver = float('.'.join(mod.__version__.split(".")[0:2]))
 		if ver < dependencies[package]:
 			flag = True

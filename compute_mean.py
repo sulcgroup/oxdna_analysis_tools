@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
-from Bio.SVDSuperimposer import SVDSuperimposer
+try:
+    from Bio.SVDSuperimposer import SVDSuperimposer
+except:
+    from bio.SVDSuperimposer import SVDSuperimposer
 import numpy as np
 from json import loads, dumps
 from sys import exit, stderr

@@ -11,7 +11,10 @@ from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from sys import exit, stderr
 import argparse
 from json import load, dumps
-from Bio.SVDSuperimposer import SVDSuperimposer
+try:
+    from Bio.SVDSuperimposer import SVDSuperimposer
+except:
+    from bio.SVDSuperimposer import SVDSuperimposer
 from random import randint
 from UTILS import parallelize
 from warnings import catch_warnings, simplefilter

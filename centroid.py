@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 from sys import stderr
-from Bio.SVDSuperimposer import SVDSuperimposer
+try:
+    from Bio.SVDSuperimposer import SVDSuperimposer
+except:
+    from bio.SVDSuperimposer import SVDSuperimposer
 from json import loads, dumps
 from UTILS.readers import LorenzoReader2, cal_confs
 import numpy as np

@@ -5,7 +5,10 @@
 #Date: 2/27/19
 #Takes two (or more) configurations and aligns all proceeding ones to the first using the svd superimposer, then spits them out as new dat files.
 
-from Bio.SVDSuperimposer import SVDSuperimposer
+try:
+    from Bio.SVDSuperimposer import SVDSuperimposer
+except:
+    from bio.SVDSuperimposer import SVDSuperimposer
 from sys import exit, stderr
 from UTILS.readers import LorenzoReader2
 import numpy as np

@@ -5,7 +5,10 @@
 # Date: 8/26/19
 # Takes a trajectory and aligns every frame to the first one and writes a new trajectory
 
-from Bio.SVDSuperimposer import SVDSuperimposer
+try:
+    from Bio.SVDSuperimposer import SVDSuperimposer
+except:
+    from bio.SVDSuperimposer import SVDSuperimposer
 from sys import exit
 from UTILS.readers import LorenzoReader2
 import numpy as np
