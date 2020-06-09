@@ -73,7 +73,7 @@ The UTILS directory contains utility modules used by other scripts in this packa
 * `all_vectors.py` A wrapper for the all_vectors observable in oxDNA that computes the relative position of all particles in a configuration. <br/>
 * `base.py` A python3 update of the `base.py` script found in the oxDNA distribution.  This contains class definitions for nucleotide/strand/system.  These are used to create, modify and write oxDNA systems in a Python environment. <br/>
 * `geom.py` A set of algorithms to find various geometric parameters of DNA/RNA helices.  Currently only the axis fitting function is used. <br/>
-* `model.h` The model parameters of the oxDNA model.  Used by base.py. <br\>
+* `model.h` The model parameters of the oxDNA model.  Used by base.py. <br/>
 * `parallelize.py` The parallelization module used by the analysis scripts.  Splits the trajectory file into temporary files and attaches a reader managed by a different CPU to each chunk.  Each reader then feeds successive configurations into a specified function.<br/>
 * `parallelize_old.py` An older implementation of the parallelizer that does not split into temporary files.  Certain multiprocessing architectures can have issues with reader congestion when using this scheme.  Left in place in case of use cases where memory usage is an issue.
 * `readers.py` Contains utility functions for working with oxDNA files, including extracting input file parameters, calculating the number of configurations in a trajectory and creating a system as defined in `base.py` from a configuration/topology pair.
