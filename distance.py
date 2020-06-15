@@ -16,6 +16,43 @@ def min_image(p1, p2, box):
     diff = diff - (np.round(diff/box)*box)
     return np.linalg.norm(diff)
 
+def get_distances(trajectories, p1s, p2s):
+    distances = [[] for _ in trajectories]
+    for i,trajectory in enumerate(trajectories):
+        with open(trajectory, 'r') as traj:
+            distances[i] = [[] for _ in p1s[i]]
+            l = traj.readline()
+            l = traj.readline() #skip the first time line
+
+            #get the box size
+            box = np.array([l.split(' ')[2], l.split(' ')[3], l.split(' ')[4]], dtype=float)
+
+            #Read the file line by line and make a dictionary of particle positions
+            line_num = 1
+            d = {}
+            while l:
+                #If you're at the right particle, save the COM of the particle to a dictionary
+                if line_num-3 in p1s[i] or line_num-3 in p2s[i]:
+                    d[line_num-3] = np.array(l.split(' ')[0:3], dtype=float)
+
+                #if its the start of a new configuration, dump the distance data from the last one
+                if 't' in l:
+                    for j, (p1, p2) in enumerate(zip(p1s[i], p2s[i])):
+                        p1 = d[p1]
+                        p2 = d[p2]
+                        distances[i][j].append(min_image(p1, p2, box)*0.85) #1 oxDNA su = 0.85 nm
+                        line_num = 0
+                l = traj.readline() #returns false if there's no more conf to load
+                line_num += 1
+            
+            #catch the last configuration
+            for j, (p1, p2) in enumerate(zip(p1s[i], p2s[i])):
+                p1 = d[p1]
+                p2 = d[p2]
+                distances[i][j].append(min_image(p1, p2, box)*0.85) #1 oxDNA su = 0.85 nm
+
+    return distances
+
 if __name__ == "__main__":
     #handle commandline arguments
     #this program has no positional arguments, only flags
@@ -54,9 +91,6 @@ if __name__ == "__main__":
     if len(p1s) != len(p2s):
         print("ERROR: bad input arguments\nPlease supply an even number of particles", file=stderr)
         exit(1)
-    
-    #get the topology from the input
-    topology_files = [get_input_parameter(i, "topology") for i in input_files]
 
 
     #-o names the output file
@@ -86,44 +120,9 @@ if __name__ == "__main__":
 
     #-c makes it run the clusterer on the output
     cluster = args.cluster
-
-    distances = [[] for _ in trajectories]
-    for i,trajectory in enumerate(trajectories):
-        with open(topology_files[i], 'r') as top:
-            n_particles = int(top.readline().split(' ')[0])
-        with open(trajectory, 'r') as traj:
-            distances[i] = [[] for _ in p1s[i]]
-            l = traj.readline()
-            l = traj.readline() #skip the first time line
-
-            #get the box size
-            box = np.array([l.split(' ')[2], l.split(' ')[3], l.split(' ')[4]], dtype=float)
-
-            #Read the file line by line and make a dictionary of particle positions
-            line_num = 1
-            d = {}
-            while l:
-                #If you're at the right particle, save the COM of the particle to a dictionary
-                if line_num-3 in p1s[i] or line_num-3 in p2s[i]:
-                    d[line_num-3] = np.array(l.split(' ')[0:3], dtype=float)
-
-                #if its the start of a new configuration, dump the distance data from the last one
-                if 't' in l:
-                    for j, (p1, p2) in enumerate(zip(p1s[i], p2s[i])):
-                        p1 = d[p1]
-                        p2 = d[p2]
-                        distances[i][j].append(min_image(p1, p2, box)*0.85)
-                        line_num = 0
-                l = traj.readline() #returns false if there's no more conf to load
-                line_num += 1
-            
-            #catch the last configuration
-            for j, (p1, p2) in enumerate(zip(p1s[i], p2s[i])):
-                p1 = d[p1]
-                p2 = d[p2]
-                distances[i][j].append(min_image(p1, p2, box)*0.85) #1 oxDNA su = 0.85 nm
     
-    
+    #get the specified distances
+    distances = get_distances(trajectories, p1s, p2s)
     
     # -d will dump the DNAnalysis output to a text file.
     if args.data:

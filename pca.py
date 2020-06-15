@@ -4,7 +4,7 @@
 #Written by: Erik Poppleton
 #Date: 3/6/2019
 #Performs a principal component analysis on a trajectory
-#the output JSON can be loaded into the viewere where it will overlay as arrows
+#the output JSON can be loaded into the viewer where it will overlay as arrows
 
 import numpy as np 
 from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
