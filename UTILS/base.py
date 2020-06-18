@@ -75,6 +75,17 @@ base_to_number = {'A' : 0, 'a' : 0, 'G' : 1, 'g' : 1,
                   'C' : 2, 'c' : 2, 'T' : 3, 't' : 3,
                   'U' : 3, 'u' : 3, 'D' : 4}
                   
+aa_to_number = {'A':-1, 'R':-2, 'N':-3, 'D':-4, 'C':-5, 
+                'E':-6, 'Q':-7, 'G':-8, 'H':-9, 'I':-10, 
+                'L':-11, 'K':-12, 'M':-13, 'F':-14, 
+                'P':-15, 'S':-16, 'T':-17, 'W':-18, 
+                'Y':-19, 'V':-20, 'Z':-21, 'X':0}
+
+number_to_aa = {-1:'A', -2:'R', -3:'N', -4:'D', -5:'C', 
+                -6:'E', -7:'Q', -8:'G', -9:'H', -10:'I', 
+                -11:'L', -12:'K', -13:'M', -14:'F', 
+                -15:'P', -16:'S', -17:'T', -18:'W', 
+                -19:'Y', -20:'V', -21:'Z', 0:'X'}
                   
 
 RNA_ENV_VAR = "OXRNA"
@@ -1021,21 +1032,44 @@ class System(object):
         def realMod (n, m):
             return(((n % m) + m) % m)
 
-        def coord_in_box(p, center):
-            shift = (self._box / 2) - center
-            p += shift
+        def coord_in_box(p):
             p[0] = realMod(p[0], self._box[0])
             p[1] = realMod(p[1], self._box[1])
             p[2] = realMod(p[2], self._box[2])
-            p -= shift
             return(p)
 
-        center = self._box / 2
+        def calc_PBC_COM(self):
+            cm_x = np.array([0, 0], dtype=float)
+            cm_y = np.array([0, 0], dtype=float)
+            cm_z = np.array([0, 0], dtype=float)
+
+            for n in self._nucleotides:
+                angle = np.array([(n.cm_pos[0] * 2 * np.pi) / self._box[0], 
+                (n.cm_pos[1] * 2 * np.pi) / self._box[1],
+                (n.cm_pos[2] * 2 * np.pi) / self._box[2]
+                ])
+
+                cm_x += np.array([np.cos(angle[0]), np.sin(angle[0])])
+                cm_y += np.array([np.cos(angle[1]), np.sin(angle[1])])
+                cm_z += np.array([np.cos(angle[2]), np.sin(angle[2])])
+
+            cm_x /= len(self._nucleotides)
+            cm_y /= len(self._nucleotides)
+            cm_z /= len(self._nucleotides)
+
+            return np.array([self._box[0] / (2 * np.pi) * np.arctan2(-cm_x[1], -cm_x[0]) + np.pi, 
+            self._box[1] / (2 * np.pi) * np.arctan2(-cm_y[1], -cm_y[0]) + np.pi, 
+            self._box[2] / (2 * np.pi) * np.arctan2(-cm_z[1], -cm_z[0]) + np.pi
+            ])
+
+        target = np.array([0., 0., 0.])
+        center = calc_PBC_COM(self)
 
         for n in self._nucleotides:
+            n.cm_pos += (target - center)
             p_old = n.cm_pos.copy()
-            p_new = coord_in_box(p_old.copy(), center)
-            n.cm_pos = n.cm_pos + (p_new - p_old)
+            p_new = coord_in_box(p_old.copy())
+            n.cm_pos += (p_new - p_old)
 
     def do_cells (self):
         self._N_cells = np.array(np.floor (self._box / 3.), np.int)

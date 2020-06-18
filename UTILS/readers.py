@@ -113,7 +113,13 @@ class LorenzoReader2:
             n5 = int(tls[3])
             strandid = int(tls[0])
             if (len (tls[1]) == 1):
-                b = base.base_to_number[tls[1]]
+                try:
+                    if strandid > 0:
+                        b = base.base_to_number[tls[1]]
+                    if strandid < 0 :
+                        b = base.aa_to_number[tls[1]]
+                except:
+                    b = 0
                 bb = b
             else:
                 try:

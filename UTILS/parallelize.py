@@ -1,5 +1,5 @@
 import pathos.multiprocessing as pp
-from os import getenv, unlink
+from os import getenv, remove
 from UTILS.readers import LorenzoReader2
 import numpy as np
 from tempfile import NamedTemporaryFile
@@ -63,7 +63,7 @@ def split_trajectory(traj_file, top_file, num_confs, n_cpus, confs_per_processor
                     out.write(chunk[last_conf_byte:])
                     try:
                         chunk = next(it)
-                    except Exception as e: #next() throws an error if there isn't another chunk
+                    except: #next() throws an error if there isn't another chunk
                         break
                     last_conf_byte = 0
                 else:  
@@ -126,6 +126,6 @@ def fire_multiprocess(traj_file, top_file, function, num_confs, n_cpus, *args):
     processor_pool.close()
     for f in tmpfiles:
         f.close()
-        unlink(f.name)
+        remove(f.name)
 
     return(results)

@@ -37,6 +37,7 @@ def pick_starting_configuration(traj_file, top_file, max_bound):
             exit(1)
         print("INFO: reference structure loaded", file=stderr)
         initial_structure.inbox()
+        initial_structure.print_lorenzo_output("test.dat", "/dev/null")
     return stop_at, initial_structure
 
 
