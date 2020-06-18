@@ -1030,7 +1030,7 @@ class System(object):
             p -= shift
             return(p)
 
-        center = np.array([0, 0, 0])
+        center = self._box / 2
 
         for n in self._nucleotides:
             p_old = n.cm_pos.copy()

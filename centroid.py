@@ -116,11 +116,6 @@ if __name__ == "__main__":
         n_cpus = args.parallel[0]
     num_confs = cal_confs(traj_file)
 
-    #handle the index file case
-    indexed_fetch_np = lambda conf: np.array([
-        n.cm_pos for n in conf._nucleotides if n.index in indexes
-    ])
-
     #-i will make it only run on a subset of nucleotides.
     #The index file is a space-separated list of particle IDs
     if args.index_file:
@@ -134,6 +129,11 @@ if __name__ == "__main__":
     else: 
         with open(top_file, 'r') as f:
             indexes = list(range(int(f.readline().split(' ')[0])))
+
+    #handle the index file case
+    indexed_fetch_np = lambda conf: np.array([
+        n.cm_pos for n in conf._nucleotides if n.index in indexes
+    ])
 
     # load mean structure 
     mean_file = args.mean_structure[0]

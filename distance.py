@@ -49,6 +49,7 @@ def get_distances(trajectories, p1s, p2s):
             for j, (p1, p2) in enumerate(zip(p1s[i], p2s[i])):
                 p1 = d[p1]
                 p2 = d[p2]
+                print(p1, p2)
                 distances[i][j].append(min_image(p1, p2, box)*0.85) #1 oxDNA su = 0.85 nm
 
     return distances

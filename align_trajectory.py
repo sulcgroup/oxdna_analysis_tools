@@ -31,7 +31,7 @@ args = parser.parse_args()
 from config import check_dependencies
 check_dependencies(["python", "numpy", "Bio"])
 
-#prepare the data files and calculate how many configurations there are to align
+#Parse command line arguments
 top_file = args.topology[0]
 traj_file = args.traj[0]
 outfile = args.outfile[0]
@@ -39,7 +39,7 @@ outfile = args.outfile[0]
 #read the first configuration and use it as the reference configuration for the rest
 r = LorenzoReader2(traj_file, top_file)
 ref = r._get_system()
-ref.inbox() #if you get something weird out of this, modify the reference particle ID for this function in base.py
+ref.inbox()
 ref_conf = fetch_np(ref)
 sup = SVDSuperimposer()
 
@@ -50,7 +50,7 @@ mysystem = r._get_system()
 #Read the trajectory one configuration at a time and perform the alignment
 while mysystem != False:
     print("working on t = ", mysystem._time)
-    #Need to get rid of fix_diffusion artifacts of SVD doesn't work
+    #Need to get rid of fix_diffusion artifacts or SVD doesn't work
     mysystem.inbox()
     cur_conf = fetch_np(mysystem)
 
