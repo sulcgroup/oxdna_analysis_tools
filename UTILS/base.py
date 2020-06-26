@@ -331,7 +331,7 @@ class Nucleotide(Printable):
     def distance (self, other, PBC=True, box=None):
         if PBC and box is None:
             if not (isinstance (box, np.ndarray) and len(box) == 3):
-                Logger.die ("distance between nucleotides: if PBC is True, box must be a numpy array of length 3");
+                Logger.die ("distance between nucleotides: if PBC is True, box must be a numpy array of length 3")
         dr = other.pos_back - self.pos_back
         if PBC:
             dr -= box * np.rint (dr / box)
@@ -366,6 +366,8 @@ class Nucleotide(Printable):
         
         if self._base in [0,1,2,3]:
             return number_to_base[self._base]
+        elif self._base < 0:
+            return number_to_aa[self._base]
         else:
             return str(self._base)
 
@@ -660,7 +662,11 @@ class Strand(Printable):
                     n5 = -1
                 else:
                     n5 = n.index + 1
-            top += "%d %s %d %d\n" % (self.index+1, n.get_base(), n3, n5)
+            if isinstance(self, Strand):
+                str_id = self.index+1
+            elif isinstance(self, Peptide):
+                str_id = self.index
+            top += "%d %s %d %d\n" % (str_id, n.get_base(), n3, n5)
 
         return conf, top
 
@@ -845,6 +851,73 @@ class Strand(Printable):
     def make_noncircular(self):
         self._circular = False
 
+class Peptide(Printable):
+    """
+    Peptides are composed of amino acids
+    Peptides are contained in Systems
+    """
+
+    index = -1
+
+    def __init__(self):
+        Printable.__init__(self)
+        self.index = Peptide.index
+        Peptide.index -= 1 #this is the only difference from Strand
+        self._first = -1
+        self._last = -1
+        self._nucleotides = []
+        self._cm_pos = np.array([0., 0., 0.])
+        self._cm_pos_tot = np.array([0., 0., 0.])
+        self._sequence = []
+        self.visible = True
+        self.H_interactions = {} #shows what strands it has H-bonds with
+        self._circular = False #bool on circular DNA
+
+    get_length = Strand.get_length
+    get_sequence = Strand.get_sequence
+    _prepare = Strand._prepare
+    copy = Strand.copy
+    get_cm_pos = Strand.get_cm_pos
+    set_cm_pos = Strand.set_cm_pos
+    translate = Strand.translate
+    rotate = Strand.rotate
+    
+    def append (self, other):
+        if not isinstance (other, Peptide):
+            raise ValueError
+
+        dr = self._nucleotides[-1].distance (other._nucleotides[0], PBC=False)
+        if np.sqrt(np.dot (dr, dr)) > (0.7525 + 0.25):
+            print >> sys.stderr, "WARNING: Strand.append(): strands seem too far apart. Assuming you know what you are doing."
+
+        ret = Peptide()
+
+        for n in self._nucleotides:
+            ret.add_nucleotide(n)
+
+        for n in other._nucleotides:
+            ret.add_nucleotide(n)
+
+        return ret 
+
+    def get_slice(self, start=0, end=None):
+        if end is None: end = len(self._nucleotides)
+        ret = Peptide()
+        for i in range(start, end):
+            ret.add_nucleotide(self._nucleotides[i].copy())
+        return ret
+
+    set_sequence = Strand.set_sequence
+    bring_in_box_nucleotides = Strand.bring_in_box_nucleotides
+    add_nucleotide = Strand.add_nucleotide
+    _get_lorenzo_output = Strand._get_lorenzo_output
+    make_circular = Strand.make_circular
+    make_noncircular = Strand.make_noncircular
+
+    cm_pos = property(get_cm_pos, set_cm_pos)
+    N = property(get_length)
+    sequence = property(get_sequence)
+
 
 def parse_visibility(path):
     try:
@@ -921,10 +994,17 @@ class System(object):
         return self._N_strands
 
     def _prepare(self, visibility):
-        sind = 0
+        sind = 0 #it gets an extra 1 added...
+        pind = -1 #for peptides
         nind = 0
-        for sind in range(self._N_strands):
-            nind = self._strands[sind]._prepare(sind, nind)
+        for i in range(self._N_strands):
+            if isinstance(self._strands[i], Peptide):
+                nind = self._strands[i]._prepare(pind, nind)
+                pind -= 1
+            elif isinstance(self._strands[i], Strand):
+                nind = self._strands[i]._prepare(sind, nind)
+                sind += 1
+            
 
         if visibility != None: self.set_visibility(visibility)
 

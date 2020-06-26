@@ -11,7 +11,7 @@ import numpy as np
 import argparse
 from UTILS import parallelize
 
-def compute_deviations(reader, mean_structure, num_confs, start=None, stop=None):
+def compute_deviations(reader, mean_structure, indexed_mean_structure, num_confs, start=None, stop=None):
     """
         Computes RMSF of each particle from the mean structure
 
@@ -38,6 +38,10 @@ def compute_deviations(reader, mean_structure, num_confs, start=None, stop=None)
         n.cm_pos for n in conf._nucleotides 
     ])
 
+    indexed_fetch_np = lambda conf: np.array([
+        n.cm_pos for n in conf._nucleotides if n.index in indexes
+    ])
+
     # Use the single-value decomposition method for superimposing configurations 
     sup = SVDSuperimposer()
     deviations = []
@@ -48,7 +52,8 @@ def compute_deviations(reader, mean_structure, num_confs, start=None, stop=None)
         mysystem.inbox()
         # calculate alignment transform
         cur_conf = fetch_np(mysystem)
-        sup.set(mean_structure, cur_conf)
+        indexed_cur_conf = indexed_fetch_np(mysystem)
+        sup.set(indexed_mean_structure, indexed_cur_conf)
         sup.run()
         print("Frame number:",confid, "RMSF:", sup.get_rms())
         # realign frame
@@ -56,8 +61,7 @@ def compute_deviations(reader, mean_structure, num_confs, start=None, stop=None)
         # align structures and collect coordinates for each frame 
         # compatible with json 
         deviations.append(
-           list(map(np.linalg.norm, 
-               np.array([np.dot(n_pos,rot) + tran for n_pos in cur_conf]) - mean_structure)) 
+           list(np.linalg.norm(np.einsum('ij, ki -> kj', rot, cur_conf) + tran - mean_structure, axis=1))
         )
         confid += 1
         mysystem = reader._get_system()
@@ -76,6 +80,7 @@ if __name__ == "__main__":
     parser.add_argument('topology', type=str, nargs=1, help='the topology file associted with the trajectory')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the deviations json file to')
+    parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
     args = parser.parse_args()
 
     #system check
@@ -89,15 +94,6 @@ if __name__ == "__main__":
         outfile = "devs.json"
         print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
 
-    # load mean structure 
-    mean_structure_file = args.mean_structure[0]
-    with open(mean_structure_file) as file:
-        mean_data = loads(
-            file.read()
-        )
-    mean_structure = np.array(mean_data["g_mean"])
-    print("INFO: mean structure loaded", file=stderr)
-
     #prepare the data files and calculate how many configurations there are to run
     top_file  = args.topology[0]
     traj_file = args.trajectory[0]
@@ -106,18 +102,42 @@ if __name__ == "__main__":
         n_cpus = args.parallel[0]
     num_confs = cal_confs(traj_file)
 
+    #-i will make it only run on a subset of nucleotides.
+    #The index file is a space-separated list of particle IDs
+    if args.index_file:
+        index_file = args.index_file[0]
+        with open(index_file, 'r') as f:
+            indexes = f.readline().split()
+            try:
+                indexes = [int(i) for i in indexes]
+            except:
+                print("ERROR: The index file must be a space-seperated list of particles.  These can be generated using oxView by clicking the \"Download Selected Base List\" button")
+    else: 
+        with open(top_file, 'r') as f:
+            indexes = list(range(int(f.readline().split(' ')[0])))
+
+    # load mean structure 
+    mean_structure_file = args.mean_structure[0]
+    with open(mean_structure_file) as file:
+        mean_data = loads(
+            file.read()
+        )
+    mean_structure = np.array(mean_data["g_mean"])
+    indexed_mean_structure = mean_structure[indexes]
+    print("INFO: mean structure loaded", file=stderr)
+
     #Calculate deviations, in parallel if available
     if not parallel:
         print("INFO: Computing deviations from the mean of {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
-        deviations = compute_deviations(r, mean_structure, num_confs)
+        deviations = compute_deviations(r, mean_structure, indexed_mean_structure, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the results are compiled .
     if parallel:
         print("INFO: Computing deviations from the mean of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         deviations = []
-        out = parallelize.fire_multiprocess(traj_file, top_file, compute_deviations, num_confs, n_cpus, mean_structure)
+        out = parallelize.fire_multiprocess(traj_file, top_file, compute_deviations, num_confs, n_cpus, mean_structure, indexed_mean_structure)
         [deviations.extend(i) for i in out]
 
     #compute_deviations() returns the deviation of every particle in every configuration

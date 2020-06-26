@@ -24,7 +24,7 @@ def blocks(file, size=1000000):
 #calculates the length of a trajectory file
 def cal_confs(traj_file):
     """
-    Calculates the number of 
+    Calculates the number of configurations in a trajectory
     """
     with open(traj_file, "rb") as f:
         return (sum(bl.count(b"t") for bl in blocks(f)))
@@ -142,7 +142,10 @@ class LorenzoReader2:
 
                 if s:
                     system.add_strand(s, self._check_overlap)
-                s = base.Strand()
+                if strandid >= 0:
+                    s = base.Strand()
+                else:
+                    s = base.Peptide()
                 if iscircular:
                     s.make_circular()
                 strandid_current = strandid

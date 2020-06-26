@@ -33,6 +33,7 @@ ref_dat = args.reference[0]
 to_sup = []
 r = LorenzoReader2(ref_dat, top_file)
 ref = r._get_system()
+ref.inbox()
 ref_conf = fetch_np(ref)
 for i in args.victims:
     r = LorenzoReader2(i, top_file)

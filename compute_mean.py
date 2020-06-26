@@ -124,6 +124,7 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
         sup.run()
         rot, tran = sup.get_rotran()
 
+        #apply alignment
         cur_conf_pos = np.einsum('ij, ki -> kj', rot, cur_conf_pos) + tran
         cur_conf_a1 = np.einsum('ij, ki -> kj', rot, cur_conf_a1)
         cur_conf_a3 = np.einsum('ij, ki -> kj', rot, cur_conf_a3)
@@ -340,6 +341,8 @@ if __name__ == "__main__":
         import subprocess
         from sys import executable, path
         launchargs = [executable, path[0]+"/compute_deviations.py", jsonfile, traj_file, top_file, "-o {}".format(dev_file)]
+        if args.index_file:
+            launchargs += "-i {}".format(index_file)
         if parallel:
             launchargs.append("-p {}".format(n_cpus))
         
