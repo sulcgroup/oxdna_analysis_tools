@@ -175,3 +175,82 @@ class LorenzoReader2:
             self._read(skip=True)
 
         return self._read(only_strand_ends=only_strand_ends, skip=False)
+
+
+class ErikReader:
+    def __enter__(self):
+        return self
+
+    def __exit__(self,  exc_type, exc_val, exc_tb):
+        self.__del__()
+
+    def __del__(self):
+        try: 
+            if self._conf: 
+                self._conf.close()
+        except:
+            print("ERROR: The reader could not load the provided configuration")
+
+    def __init__(self, configuration):
+        if not os.path.isfile(configuration):
+            print("Configuration file '{}' is not readable".format(configuration))
+        self._conf = open(configuration, "r")
+        self._time = None
+        self._box = np.zeros(3)
+        self._len = 0
+
+    def _read_first(self):
+        self._line = self._conf.readline()
+        if len(self._line) == 0:
+            print("ERROR: the configuration file is empty")
+        else:
+            self._time = float(self._line.split()[2])
+        self._line = self._conf.readline()
+        self._box = np.array(self._line.split()[2:], dtype=float)
+        self._conf.readline() #skip the energy line because nobody loves it
+
+        #we make lists here because we don't know how big the configuration is (that is in the topology)
+        positions = []
+        rotations = []
+        self._line = self._conf.readline()
+        while self._line[0] and self._line[0] != "t":
+            positions.append(self._line.split()[0:3])
+            rotations.append(self._line.split()[3:9])
+            self._line = self._conf.readline()
+        self._len = len(positions) #now we know how big it is!
+        self._positions = np.array(positions)
+        self._rotations = np.array(rotations)
+        return (self._positions, self._rotations, self._time, self._box)
+    
+    #LOOKS LIKE ITS NOT RETURNING FALSE ON EMPTY CONF
+    #READING 1 AT A TIME WORKS
+    #SKIPPING ENDS UP OFF BY 1
+    def read(self, n_skip=0):
+        if not self._time:
+            if n_skip == 0:
+                return self._read_first()
+            else:
+                self._read_first()
+                n_skip -= 1
+
+        if n_skip > 0:
+            for i in range((n_skip * (self._len + 3)) - 1):
+                self._conf.readline()
+            self._line = self._conf.readline()
+
+        if  len(self._line) == 0:
+            return False
+        else:
+            self._time = float(self._line.split()[2])
+            print(self._time)
+
+        self._conf.readline() # we already know the box
+        self._conf.readline() # still don't care about the energy
+        self._line = self._conf.readline() #first line of the configuration
+        
+        for i in range(self._len):
+            self._positions[i] = np.array(self._line.split()[0:3], dtype=float)
+            self._rotations[i] = np.array(self._line.split()[3:9], dtype=float)
+            self._line = self._conf.readline()
+        return (self._positions, self._rotations, self._time)
+        
