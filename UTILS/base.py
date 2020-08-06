@@ -1124,7 +1124,8 @@ class System(object):
             cm_z = np.array([0, 0], dtype=float)
 
             for n in self._nucleotides:
-                angle = np.array([(n.cm_pos[0] * 2 * np.pi) / self._box[0], 
+                angle = np.array([
+                (n.cm_pos[0] * 2 * np.pi) / self._box[0], 
                 (n.cm_pos[1] * 2 * np.pi) / self._box[1],
                 (n.cm_pos[2] * 2 * np.pi) / self._box[2]
                 ])
@@ -1137,12 +1138,13 @@ class System(object):
             cm_y /= len(self._nucleotides)
             cm_z /= len(self._nucleotides)
 
-            return np.array([self._box[0] / (2 * np.pi) * np.arctan2(-cm_x[1], -cm_x[0]) + np.pi, 
-            self._box[1] / (2 * np.pi) * np.arctan2(-cm_y[1], -cm_y[0]) + np.pi, 
-            self._box[2] / (2 * np.pi) * np.arctan2(-cm_z[1], -cm_z[0]) + np.pi
+            return np.array([
+            self._box[0] / (2 * np.pi) * (np.arctan2(-cm_x[1], -cm_x[0]) + np.pi), 
+            self._box[1] / (2 * np.pi) * (np.arctan2(-cm_y[1], -cm_y[0]) + np.pi), 
+            self._box[2] / (2 * np.pi) * (np.arctan2(-cm_z[1], -cm_z[0]) + np.pi)
             ])
 
-        target = np.array([0., 0., 0.])
+        target = np.array([self._box[0] / 2., self._box[1] / 2., self._box[2] / 2.])
         center = calc_PBC_COM(self)
 
         for n in self._nucleotides:
@@ -1150,6 +1152,7 @@ class System(object):
             p_old = n.cm_pos.copy()
             p_new = coord_in_box(p_old.copy())
             n.cm_pos += (p_new - p_old)
+
 
     def do_cells (self):
         self._N_cells = np.array(np.floor (self._box / 3.), np.int)
