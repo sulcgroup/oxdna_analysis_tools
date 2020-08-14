@@ -6,13 +6,13 @@ except:
 import numpy as np
 from json import loads, dumps
 from sys import exit, stderr
-from UTILS.readers import LorenzoReader2, cal_confs
+from UTILS.readers import ErikReader, cal_confs
 from random import randint
 import argparse
 import time
 start_t = time.time()
 
-def pick_starting_configuration(traj_file, top_file, max_bound):
+def pick_starting_configuration(traj_file, max_bound):
     """
         Pick a random conf out of the trajectory file to use as the reference structure.
         
@@ -20,42 +20,25 @@ def pick_starting_configuration(traj_file, top_file, max_bound):
 
         Parameters: 
             traj_file (string): The name of the trajectory file
-            top_file (string): The name of the topology file associated with the trajectory file
             max_bound (int): The reference configuration will be chosen at random from the first max_bound configurations in the trajectory file
 
         Returns:
             stop_at (int): The configuration ID of the reference configuration
             initial_structure (base.System): The oxDNA system representing the reference configuration.
     """
-    with LorenzoReader2(traj_file, top_file) as reader:
+    with ErikReader(traj_file) as reader:
         if args.align:
             stop_at = int(args.align[0])
         else:
             stop_at = randint(0, max_bound-1)
         print("INFO: We chose {} as reference".format(stop_at), file=stderr)
-        initial_structure = reader._get_system(N_skip=stop_at) #this is way faster than using next(), but doesn't automatically inbox the system
+        initial_structure = reader.read(n_skip=stop_at)
         if not initial_structure:
-            print("ERROR: Couldn't read structure at conf num {0}.  Something has gone weird".format(stop_at), file=stderr)
+            print("ERROR: Couldn't read structure at conf num {0}.".format(stop_at), file=stderr)
             exit(1)
         print("INFO: reference structure loaded", file=stderr)
         initial_structure.inbox()
     return stop_at, initial_structure
-
-
-def compute_cms(points):
-    """
-        get the cms for a set of points
-
-        Parameters: 
-            points (list or numpy array of numpy arrays): the points to be averaged
-
-        Returns: 
-            The center of mass of the given points (numpy.array)
-    """
-    cms = np.zeros(3)
-    for p in points:
-        cms += p
-    return cms / len(points)
 
 def normalize(v):
     """
@@ -69,7 +52,8 @@ def normalize(v):
     """
     norm = np.linalg.norm(v)
     if norm == 0:
-       return v
+        print("WARNING: tried to normalize a vector with 0 length", file=stderr)
+        return v
     return v / norm
 
 def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
@@ -99,7 +83,7 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
         start = 0
     else: start = int(start)
 
-    mysystem = reader._get_system(N_skip = start)
+    mysystem = reader.read(n_skip = start)
 
     # storage for the intermediate mean structures
     intermediate_mean_structures = []
@@ -115,10 +99,7 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
 
     while mysystem != False and confid < stop:
         mysystem.inbox()
-        cur_conf_pos = fetch_np(mysystem)
-        indexed_cur_conf_pos = indexed_fetch_np(mysystem)
-        cur_conf_a1 =  fetch_a1(mysystem)
-        cur_conf_a3 =  fetch_a3(mysystem)
+        indexed_cur_conf_pos = mysystem.positions[indexes]
 
         # calculate alignment
         sup.set(align_conf, indexed_cur_conf_pos)
@@ -126,18 +107,18 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
         rot, tran = sup.get_rotran()
 
         #apply alignment
-        cur_conf_pos = np.einsum('ij, ki -> kj', rot, cur_conf_pos) + tran
-        cur_conf_a1 = np.einsum('ij, ki -> kj', rot, cur_conf_a1)
-        cur_conf_a3 = np.einsum('ij, ki -> kj', rot, cur_conf_a3)
-        mean_pos_storage += cur_conf_pos
-        mean_a1_storage += cur_conf_a1
-        mean_a3_storage += cur_conf_a3
+        mysystem.positions = np.einsum('ij, ki -> kj', rot, mysystem.positions) + tran
+        mysystem.a1s = np.einsum('ij, ki -> kj', rot, mysystem.a1s)
+        mysystem.a3s = np.einsum('ij, ki -> kj', rot, mysystem.a3s)
+        mean_pos_storage += mysystem.positions
+        mean_a1_storage += mysystem.a1s
+        mean_a3_storage += mysystem.a3s
 
         # print the rmsd of the alignment in case anyone is interested...
-        print("Frame:", confid, "Time:", mysystem._time, "RMSF:", sup.get_rms())
+        print("Frame:", confid, "Time:", mysystem.time, "RMSF:", sup.get_rms())
         # thats all we do for a frame
         confid += 1
-        mysystem = reader._get_system()
+        mysystem = reader.read()
 
         # We produce 10 intermediate means to check decorrelation.
         # This can't be done neatly in parallel
@@ -156,7 +137,6 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Computes the mean structure of a trajectory file")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
-    parser.add_argument('topology', type=str, nargs=1, help="The topology file associated with the trajectory file")
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the mean structure to')
     parser.add_argument('-f', '--format', metavar='<json/oxDNA/both>', nargs=1, help='Output format for the mean file.  Defaults to json.  Options are \"json\", \"oxdna/oxDNA\", and \"both\"')
@@ -169,7 +149,6 @@ if __name__ == "__main__":
     check_dependencies(["python", "Bio", "numpy"])
 
     #get file names
-    top_file  = args.topology[0]
     traj_file = args.trajectory[0]
     parallel = args.parallel
     if parallel:
@@ -223,26 +202,8 @@ if __name__ == "__main__":
             except:
                 print("ERROR: The index file must be a space-seperated list of particles.  These can be generated using oxView by clicking the \"Download Selected Base List\" button")
     else: 
-        with open(top_file, 'r') as f:
-            indexes = list(range(int(f.readline().split(' ')[0])))
-    
-
-    # helpers to fetch nucleotide positions and orientations
-    indexed_fetch_np = lambda conf: np.array([
-        n.cm_pos for n in conf._nucleotides if n.index in indexes
-    ])
-
-    fetch_np = lambda conf: np.array([
-        n.cm_pos for n in conf._nucleotides
-    ])
-
-    fetch_a1 = lambda conf: np.array([
-        n._a1 for n in conf._nucleotides
-    ])
-
-    fetch_a3 = lambda conf: np.array([
-        n._a3 for n in conf._nucleotides
-    ])
+        with ErikReader(traj_file) as r:
+            indexes = list(range(len(r.read().positions)))
 
     # helper to prepare a configuration of np.array coordinates
     # into smth json is able to serialize
@@ -251,8 +212,7 @@ if __name__ == "__main__":
                         )
 
 
-    # The refference configuration which is used to define alignment
-    # before the mean structure can be calculated
+    # The reference configuration which is used to define alignment
     align_conf = []
 
     #calculate the number of configurations in the trajectory 
@@ -265,19 +225,15 @@ if __name__ == "__main__":
     # if we have no align_conf we need to chose one
     # and realign its cms to be @ 0,0,0
     if align_conf == []:
-        align_conf_id, align_conf = pick_starting_configuration(traj_file, top_file, num_confs)
-        n_nuc = align_conf._N
+        align_conf_id, align_poses = pick_starting_configuration(traj_file, num_confs)
+        n_nuc = len(align_poses.positions)
         # we are just interested in the nucleotide positions
-        align_conf = indexed_fetch_np(align_conf)
-        # calculate the cms of the init structure
-        cms = compute_cms(align_conf)
-        # now shift the structure to 0,0,0 for simplicity
-        align_conf -= cms
+        align_conf = align_poses.positions[indexes]
 
     #Actually compute mean structure
     if not parallel:
         print("INFO: Computing mean of {} configurations using 1 core.".format(num_confs), file=stderr)
-        r = LorenzoReader2(traj_file,top_file)
+        r = ErikReader(traj_file)
         mean_pos_storage, mean_a1_storage, mean_a3_storage, intermediate_mean_structures, processed_frames = compute_mean(r, align_conf, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
