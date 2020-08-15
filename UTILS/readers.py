@@ -80,7 +80,7 @@ class LorenzoReader2:
     def __next__(self):
         s = self._get_system()
         if s:
-            s.system()
+            s.inbox_system()
             return s
         else:
             raise StopIteration
@@ -243,7 +243,6 @@ class ErikReader:
         system (base_array): a set of numpy arrays containing positions and orientations of each nucleotides
     """
     def read(self, n_skip=0):
-        print(n_skip)
         if not self._time:
             if n_skip == 0:
                 return self._read_first()
