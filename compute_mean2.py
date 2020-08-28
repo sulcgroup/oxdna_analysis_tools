@@ -152,7 +152,8 @@ if __name__ == "__main__":
     traj_file = args.trajectory[0]
     parallel = args.parallel
     if parallel:
-        from UTILS import parallelize
+        #from UTILS import parallelize3
+        from UTILS import parallelize_old_new
         n_cpus = args.parallel[0]
 
     #-f defines the format of the output file
@@ -240,7 +241,7 @@ if __name__ == "__main__":
     #Each of those chunks is then calculated seperatley and the result is summed.
     if parallel:
         print("INFO: Computing mean of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        out = parallelize.fire_multiprocess(traj_file, top_file, compute_mean, num_confs, n_cpus, align_conf)
+        out = parallelize_old_new.fire_multiprocess(traj_file, compute_mean, num_confs, n_cpus, align_conf)
         mean_pos_storage = np.sum(np.array([i[0] for i in out]), axis=0)
         mean_a1_storage = np.sum(np.array([i[1] for i in out]), axis=0)
         mean_a3_storage = np.sum(np.array([i[2] for i in out]), axis=0)
@@ -297,7 +298,7 @@ if __name__ == "__main__":
         #fire up a subprocess running compute_deviations.py
         import subprocess
         from sys import executable, path
-        launchargs = [executable, path[0]+"/compute_deviations.py", jsonfile, traj_file, top_file, "-o {}".format(dev_file)]
+        launchargs = [executable, path[0]+"/compute_deviations.py", jsonfile, traj_file, "-o {}".format(dev_file)]
         if args.index_file:
             launchargs += "-i {}".format(index_file)
         if parallel:
