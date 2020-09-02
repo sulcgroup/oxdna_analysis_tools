@@ -63,7 +63,7 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
         Structured to work with the multiprocessing process from UTILS/parallelize.py
 
         Parameters:
-            reader (readers.LorenzoReader2): An active reader on the trajectory file to take the mean of.
+            reader (readers.ErikReader): An active reader on the trajectory file to take the mean of.
             align_conf (numpy.array): The position of each particle in the reference configuration.  A 3xN array.
             num_confs (int): The number of configurations in the reader.  
             <optional> start (int): The starting configuration ID to begin averaging at.  Used if parallel.
@@ -90,9 +90,9 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
     # the class doing the alignment of 2 structures
     sup = SVDSuperimposer()
 
-    mean_pos_storage = np.array([np.zeros(3) for _ in range(n_nuc)])
-    mean_a1_storage  = np.array([np.zeros(3) for _ in range(n_nuc)])
-    mean_a3_storage  = np.array([np.zeros(3) for _ in range(n_nuc)])
+    mean_pos_storage = np.zeros((n_nuc, 3))
+    mean_a1_storage = np.zeros((n_nuc, 3))
+    mean_a3_storage = np.zeros((n_nuc, 3))
 
     # for every conf in the current trajectory we calculate the global mean
     confid = 0
@@ -233,14 +233,14 @@ if __name__ == "__main__":
 
     #Actually compute mean structure
     if not parallel:
-        print("INFO: Computing mean of {} configurations using 1 core.".format(num_confs), file=stderr)
+        print("INFO: Computing mean of {} configurations with an alignment of {} particles using 1 core.".format(num_confs, len(align_conf)), file=stderr)
         r = ErikReader(traj_file)
         mean_pos_storage, mean_a1_storage, mean_a3_storage, intermediate_mean_structures, processed_frames = compute_mean(r, align_conf, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the result is summed.
     if parallel:
-        print("INFO: Computing mean of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
+        print("INFO: Computing mean of {} configurations with an alignment of {} particles using {} cores.".format(num_confs, len(align_conf), n_cpus), file=stderr)
         out = parallelize_old_new.fire_multiprocess(traj_file, compute_mean, num_confs, n_cpus, align_conf)
         mean_pos_storage = np.sum(np.array([i[0] for i in out]), axis=0)
         mean_a1_storage = np.sum(np.array([i[1] for i in out]), axis=0)
@@ -298,12 +298,16 @@ if __name__ == "__main__":
         #fire up a subprocess running compute_deviations.py
         import subprocess
         from sys import executable, path
-        launchargs = [executable, path[0]+"/compute_deviations.py", jsonfile, traj_file, "-o {}".format(dev_file)]
+        launchargs = [executable, path[0]+"/compute_deviations2.py", "-o", dev_file]
         if args.index_file:
-            launchargs += "-i {}".format(index_file)
+            launchargs.append("-i")
+            launchargs.append(index_file)
         if parallel:
-            launchargs.append("-p {}".format(n_cpus))
-        
+            launchargs.append("-p") 
+            launchargs.append(str(n_cpus))
+        launchargs.append(jsonfile)
+        launchargs.append(traj_file)
+
         subprocess.run(launchargs)
 
         #compute_deviations needs the json meanfile, but its not useful for visualization
