@@ -62,9 +62,9 @@ class base_array(object):
             cm = np.array([[np.sum(np.cos(angle[:,0])), np.sum(np.sin(angle[:,0]))], 
             [np.sum(np.cos(angle[:,1])), np.sum(np.sin(angle[:,1]))], 
             [np.sum(np.cos(angle[:,2])), np.sum(np.sin(angle[:,2]))]]) / len(angle)
-            return self.box / (2 * np.pi) * np.arctan2(-1 * cm[:,1], -1 * cm[:,0]) + np.pi
+            return self.box / (2 * np.pi) * (np.arctan2(-cm[:,1], -cm[:,0]) + np.pi)
 
-        target = np.zeros(3)
+        target = np.array([self.box[0] / 2, self.box[1] / 2, self.box[2] / 2])
         center = calc_PBC_COM(self)
 
         self.positions += (target - center)
@@ -78,13 +78,36 @@ class base_array(object):
 
     Parameters
     ----------
-    filename : str
-        The name to write out to.  Should end in .dat, .conf or .oxdna
+    f : _io.TextIOWrapper
+        An open Python file handler.
     """
-    def write_configuration(self, filename):
+    def _write_configuration(self, f):
+        f.write('t = {}\n'.format(int(self.time)))
+        f.write('b = {}\n'.format(' '.join(self.box.astype(str))))
+        f.write('E = 0 0 0\n')
+        for p, a1, a3 in zip(self.positions, self.a1s, self.a3s):
+            f.write('{} {} {} 0.0 0.0 0.0 0.0 0.0 0.0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
+
+    """
+    Starts writing a new configuration file.  Will overwrite existing content.
+    
+    Parameters
+    ----------
+    filename: str
+        The filename to write out to.  Should end in .dat, .conf or .oxdna for oxView compatibility
+    """
+    def write_new(self, filename):
         with open(filename, 'w') as f:
-            f.write('t = {}\n'.format(self.time))
-            f.write('b = {}\n'.format(' '.join(self.box.astype(str))))
-            f.write('E = 0 0 0\n')
-            for p, a1, a3 in zip(self.positions, self.a1s, self.a3s):
-                f.write('{} {} {} 0 0 0 0 0 0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
+            self._write_configuration(f)
+
+    """
+    Appends to an existing trajectory file.
+
+    Parameters
+    ----------
+    filename: str
+        The filename to write out to.  Should end in .dat, .conf or .oxdna for oxView compatibility
+    """
+    def write_append(self, filename):
+        with open(filename, 'a') as f:
+            self._write_configuration(f)
