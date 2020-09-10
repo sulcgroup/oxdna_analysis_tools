@@ -243,7 +243,7 @@ if __name__ == "__main__":
         }))
 
     #If we're running clustering, feed the linear terms into the clusterer
-    if cluster:s
+    if cluster:
         print("INFO: Mapping configurations to component space...", file=stderr)
 
         #If you want to cluster on only some of the components, uncomment this
