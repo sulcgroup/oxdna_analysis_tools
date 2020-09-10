@@ -7,7 +7,7 @@
 #the output JSON can be loaded into the viewer where it will overlay as arrows
 
 import numpy as np 
-from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
+from UTILS.readers import ErikReader, cal_confs, get_input_parameter
 from sys import exit, stderr
 import argparse
 from json import load, dumps
@@ -16,14 +16,10 @@ try:
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
 from random import randint
-from UTILS import parallelize
+from UTILS import parallelize_old_new
 from warnings import catch_warnings, simplefilter
 from os import environ
 from config import check_dependencies
-
-fetch_np = lambda conf: np.array([
-    n.cm_pos for n in conf._nucleotides 
-])
 
 def make_heatmap(covariance):
     """
@@ -45,13 +41,13 @@ def make_heatmap(covariance):
     b.set_label("covariance", rotation = 270)
     plt.savefig("heatmap.png")
 
-def get_pca(reader, align_conf, num_confs, start=None, stop=None):
+def get_cov(reader, align_conf, num_confs, start=None, stop=None):
     """
         Performs principal component analysis on deviations from the mean structure
 
         Parameters:
-            reader (readers.LorenzoReader2): An active reader on the trajectory file to analyze.
-            mean_structure (numpy.array): The position of each particle in the mean configuration.  A 3xN array.
+            reader (readers.ErikReader): An active reader on the trajectory file to analyze.
+            align_conf (numpy.array): The position of each particle in the mean configuration.  A 3xN array.
             num_confs (int): The number of configurations in the reader.  
             <optional> start (int): The starting configuration ID to begin averaging at.  Used if parallel.
             <optional> stop (int): The configuration ID on which to end the averaging.  Used if parallel.
@@ -66,28 +62,75 @@ def get_pca(reader, align_conf, num_confs, start=None, stop=None):
         start = 0
     else: start = int(start)
     
-    mysystem = reader._get_system(N_skip = start)
+    mysystem = reader.read(n_skip = start)
     
-    deviations_matrix = np.empty((stop, (len(align_conf))*3))
+    covariation_matrix = np.zeros((len(mysystem.positions)*3, len(mysystem.positions)*3))
     sup = SVDSuperimposer()
     confid = 0
 
     #for every configuration in the trajectory chunk, align it to the mean and compute positional difference for every particle
     while mysystem != False and confid < stop:
-        print("-->", mysystem._time)
+        print("-->", "frame", confid, "time={}".format(mysystem.time))
         mysystem.inbox()
-        cur_conf = fetch_np(mysystem)
+        cur_conf = mysystem.positions
         sup.set(align_conf, cur_conf)
         sup.run()
         rot, tran = sup.get_rotran()
         #equivalent to taking the dot product of the rotation array and every vector in the deviations array
         cur_conf = np.einsum('ij, ki -> kj', rot, cur_conf) + tran
-        deviations_matrix[confid] = (cur_conf-align_conf).flatten()
+        difference_matrix = (cur_conf - align_conf).flatten()
+        covariation_matrix += np.einsum('i,j -> ij', difference_matrix, difference_matrix)
 
         confid += 1
-        mysystem = reader._get_system()
+        mysystem = reader.read()
 
-    return deviations_matrix
+    return covariation_matrix
+
+def change_basis(reader, align_conf, components, num_confs, start=None, stop=None):
+    """
+    Transforms each configuration in a trajectory into a point in principal component space
+
+    Parameters:
+        reader (readers.ErikReader): An active reader on the trajectory file to analyze.
+        align_conf (numpy.array): The position of each particle in the mean configuration.  A 3xN array.
+        components (numpy.array): The principal components of the trajectory.  A 3*Nx3*N array.
+        num_confs (int): The number of configurations in the reader.  
+        <optional> start (int): The starting configuration ID to begin averaging at.  Used if parallel.
+        <optional> stop (int): The configuration ID on which to end the averaging.  Used if parallel.
+
+    Returns:
+        coordinates (numpy.array): The positions of each frame of the trajectory in principal component space.
+    """
+
+    if stop is None:
+        stop = num_confs
+    else: stop = int(stop)
+    if start is None:
+        start = 0
+    else: start = int(start)
+    
+    mysystem = reader.read(n_skip = start)
+
+    coordinates = np.empty((stop, len(mysystem.positions)*3))
+    sup = SVDSuperimposer()
+    confid = 0
+
+    while mysystem != False and confid < stop:
+        print("-->", "frame", confid, "time={}".format(mysystem.time))
+        mysystem.inbox()
+        cur_conf = mysystem.positions
+        sup.set(align_conf, cur_conf)
+        sup.run()
+        rot, tran = sup.get_rotran()
+        #equivalent to taking the dot product of the rotation array and every vector in the deviations array
+        cur_conf = np.einsum('ij, ki -> kj', rot, cur_conf) + tran
+        difference_matrix = (cur_conf - align_conf).flatten()
+        coordinates[confid] = np.matmul(components, difference_matrix).astype(float)
+
+        confid += 1
+        mysystem = reader.read()
+
+    return(coordinates)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Calculates a principal component analysis of nucleotide deviations over a trajectory")
@@ -110,51 +153,43 @@ if __name__ == "__main__":
         n_cpus = args.parallel[0]
     #-c makes it run the clusterer on the output
     cluster = args.cluster
-    top_file = get_input_parameter(inputfile, "topology")
-    if "RNA" in get_input_parameter(inputfile, "interaction_type"):
-        environ["OXRNA"] = "1"
-    else:
-        environ["OXRNA"] = "0"
-    import UTILS.base #this needs to be imported after the model type is set
-    
+
     num_confs = cal_confs(traj_file)
     
     if mean_file.split(".")[-1] == "json":
         with open(mean_file) as file:
             align_conf = load(file)['g_mean']
 
-    elif mean_file.split(".")[-1] == "dat":
-        fetch_np = lambda conf: np.array([
-            n.cm_pos for n in conf._nucleotides
-        ])
-        with LorenzoReader2(mean_file, top_file) as reader:
-            s = reader._get_system()
-            align_conf = fetch_np(s)
+    elif mean_file.split(".")[-1] == "dat" or mean_file.split(".")[-1] == "conf" or mean_file.split(".")[-1] == "oxdna":
+        with ErikReader(mean_file) as reader:
+            align_conf = reader.read().positions
+    else:
+        print("ERROR: {} is an unrecognized file type. \nThe mean structure must either be provided as an oxDNA configuration file with the extension .dat, .conf or .oxdna or as the .json file produced by compute_mean.py.", file=stderr)
+        exit(1)
 
     cms = np.mean(align_conf, axis=0) #all structures must have the same center of mass
     align_conf -= cms 
         
     #Compute the deviations
     if not parallel:
-        r = LorenzoReader2(traj_file,top_file)
-        deviations_matrix = get_pca(r, align_conf, num_confs)
+        r = ErikReader(traj_file)
+        covariation_matrix = get_cov(r, align_conf, num_confs)
     
     if parallel:
-        out = parallelize.fire_multiprocess(traj_file, top_file, get_pca, num_confs, n_cpus, align_conf)
-        deviations_matrix = np.concatenate([i for i in out])
-    
-    #now that we have the deviations matrix we're gonna get the covariance and PCA it
-    #note that in the future we might want a switch for covariance vs correlation matrix because correlation (cov/stdev so all diagonals are 1) is better for really floppy structures
-    print("INFO: calculating covariance", file=stderr)
-    covariance = np.cov(deviations_matrix.T)
+        out = parallelize_old_new.fire_multiprocess(traj_file, get_cov, num_confs, n_cpus, align_conf)
+        covariation_matrix = np.sum([i for i in out], axis=0)
+
+    covariation_matrix /= (num_confs-1)
+
+    #now that we have the covatiation matrix we're going to use eigendecomposition to get the principal components.
     #make_heatmap(covariance)
     print("INFO: calculating eigenvectors", file=stderr)
-    evalues, evectors = np.linalg.eig(covariance)
+    evalues, evectors = np.linalg.eig(covariation_matrix)
     sort = evalues.argsort()[::-1]
     evalues = evalues[sort]
     evectors = evectors.T[sort]
     print("INFO: eigenvectors calculated", file=stderr)
-
+    
     import matplotlib.pyplot as plt
     print("INFO: Saving scree plot to scree.png", file=stderr)
     plt.scatter(range(0, len(evalues)), evalues, s=25)
@@ -168,13 +203,25 @@ if __name__ == "__main__":
     mul = evectors
 
     #reconstruct configurations in component space
-    out = np.dot(deviations_matrix, mul).astype(float)
+    #because we donlist't save the difference matrix, this involves running through the whole trajectory again
+    if not parallel:
+        r = ErikReader(traj_file)
+        coordinates = change_basis(r, align_conf, mul, num_confs)
+    if parallel:
+        out = parallelize_old_new.fire_multiprocess(traj_file, change_basis, num_confs, n_cpus, align_conf, mul)
+        coordinates = np.concatenate([i for i in out])
 
     #make a quick plot from the first three components
+    #THESE ARE STILL DIFFERENT????
+    #Numpy eiginvectors are the columns of the matrix, so the transpose had to happen before the sort
+    #I see ways to compute from a single datapoint: y = P.T x where P is the projection matrix and x is the point
+    #And for all the datapoints: C = U.T.dot(X) where U are the components
+    #so based on that I don't see why these should be different
+    #tbh just test it on the clustering example and see if it still pulls them apart.
     from mpl_toolkits.mplot3d import Axes3D
     fig = plt.figure()
     ax = fig.gca(projection='3d')
-    ax.scatter(out[:,0], out[:,1], out[:,2], c='g', s=25)
+    ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c='g', s=25)
     plt.savefig("coordinates.png")
     
     #Create an oxView overlay showing the first SUM components
@@ -196,13 +243,13 @@ if __name__ == "__main__":
         }))
 
     #If we're running clustering, feed the linear terms into the clusterer
-    if cluster:
+    if cluster:s
         print("INFO: Mapping configurations to component space...", file=stderr)
 
         #If you want to cluster on only some of the components, uncomment this
         #out = out[:,0:3]
 
         from clustering import perform_DBSCAN
-        labs = perform_DBSCAN(out, num_confs, traj_file, inputfile, "euclidean")
+        labs = perform_DBSCAN(coordinates, num_confs, traj_file, inputfile, "euclidean")
 
     
