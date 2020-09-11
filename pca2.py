@@ -112,6 +112,7 @@ def change_basis(reader, align_conf, components, num_confs, start=None, stop=Non
     mysystem = reader.read(n_skip = start)
 
     coordinates = np.empty((stop, len(mysystem.positions)*3))
+    coordinates2 = np.empty((stop, len(mysystem.positions)*3))
     sup = SVDSuperimposer()
     confid = 0
 
@@ -124,8 +125,7 @@ def change_basis(reader, align_conf, components, num_confs, start=None, stop=Non
         rot, tran = sup.get_rotran()
         #equivalent to taking the dot product of the rotation array and every vector in the deviations array
         cur_conf = np.einsum('ij, ki -> kj', rot, cur_conf) + tran
-        difference_matrix = (cur_conf - align_conf).flatten()
-        coordinates[confid] = np.matmul(components, difference_matrix).astype(float)
+        coordinates[confid] = np.dot(components, cur_conf.flatten())
 
         confid += 1
         mysystem = reader.read()
@@ -184,10 +184,8 @@ if __name__ == "__main__":
     #now that we have the covatiation matrix we're going to use eigendecomposition to get the principal components.
     #make_heatmap(covariance)
     print("INFO: calculating eigenvectors", file=stderr)
-    evalues, evectors = np.linalg.eig(covariation_matrix)
-    sort = evalues.argsort()[::-1]
-    evalues = evalues[sort]
-    evectors = evectors.T[sort]
+    evalues, evectors = np.linalg.eig(covariation_matrix) #these eigenvalues are already sorted
+    evectors = evectors.T #vectors come out as the columns of the array
     print("INFO: eigenvectors calculated", file=stderr)
     
     import matplotlib.pyplot as plt
@@ -197,9 +195,19 @@ if __name__ == "__main__":
     plt.ylabel("eigenvalue")
     plt.savefig("scree.png")
 
-    print("INFO: Creating coordinate plot from first three eigenvectors.  Saving to coordinates.png", file=stderr)
+    total = sum(evalues)
+    running = 0
+    i = 0
+    while running < 0.9:
+        running += (evalues[i] / total)
+        i += 1
+    
+    print("90% of the variance is found in the first {} components".format(i))
+
+
+    
     #if you want to weight the components by their eigenvectors
-    #mul = np.einsum('ij,i->ij',evectors[0:3], evalues[0:3])
+    #mul = np.einsum('ij,i->ij',evectors, evalues)
     mul = evectors
 
     #reconstruct configurations in component space
@@ -212,35 +220,37 @@ if __name__ == "__main__":
         coordinates = np.concatenate([i for i in out])
 
     #make a quick plot from the first three components
-    #THESE ARE STILL DIFFERENT????
-    #Numpy eiginvectors are the columns of the matrix, so the transpose had to happen before the sort
-    #I see ways to compute from a single datapoint: y = P.T x where P is the projection matrix and x is the point
-    #And for all the datapoints: C = U.T.dot(X) where U are the components
-    #so based on that I don't see why these should be different
-    #tbh just test it on the clustering example and see if it still pulls them apart.
+    print("INFO: Creating coordinate plot from first three eigenvectors.  Saving to coordinates.png", file=stderr)
     from mpl_toolkits.mplot3d import Axes3D
     fig = plt.figure()
     ax = fig.gca(projection='3d')
     ax.scatter(coordinates[:,0], coordinates[:,1], coordinates[:,2], c='g', s=25)
     plt.savefig("coordinates.png")
     
-    #Create an oxView overlay showing the first SUM components
-    SUM = 1
-    print("INFO: Change the number of eigenvalues to sum and display by modifying the SUM variable in the script.  Current value: {}".format(SUM), file=stderr)
-    weighted_sum = np.zeros_like(evectors[0])
-    for i in range(0, SUM): #how many eigenvalues do you want?
-        weighted_sum += evalues[i]*evectors[i]
-
+    #Create an oxView overlays for the first N components
+    N = 3
     prep_pos_for_json = lambda conf: list(
-                            list(p) for p in conf
-                        )
-    with catch_warnings(): #this produces an annoying warning about casting complex values to real values that is not relevant
-        simplefilter("ignore")
-        output_vectors = weighted_sum.reshape(int(weighted_sum.shape[0]/3), 3).astype(float)
-    with open(outfile, "w+") as file:
-        file.write(dumps({
-            "pca" : prep_pos_for_json(output_vectors)
-        }))
+                        list(p) for p in conf
+                    )
+    print("INFO: Change the number of eigenvalues to sum and display by modifying the N variable in the script.  Current value: {}".format(N), file=stderr)
+    for i in range(0, N): #how many eigenvalues do you want?
+        try:
+            if outfile.split(".")[1] != "json":
+                raise Exception
+            f = outfile.split(".")[0] + str(i) + "." + outfile.split(".")[1]
+        except:
+            print("ERROR: oxView overlays must have a '.json' extension.  No overlays will be produced", file=stderr)
+            break
+        out = np.sqrt(evalues[i])*evectors[i]
+
+        with catch_warnings(): #this produces an annoying warning about casting complex values to real values that is not relevant
+            simplefilter("ignore")
+            output_vectors = out.reshape(int(out.shape[0]/3), 3).astype(float)
+        
+        with open(f, "w+") as file:
+            file.write(dumps({
+                "pca" : prep_pos_for_json(output_vectors)
+            }))
 
     #If we're running clustering, feed the linear terms into the clusterer
     if cluster:
