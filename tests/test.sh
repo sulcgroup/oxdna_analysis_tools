@@ -2,7 +2,7 @@
 
 echo "Testing align_trajectory.py..."
 if
-    ../align_trajectory.py minitraj.dat rna_tile.top aligned.dat 2>&1 >/dev/null | grep -y "ERROR"
+    ../align_trajectory.py minitraj.dat aligned.dat 2>&1 >/dev/null | grep -y "ERROR"
 then
     echo "AN ERROR OCCURED"
 else
@@ -24,7 +24,7 @@ echo ""
 
 echo "Testing compute_mean.py and compute_deviations.py..."
 if
-    ../compute_mean.py -d devs.json minitraj.dat rna_tile.top 2>&1 >/dev/null | grep -y "ERROR"
+    ../compute_mean.py -d devs.json minitraj.dat 2>&1 >/dev/null | grep -y "ERROR"
 then
     echo "AN ERROR OCCURED"
 else

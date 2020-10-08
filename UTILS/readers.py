@@ -266,6 +266,8 @@ class ErikReader:
         self._line = self._conf.readline().split() #first line of the configuration
         
         for i in range(self._len):
+            if (len(self._line) == 0 or "t" in self._line) and i < self._len:
+                print("ERROR: Reader encountered a partial configuration with only {} lines ({} expected)".format(i, self._len))
             self._configuration.positions[i] = np.array(self._line[0:3], dtype=float)
             self._configuration.a1s[i] = np.array(self._line[3:6], dtype=float)
             self._configuration.a3s[i] = np.array(self._line[6:9], dtype=float)
