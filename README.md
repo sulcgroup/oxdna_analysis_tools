@@ -4,7 +4,7 @@ A suite of Python tools for performing generic structural analyses of oxDNA simu
 Our goal in developing these tools is to provide a foundation of common analyses applicable to most simulations and to provide code examples for researchers looking to implement tools to meet their own research needs.
 Running any script without arguments will print a brief description and list of required files.
 
-An overarching description can be found in our preprint: https://doi.org/10.1101/2020.01.24.917419.
+An overarching description can be found in this paper: https://academic.oup.com/nar/article/48/12/e72/5843822.
 
 
 ## Dependencies and installation
@@ -92,4 +92,4 @@ https://stackoverflow.com/questions/4348590/how-can-i-make-git-ignore-future-rev
 ## Citation
 
 If you use these scripts or oxView in your published work, please cite:<br/>
-Erik Poppleton, Joakim Bohlin, Michael Matthies, Shuchi Sharma, Fei Zhang, Petr Sulc: Design, optimization, and analysis of large DNA and RNA nanostructures through interactive visualization, editing, and molecular simulation (bioarxiv preprint: https://doi.org/10.1101/2020.01.24.917419)
+Erik Poppleton, Joakim Bohlin, Michael Matthies, Shuchi Sharma, Fei Zhang, Petr Sulc: Design, optimization, and analysis of large DNA and RNA nanostructures through interactive visualization, editing, and molecular simulation. (2020) Nucleic Acids Research e72. https://doi.org/10.1093/nar/gkaa417
