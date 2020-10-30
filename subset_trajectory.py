@@ -5,6 +5,8 @@ from sys import stderr
 
 def subset_traj(system, ids):
     new_systems = [base.System(system._box) for _ in ids]
+    for s in new_systems:
+        s._time = system._time
     system.inbox()
     for s in system._strands:
         tmp_strands = [None for _ in ids]
