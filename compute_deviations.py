@@ -87,7 +87,7 @@ if __name__ == "__main__":
     traj_file = args.trajectory[0]
     parallel = args.parallel
     if parallel:
-        from UTILS import parallelize3
+        from UTILS import parallelize_erik_onefile
         n_cpus = args.parallel[0]
     num_confs = cal_confs(traj_file)
 
@@ -126,7 +126,7 @@ if __name__ == "__main__":
     if parallel:
         print("INFO: Computing deviations from the mean of {} configurations with an alignment of {} particles using {} cores.".format(num_confs, len(indexed_mean_structure), n_cpus), file=stderr)
         deviations = []
-        out = parallelize3.fire_multiprocess(traj_file, compute_deviations, num_confs, n_cpus, mean_structure, indexed_mean_structure)
+        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_deviations, num_confs, n_cpus, mean_structure, indexed_mean_structure)
         [deviations.extend(i) for i in out]
 
     #compute_deviations() returns the deviation of every particle in every configuration

@@ -153,7 +153,7 @@ if __name__ == "__main__":
     parallel = args.parallel
     if parallel:
         #from UTILS import parallelize3
-        from UTILS import parallelize_old_new
+        from UTILS import parallelize_erik_onefile
         n_cpus = args.parallel[0]
 
     #-f defines the format of the output file
@@ -241,7 +241,7 @@ if __name__ == "__main__":
     #Each of those chunks is then calculated seperatley and the result is summed.
     if parallel:
         print("INFO: Computing mean of {} configurations with an alignment of {} particles using {} cores.".format(num_confs, len(align_conf), n_cpus), file=stderr)
-        out = parallelize_old_new.fire_multiprocess(traj_file, compute_mean, num_confs, n_cpus, align_conf)
+        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_mean, num_confs, n_cpus, align_conf)
         mean_pos_storage = np.sum(np.array([i[0] for i in out]), axis=0)
         mean_a1_storage = np.sum(np.array([i[1] for i in out]), axis=0)
         mean_a3_storage = np.sum(np.array([i[2] for i in out]), axis=0)

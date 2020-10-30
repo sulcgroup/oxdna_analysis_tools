@@ -1,8 +1,14 @@
+"""
+This parallelizer splits a trajectory into multiple tempfiles and attaches a LorenzoReader to each one.
+This is more memory-intensive than one-file, but is a significant performance increase on certain systems.
+"""
+
 import pathos.multiprocessing as pp
 from os import getenv, remove
-from UTILS.readers import blocks, ErikReader
+from UTILS.readers import LorenzoReader2
 import numpy as np
 from tempfile import NamedTemporaryFile
+from UTILS.readers import blocks
 
 #actually unused these days, but just in case...
 def get_n_cpu():
@@ -19,7 +25,7 @@ def get_n_cpu():
 
     return available_cpus
 
-def split_trajectory(traj_file, num_confs, n_cpus, confs_per_processor):
+def split_trajectory(traj_file, top_file, num_confs, n_cpus, confs_per_processor):
     """
     Splits a trajectory file into temporary files and attaches a reader to each file.
 
@@ -71,7 +77,7 @@ def split_trajectory(traj_file, num_confs, n_cpus, confs_per_processor):
                     last_conf_byte = next_conf_byte 
 
             #create a reader from the newly created trajectory chunk
-            readers.append(ErikReader(out.name))
+            readers.append(LorenzoReader2(out.name, top_file))
             files.append(out)
             n_files += 1
         
@@ -80,7 +86,7 @@ def split_trajectory(traj_file, num_confs, n_cpus, confs_per_processor):
 
 #partitions the trajectory file to the number of workers defined by n_cpus
 #each worker runs the given function on its section of the trajectory
-def fire_multiprocess(traj_file, function, num_confs, n_cpus, *args):
+def fire_multiprocess(traj_file, top_file, function, num_confs, n_cpus, *args):
     """
     Distributes a function over a given number of processes
 
@@ -106,7 +112,7 @@ def fire_multiprocess(traj_file, function, num_confs, n_cpus, *args):
     processor_pool = pp.Pool(n_cpus)
 
     #split_starts and split_ends are around for backwards compatability with the old parallelize algorithm
-    reader_pool, tmpfiles = split_trajectory(traj_file, num_confs, n_cpus, confs_per_processor)
+    reader_pool, tmpfiles = split_trajectory(traj_file, top_file, num_confs, n_cpus, confs_per_processor)
     split_starts = [0 for  r in reader_pool]
     split_ends = [confs_per_processor for r in reader_pool]
     rem = num_confs % n_cpus

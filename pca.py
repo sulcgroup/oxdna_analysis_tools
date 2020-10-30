@@ -16,7 +16,7 @@ try:
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
 from random import randint
-from UTILS import parallelize_old_new
+from UTILS import parallelize_erik_onefile
 from warnings import catch_warnings, simplefilter
 from os import environ
 from config import check_dependencies
@@ -176,7 +176,7 @@ if __name__ == "__main__":
         covariation_matrix = get_cov(r, align_conf, num_confs)
     
     if parallel:
-        out = parallelize_old_new.fire_multiprocess(traj_file, get_cov, num_confs, n_cpus, align_conf)
+        out = parallelize_erik_onefile.fire_multiprocess(traj_file, get_cov, num_confs, n_cpus, align_conf)
         covariation_matrix = np.sum([i for i in out], axis=0)
 
     covariation_matrix /= (num_confs-1)
@@ -216,7 +216,7 @@ if __name__ == "__main__":
         r = ErikReader(traj_file)
         coordinates = change_basis(r, align_conf, mul, num_confs)
     if parallel:
-        out = parallelize_old_new.fire_multiprocess(traj_file, change_basis, num_confs, n_cpus, align_conf, mul)
+        out = parallelize_erik_onefile.fire_multiprocess(traj_file, change_basis, num_confs, n_cpus, align_conf, mul)
         coordinates = np.concatenate([i for i in out])
 
     #make a quick plot from the first three components

@@ -13,7 +13,7 @@ from sys import exit, stderr
 from json import dumps, loads
 from contact_map import contact_map
 import argparse
-from UTILS import parallelize
+from UTILS import parallelize_lorenzo_onefile
 from os import environ
 
 def make_heatmap(contact_map):
@@ -156,7 +156,7 @@ if __name__ == "__main__":
 
     if parallel:
         print("INFO: Computing interparticle distances of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        out = parallelize.fire_multiprocess(traj_file, top_file, get_mean, num_confs, n_cpus)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_mean, num_confs, n_cpus)
         cartesian_distances = np.sum(np.array([i for i in out]), axis=0)
 
     mean_distance_map = cartesian_distances * (1/(num_confs))
@@ -227,7 +227,7 @@ if __name__ == "__main__":
 
     if parallel:
         print("INFO: Computing distance deviations of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        out = parallelize.fire_multiprocess(traj_file, top_file, get_devs, num_confs, n_cpus, masked_mean)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_devs, num_confs, n_cpus, masked_mean)
         devs = np.sum(np.array([i for i in out]), axis=0)
 
     #Dump the deviations to an oxView overlay file

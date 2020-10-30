@@ -16,7 +16,7 @@ try:
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
 from random import randint
-from UTILS import parallelize
+from UTILS import parallelize_lorenzo_onefile
 from warnings import catch_warnings, simplefilter
 from os import environ
 from config import check_dependencies
@@ -141,13 +141,16 @@ if __name__ == "__main__":
         deviations_matrix = get_pca(r, align_conf, num_confs)
     
     if parallel:
-        out = parallelize.fire_multiprocess(traj_file, top_file, get_pca, num_confs, n_cpus, align_conf)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_pca, num_confs, n_cpus, align_conf)
         deviations_matrix = np.concatenate([i for i in out])
     
     #now that we have the deviations matrix we're gonna get the covariance and PCA it
     #note that in the future we might want a switch for covariance vs correlation matrix because correlation (cov/stdev so all diagonals are 1) is better for really floppy structures
-    pca = PCA()
+    pca = PCA(n_components=3)
     pca.fit(deviations_matrix)
+    transformed = pca.transform(deviations_matrix)
+
+    #THIS IS AS FAR AS I GOT
 
     import matplotlib.pyplot as plt
     print("INFO: Saving scree plot to scree.png", file=stderr)

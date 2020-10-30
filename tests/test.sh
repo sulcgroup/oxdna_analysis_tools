@@ -11,9 +11,9 @@ fi
 
 echo ""
 
-echo "Testing bond_analysis.py..."
+echo "Testing bond_analysis.py with parallelize_lorenzo..."
 if
-    ../bond_analysis.py input_rna minitraj.dat pairs.txt pairs.json 2>&1 >/dev/null | grep -y "ERROR"
+    ../bond_analysis.py -p2 input_rna minitraj.dat pairs.txt pairs.json 2>&1 >/dev/null | grep -y "ERROR"
 then
     echo "AN ERROR OCCURED"
 else
@@ -22,9 +22,9 @@ fi
 
 echo ""
 
-echo "Testing compute_mean.py and compute_deviations.py..."
+echo "Testing compute_mean.py and compute_deviations.py with parallelize_erik..."
 if
-    ../compute_mean.py -d devs.json minitraj.dat 2>&1 >/dev/null | grep -y "ERROR"
+    ../compute_mean.py -p 2 -d devs.json minitraj.dat 2>&1 >/dev/null | grep -y "ERROR"
 then
     echo "AN ERROR OCCURED"
 else
@@ -35,7 +35,7 @@ echo ""
 
 echo "Testing centroid.py..."
 if
-    ../centroid.py -i index.txt mean.dat minitraj.dat rna_tile.top 2>&1 >/dev/null | grep -y "ERROR"
+    ../centroid.py -i index.txt mean.dat minitraj.dat 2>&1 >/dev/null | grep -y "ERROR"
 then
     echo "AN ERROR OCCURED"
 else

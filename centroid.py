@@ -9,7 +9,7 @@ from json import loads, dumps
 from UTILS.readers import ErikReader, cal_confs
 import numpy as np
 import argparse
-from UTILS import parallelize_old_new
+from UTILS import parallelize_erik_onefile
 from json import load
 
 def compute_centroid(reader, mean_structure, num_confs, start=None, stop=None):
@@ -144,7 +144,7 @@ if __name__ == "__main__":
         a1s = []
         a3s = []
         ts = []
-        out = parallelize_old_new.fire_multiprocess(traj_file, compute_centroid, num_confs, n_cpus, mean_structure)
+        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_centroid, num_confs, n_cpus, mean_structure)
         [candidates.append(i[0]) for i in out]
         [rmsfs.append(i[3]) for i in out]
         [a1s.append(i[1]) for i in out]

@@ -1,3 +1,8 @@
+"""
+This parallelizer attaches multiple ErikReaders to a single trajectory.
+This is less memory-intensive than multi-file, but is a significant performance decrease on certain systems.
+"""
+
 import pathos.multiprocessing as pp
 from os import getenv
 from UTILS.readers import ErikReader
