@@ -4,7 +4,7 @@ Clustering can be done on any data set that can position each configuration to a
 
 1. Compute the mean structure of the trajectory to use as a reference for pca.
 
-   `../../compute_mean.py -f oxDNA -o mean_all.dat trajectory.dat rna_tile.top`
+   `../../compute_mean.py -f oxDNA -o mean_all.dat trajectory.dat`
 
 If you have multiple CPUs available, this can be run with the `-p <n_cpus>` option to speed up computation.  We do not need to calculate deviations for this example.
 
