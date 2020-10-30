@@ -22,11 +22,11 @@ This folder contains example files to perform the svd-based mean structures show
 
    For the DNA wireframe:
    ```
-   python ../../compute_mean.py -f oxDNA -o mean.dat -d devs.json trajectory_trap.dat 19.top
+   python ../../compute_mean.py -f oxDNA -o mean.dat -d devs.json trajectory_trap.dat
    ```
    For the RNA origami:
    ```
-   python ../../compute_mean.py -f oxDNA -o mean.dat -d devs.json trajectory_trap.dat rna_rectangle.top
+   python ../../compute_mean.py -f oxDNA -o mean.dat -d devs.json trajectory_trap.dat
    ```
    **A couple of notes on the compute_mean script:**
      `-f` sets the output format.  The options are an oxDNA .dat file or a json file containing the positions.
