@@ -12,7 +12,7 @@ import tempfile
 from config import set_analysis_path
 PROCESSPROGRAM = set_analysis_path()
 
-command_for_data =  'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=pair_energy \n} \n}'
+command_for_data =  'analysis_data_output_1={ \n name = stdout \n print_every = 1 \n col_1 = { \n type=pair_energy \n} \n}'
 
 def output_bonds (inputfile, system):
 	tempfile_obj = tempfile.NamedTemporaryFile()

@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 import UTILS.all_vectors
 import argparse
 from clustering import perform_DBSCAN
-from UTILS import parallelize
+from UTILS import parallelize_lorenzo_onefile
 
 #a matrix of vectors in local cylindrical coordinates
 def calc_matrix(system, inputfile):
@@ -163,7 +163,7 @@ if __name__ == "__main__":
 
         eRMSDs = get_eRMSDs(r1, r2, inputfile, traj_file, top_file, num_confs)
     if parallel:
-        out = parallelize.fire_multiprocess(traj_file, top_file, get_eRMSDs, num_confs, n_cpus, r2, inputfile, traj_file, top_file, matrix=True)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_eRMSDs, num_confs, n_cpus, r2, inputfile, traj_file, top_file, matrix=True)
         eRMSDs = np.sum((i for i in out), axis=0)
     #eRMSDs = pickle.load(open('tmp_eRMSDs', 'rb'))
 
@@ -180,6 +180,6 @@ if __name__ == "__main__":
 
     ###############################################################################################################
     #Next, we're going to perform a DBSCAN on that matrix of eRMSDs to find clusters of similar structures
-    perform_DBSCAN(eRMSDs, num_confs, traj_file, inputfile)
+    perform_DBSCAN(eRMSDs, num_confs, traj_file, inputfile, "precomputed")
 
     ##############################################################################################################

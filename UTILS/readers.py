@@ -2,7 +2,7 @@ import os.path
 import sys
 import numpy as np
 from . import base
-#import base
+from .base_array import base_array
 
 #helper for cal_confs
 def blocks(file, size=1000000):
@@ -80,7 +80,7 @@ class LorenzoReader2:
     def __next__(self):
         s = self._get_system()
         if s:
-            s.system()
+            s.inbox_system()
             return s
         else:
             raise StopIteration
@@ -175,3 +175,102 @@ class LorenzoReader2:
             self._read(skip=True)
 
         return self._read(only_strand_ends=only_strand_ends, skip=False)
+
+
+class ErikReader:
+    def __enter__(self):
+        return self
+
+    def __exit__(self,  exc_type, exc_val, exc_tb):
+        self.__del__()
+
+    def __del__(self):
+        try: 
+            if self._conf: 
+                self._conf.close()
+        except:
+            print("ERROR: The reader could not load the provided configuration")
+            sys.exit(1)
+
+    def __init__(self, configuration):
+        if not os.path.isfile(configuration):
+            print("Configuration file '{}' is not readable".format(configuration))
+            sys.exit(1)
+        self._conf = open(configuration, "r")
+        self._time = None
+        self._box = np.zeros(3)
+        self._len = 0
+
+    """
+    Special reader that handles the first line and allocates the memory for storing the system
+    """
+    def _read_first(self):
+        self._line = self._conf.readline().split()
+        if len(self._line) == 0:
+            print("ERROR: the configuration file is empty")
+        else:
+            self._time = float(self._line[2])
+
+        self._line = self._conf.readline().split()
+        self._box = np.array(self._line[2:], dtype=float)
+        self._conf.readline() #skip the energy line because nobody loves it
+
+        #we make lists here because we don't know how big the configuration is (that is in the topology)
+        positions = []
+        a1s = []
+        a3s = []
+        self._line = self._conf.readline().split()
+        while self._line[0] != "t":
+            positions.append(self._line[0:3])
+            a1s.append(self._line[3:6])
+            a3s.append(self._line[6:9])
+            self._line = self._conf.readline().split()
+            if self._line == []:
+                break
+
+        self._configuration = base_array(self._time, self._box, np.array(positions, dtype=float), np.array(a1s, dtype=float), np.array(a3s, dtype=float))
+        self._len = len(positions)
+
+        return (self._configuration)
+    
+    """
+    Read the next configuration in the trajectory.
+
+    Parameters:
+        <optional> n_skip (int): skip the next n configurations before returning
+
+    Returns:
+        system (base_array): a set of numpy arrays containing positions and orientations of each nucleotides
+    """
+    def read(self, n_skip=0):
+        if not self._time:
+            if n_skip == 0:
+                return self._read_first()
+            else:
+                self._read_first()
+                n_skip -= 1
+
+        if n_skip > 0:
+            for i in range((n_skip * (self._len + 3)) -1):
+                self._conf.readline()
+            self._line = self._conf.readline().split() # get the time 
+
+        if  len(self._line) == 0:
+            return False
+        else:
+            self._time = float(self._line[2])
+            self._configuration.time = self._time
+
+        self._conf.readline() # we already know the box
+        self._conf.readline() # still don't care about the energy
+        self._line = self._conf.readline().split() #first line of the configuration
+        
+        for i in range(self._len):
+            if (len(self._line) == 0 or "t" in self._line) and i < self._len:
+                print("ERROR: Reader encountered a partial configuration with only {} lines ({} expected)".format(i, self._len))
+            self._configuration.positions[i] = np.array(self._line[0:3], dtype=float)
+            self._configuration.a1s[i] = np.array(self._line[3:6], dtype=float)
+            self._configuration.a3s[i] = np.array(self._line[6:9], dtype=float)
+            self._line = self._conf.readline().split()
+        return (self._configuration)
+        

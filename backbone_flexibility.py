@@ -2,7 +2,7 @@
 
 import numpy as np
 from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
-from UTILS import parallelize
+from UTILS import parallelize_lorenzo_onefile
 from os import environ
 import argparse
 from json import dumps
@@ -93,7 +93,7 @@ if __name__ == "__main__":
         torsions, dihedrals = get_internal_coords(r, num_confs)
 
     if parallel:
-        out = parallelize.fire_multiprocess(traj_file, top_file, get_internal_coords, num_confs, n_cpus)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_internal_coords, num_confs, n_cpus)
         torsions = np.concatenate([i for i in out[0]], axis=1)
         dihedrals = np.concatenate([i for i in out[1]], axis=1)
 

@@ -1,6 +1,11 @@
+"""
+This parallelizer attaches multiple ErikReaders to a single trajectory.
+This is less memory-intensive than multi-file, but is a significant performance decrease on certain systems.
+"""
+
 import pathos.multiprocessing as pp
 from os import getenv
-from UTILS.readers import LorenzoReader2
+from UTILS.readers import ErikReader
 import numpy as np
 
 #actually unused these days, but just in case...
@@ -14,7 +19,7 @@ def get_n_cpu():
 
 #partitions the trajectory file to the number of workers defined by n_cpus
 #each worker runs the given function on its section of the trajectory
-def fire_multiprocess(traj_file, top_file, function, num_confs, n_cpus, *args, **kwargs):
+def fire_multiprocess(traj_file, function, num_confs, n_cpus, *args, **kwargs):
     confs_per_processor = int(np.floor(num_confs/n_cpus))
 
     reader_pool = []
@@ -45,7 +50,7 @@ def fire_multiprocess(traj_file, top_file, function, num_confs, n_cpus, *args, *
     #now figure out which configuration each chunk starts on
     split_starts = [0]
     for i in range(n_cpus):
-        reader_pool.append(LorenzoReader2(traj_file, top_file))
+        reader_pool.append(ErikReader(traj_file))
         #rint(split_starts[i-1], split_ends[i-1])
         if i!= 0:
             split_starts.append(split_starts[i-1]+split_ends[i-1])

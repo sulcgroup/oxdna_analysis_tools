@@ -151,7 +151,7 @@ if __name__ == "__main__":
     upper = max((l.max() for l in distances))
 
     #PUT THE NAMES OF YOUR DATA SERIES HERE
-    names = ["1", "2", "3", "4", "5", "6", "7", "8"]
+    names = ["Arm1", "Arm2", "Arm3", "4", "5", "6", "7", "8"]
     print("INFO: Name your data series by modifying the \"names\" variable in the script", file=stderr)
     if len(names) < n_dists:
         print("ERROR: Not enough names provided.  There are {} items in the names list and {} data series".format(len(names), n_dists), file=stderr)

@@ -15,7 +15,7 @@ import subprocess
 import tempfile
 import UTILS.geom as geom
 from output_bonds import output_bonds
-from UTILS import parallelize
+from UTILS import parallelize_lorenzo_onefile
 
 class Duplex:
     """
@@ -185,7 +185,7 @@ if __name__ == "__main__":
     if parallel:
         print("INFO: Fitting duplexes to {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         duplexes_at_step = []
-        out = parallelize.fire_multiprocess(traj_file, top_file, find_angles, num_confs, n_cpus)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, find_angles, num_confs, n_cpus)
         [duplexes_at_step.extend(i) for i in out]
 
     #print duplexes to a file
