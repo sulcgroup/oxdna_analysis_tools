@@ -9,7 +9,7 @@ This directory contains an example to compute the principal components of a holl
 
 2. Compute the mean structure via SVD
 
-   `python ../../compute_mean.py -f oxDNA -o mean.dat trajectory_trap.dat holliday.top`
+   `python ../../compute_mean.py -f oxDNA -o mean.dat trajectory_trap.dat
 
    PCA is defined by deviations from some reference.  In this case, we will use the mean structure as a reference.
 
