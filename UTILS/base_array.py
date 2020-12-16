@@ -39,9 +39,10 @@ class base_array(object):
         An object containing the oxDNA configuration information
 
     """ 
-    def __init__(self, time, box, positions, a1s, a3s):
+    def __init__(self, time, box, energy, positions, a1s, a3s):
         self.time = time
         self.box = box
+        self.energy = energy
         self.positions = positions
         self.a1s = a1s
         self.a3s = a3s
@@ -84,7 +85,7 @@ class base_array(object):
     def _write_configuration(self, f):
         f.write('t = {}\n'.format(int(self.time)))
         f.write('b = {}\n'.format(' '.join(self.box.astype(str))))
-        f.write('E = 0 0 0\n')
+        f.write('E = {}\n'.format(' '.join(self.energy.astype(str))))
         for p, a1, a3 in zip(self.positions, self.a1s, self.a3s):
             f.write('{} {} {} 0.0 0.0 0.0 0.0 0.0 0.0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
 

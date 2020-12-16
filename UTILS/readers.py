@@ -199,6 +199,7 @@ class ErikReader:
         self._conf = open(configuration, "r")
         self._time = None
         self._box = np.zeros(3)
+        self._conf_energy = np.zeros(3)
         self._len = 0
 
     """
@@ -213,7 +214,9 @@ class ErikReader:
 
         self._line = self._conf.readline().split()
         self._box = np.array(self._line[2:], dtype=float)
-        self._conf.readline() #skip the energy line because nobody loves it
+        
+        self._line = self._conf.readline().split()
+        self._conf_energy = np.array(self._line[2:], dtype=float) # keep the energy info (cause it's interesting for remd)
 
         #we make lists here because we don't know how big the configuration is (that is in the topology)
         positions = []
@@ -228,7 +231,7 @@ class ErikReader:
             if self._line == []:
                 break
 
-        self._configuration = base_array(self._time, self._box, np.array(positions, dtype=float), np.array(a1s, dtype=float), np.array(a3s, dtype=float))
+        self._configuration = base_array(self._time, self._box, self._conf_energy, np.array(positions, dtype=float), np.array(a1s, dtype=float), np.array(a3s, dtype=float))
         self._len = len(positions)
 
         return (self._configuration)
@@ -262,9 +265,13 @@ class ErikReader:
             self._configuration.time = self._time
 
         self._conf.readline() # we already know the box
-        self._conf.readline() # still don't care about the energy
+
+        #self._conf.readline() # still don't care about the energy
+        self._line = self._conf.readline().split()
+        self._conf_energy = np.array(self._line[2:], dtype=float) # keep the energy info (cause it's interesting for remd)
+        self._configuration.energy = self._conf_energy
+
         self._line = self._conf.readline().split() #first line of the configuration
-        
         for i in range(self._len):
             if (len(self._line) == 0 or "t" in self._line) and i < self._len:
                 print("ERROR: Reader encountered a partial configuration with only {} lines ({} expected)".format(i, self._len))
@@ -273,4 +280,8 @@ class ErikReader:
             self._configuration.a3s[i] = np.array(self._line[6:9], dtype=float)
             self._line = self._conf.readline().split()
         return (self._configuration)
+    
+
+
+
         
