@@ -2,7 +2,7 @@
 
 import numpy as np
 from sys import argv, stderr, exit #argv is much better than argparse for how I'm structuring my args
-from math import acos, sqrt
+from math import sqrt
 from os import environ
 import argparse
 
@@ -29,7 +29,7 @@ def angle_between (axis1, axis2):
     Returns:
         angle (float): The angle between the vectors in radians.
     """
-    return (acos(np.dot(axis1, axis2)/(np.linalg.norm(axis1)*np.linalg.norm(axis2))))
+    return (np.arccos(np.dot(axis1, axis2)/(np.linalg.norm(axis1)*np.linalg.norm(axis2))))
 
 if __name__ == "__main__":
     #Get command line arguments.
@@ -136,7 +136,7 @@ if __name__ == "__main__":
                 if found:
                     continue
 
-                #look for the nucleotide IDs
+                #look for the nucleotide IDs.  The -1 on axis 2 assumes you're looking at contiguous duplexes
                 if l[2] == search1 or l[3] == search1:
                     axis1 = np.array([float(l[6]), float(l[7]), float(l[8])])
                 if l[2] == search2 or l[3] == search2:
@@ -163,14 +163,14 @@ if __name__ == "__main__":
         stdevs.append(stdev)
         representations.append(representation)
 
-    for i, m in enumerate(means):
-        if m > 90:
-            all_angles[i] = [180 - a for a in all_angles[i]]
-            means[i] = 180 - m
-            medians[i] = 180 - medians[i]
+    #for i, m in enumerate(means):
+    #    if m > 90:
+    #        all_angles[i] = [180 - a for a in all_angles[i]]
+    #        means[i] = 180 - m
+    #        medians[i] = 180 - medians[i]
 
     #PUT THE NAMES OF YOUR DATA SERIES HERE
-    names = ["1", "2", "3", "4", "5", "6", "7", "8"]
+    names = ["1T_1", "1T_2", "2T_1", "2T_2", "3T_1", "3T_2", "4T_1", "4T_2"]
     print("INFO: Name your data series by modifying the \"names\" variable in the script", file=stderr)
     if len(names) < n_angles:
         print("ERROR: Not enough names provided.  There are {} items in the names list and {} data series".format(len(names), n_angles), file=stderr)
