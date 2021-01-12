@@ -170,7 +170,7 @@ if __name__ == "__main__":
     #        medians[i] = 180 - medians[i]
 
     #PUT THE NAMES OF YOUR DATA SERIES HERE
-    names = ["1T_1", "1T_2", "2T_1", "2T_2", "3T_1", "3T_2", "4T_1", "4T_2"]
+    names = ["1", "2", "3", "4", "5", "6", "7", "8"]
     print("INFO: Name your data series by modifying the \"names\" variable in the script", file=stderr)
     if len(names) < n_angles:
         print("ERROR: Not enough names provided.  There are {} items in the names list and {} data series".format(len(names), n_angles), file=stderr)
