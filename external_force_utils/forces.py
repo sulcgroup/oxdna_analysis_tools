@@ -10,14 +10,15 @@ Parameters:
     r0 (float): the equlibrium distance of the spring
     PBC (bool): does the force calculation take PBC into account (almost always 1)
 """
-def mutual_trap(particle, ref_particle, stiff, r0, pbc):
+def mutual_trap(particle, ref_particle, stiff, r0, PBC):
+    PBC = int(PBC)
     return({
         "type" : "mutual_trap",
         "particle" : particle,
         "ref_particle" : ref_particle,
         "stiff" : stiff, 
         "r0" : r0,
-        "PBC" : pbc 
+        "PBC" : PBC
     })
 
 """
