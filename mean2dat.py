@@ -45,12 +45,12 @@ if __name__ == "__main__":
     check_dependencies(["python", "numpy"])
 
     #load the mean file, which is in .json format
-    with open(args.inp[0], "r") as file:
+    with open(args.mean[0], "r") as file:
         mean_info = loads(
             file.read()
         )
 
     #write the file out in oxDNA format
-    outfile = args.out[0]
+    outfile = args.output[0]
     make_dat(mean_info, outfile)
 

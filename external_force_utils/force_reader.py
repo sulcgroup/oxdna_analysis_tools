@@ -1,4 +1,4 @@
-import forces
+from external_force_utils import forces
 
 def read_force_file(file):
     force_list = []
