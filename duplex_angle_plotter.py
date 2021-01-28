@@ -169,6 +169,7 @@ if __name__ == "__main__":
     #        means[i] = 180 - m
     #        medians[i] = 180 - medians[i]
 
+
     #PUT THE NAMES OF YOUR DATA SERIES HERE
     names = ["1", "2", "3", "4", "5", "6", "7", "8"]
     print("INFO: Name your data series by modifying the \"names\" variable in the script", file=stderr)
