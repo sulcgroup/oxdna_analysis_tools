@@ -298,7 +298,7 @@ if __name__ == "__main__":
         #fire up a subprocess running compute_deviations.py
         import subprocess
         from sys import executable, path
-        launchargs = [executable, path[0]+"/compute_deviations.py", "-o", dev_file]
+        launchargs = [executable, path[0]+"/compute_deviations.py", "-o", dev_file, "-d", dev_file.split('.')[0]+"_rmsd.png"]
         if args.index_file:
             launchargs.append("-i")
             launchargs.append(index_file)

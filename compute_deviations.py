@@ -5,6 +5,7 @@ try:
     from Bio.SVDSuperimposer import SVDSuperimposer
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
+import matplotlib.pyplot as plt
 from json import loads, dumps
 from UTILS.readers import ErikReader, cal_confs
 import numpy as np
@@ -35,6 +36,7 @@ def compute_deviations(reader, mean_structure, indexed_mean_structure, num_confs
     # Use the single-value decomposition method for superimposing configurations 
     sup = SVDSuperimposer()
     deviations = []
+    RMSDs = []
 
     mysystem = reader.read(n_skip = start)
     
@@ -45,7 +47,7 @@ def compute_deviations(reader, mean_structure, indexed_mean_structure, num_confs
         indexed_cur_conf = cur_conf[indexes]
         sup.set(indexed_mean_structure, indexed_cur_conf)
         sup.run()
-        print("Frame number:",confid, "Time:", mysystem.time, "RMSF:", sup.get_rms())
+        print("Frame number:",confid, "Time:", mysystem.time, "RMSD:", sup.get_rms())
         # realign frame
         rot, tran = sup.get_rotran()
         # align structures and collect coordinates for each frame 
@@ -53,10 +55,11 @@ def compute_deviations(reader, mean_structure, indexed_mean_structure, num_confs
         deviations.append(
            list(np.linalg.norm(np.einsum('ij, ki -> kj', rot, cur_conf) + tran - mean_structure, axis=1))
         )
+        RMSDs.append(sup.get_rms()*0.8518)
         confid += 1
         mysystem = reader.read()
 
-    return deviations
+    return (deviations, RMSDs)
 
 if __name__ == "__main__":
     #handle commandline arguments
@@ -70,11 +73,12 @@ if __name__ == "__main__":
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the deviations json file to')
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
+    parser.add_argument('-d', metavar='rmsd_plot', dest='rmsd_plot', nargs=1, help='The name of the file to save the RMSD plot to.')
     args = parser.parse_args()
 
     #system check
     from config import check_dependencies
-    check_dependencies(["python", "Bio", "numpy"])
+    check_dependencies(["python", "Bio", "numpy", "matplotlib"])
 
     #-o names the output file
     if args.output:
@@ -105,6 +109,12 @@ if __name__ == "__main__":
         with ErikReader(traj_file) as r:
             indexes = list(range(len(r.read().positions)))
 
+    #-d names the file to print the RMSD plot to
+    if args.rmsd_plot:
+        plot_name = args.rmsd_plot[0]
+    else:
+        plot_name = 'rmsd.png'
+
     # load mean structure 
     mean_structure_file = args.mean_structure[0]
     with open(mean_structure_file) as file:
@@ -119,15 +129,17 @@ if __name__ == "__main__":
     if not parallel:
         print("INFO: Computing deviations from the mean of {} configurations with an alignment of {} particles using 1 core.".format(num_confs, len(indexed_mean_structure)), file=stderr)
         r = ErikReader(traj_file)
-        deviations = compute_deviations(r, mean_structure, indexed_mean_structure, num_confs)
+        deviations, RMSDs = compute_deviations(r, mean_structure, indexed_mean_structure, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the results are compiled .
     if parallel:
         print("INFO: Computing deviations from the mean of {} configurations with an alignment of {} particles using {} cores.".format(num_confs, len(indexed_mean_structure), n_cpus), file=stderr)
         deviations = []
+        RMSDs = []
         out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_deviations, num_confs, n_cpus, mean_structure, indexed_mean_structure)
-        [deviations.extend(i) for i in out]
+        [deviations.extend(i[0]) for i in out]
+        [RMSDs.extend(i[1]) for i in out]
 
     #compute_deviations() returns the deviation of every particle in every configuration
     #take the mean of the per-configuration deviations to get the RMSF
@@ -140,3 +152,10 @@ if __name__ == "__main__":
             dumps({
             "RMSF (nm)" : rmsfs.tolist()
         }))
+
+    #plot RMSDs
+    print("INFO: writing RMDS plot to {}".format(plot_name), file=stderr)
+    plt.plot(RMSDs)
+    plt.xlabel('Configuration')
+    plt.ylabel('RMSD (nm)')
+    plt.savefig(plot_name)
