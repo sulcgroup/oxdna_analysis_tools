@@ -163,6 +163,7 @@ if __name__ == "__main__":
     #plot RMSDs
     print("INFO: writing RMSD plot to {}".format(plot_name), file=stderr)
     plt.plot(RMSDs)
+    plt.axhline(np.mean(RMSDs), color='red')
     plt.xlabel('Configuration')
     plt.ylabel('RMSD (nm)')
     plt.savefig(plot_name)
