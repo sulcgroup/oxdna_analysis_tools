@@ -73,7 +73,8 @@ if __name__ == "__main__":
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the deviations json file to')
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
-    parser.add_argument('-d', metavar='rmsd_plot', dest='rmsd_plot', nargs=1, help='The name of the file to save the RMSD plot to.')
+    parser.add_argument('-r', metavar='rmsd_plot', dest='rmsd_plot', nargs=1, help='The name of the file to save the RMSD plot to.')
+    parser.add_argument('-d', metavar='rmsd_data', dest='rmsd_data', nargs=1, help='The name of the file to save the RNSD data in json format.')
     args = parser.parse_args()
 
     #system check
@@ -83,6 +84,8 @@ if __name__ == "__main__":
     #-o names the output file
     if args.output:
         outfile = args.output[0].strip()
+        if not outfile.split(".")[-1] == 'json':
+            outfile += ".json"
     else: 
         outfile = "devs.json"
         print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
@@ -109,11 +112,15 @@ if __name__ == "__main__":
         with ErikReader(traj_file) as r:
             indexes = list(range(len(r.read().positions)))
 
-    #-d names the file to print the RMSD plot to
+    #-r names the file to print the RMSD plot to
     if args.rmsd_plot:
         plot_name = args.rmsd_plot[0]
     else:
         plot_name = 'rmsd.png'
+
+    # -d names the file to print the RMSD data to
+    if args.rmsd_data:
+        data_file = args.rmsd_data[0]
 
     # load mean structure 
     mean_structure_file = args.mean_structure[0]
@@ -154,8 +161,16 @@ if __name__ == "__main__":
         }))
 
     #plot RMSDs
-    print("INFO: writing RMDS plot to {}".format(plot_name), file=stderr)
+    print("INFO: writing RMSD plot to {}".format(plot_name), file=stderr)
     plt.plot(RMSDs)
     plt.xlabel('Configuration')
     plt.ylabel('RMSD (nm)')
     plt.savefig(plot_name)
+
+    #print RMSDs
+    print("INFO: writing RMSD data to {}".format(data_file), file=stderr)
+    if args.rmsd_data:
+        with open(data_file, 'w') as f:
+            f.write(dumps({
+                "RMSD (nm)" : RMSDs
+            }))
