@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
 import numpy as np
-from os import environ, path
 from sys import exit, stderr
-import subprocess
 import argparse
 import matplotlib.pyplot as plt
-from UTILS.readers import get_input_parameter
 
 #Calculates distance taking PBC into account
 def min_image(p1, p2, box):
@@ -60,7 +57,7 @@ if __name__ == "__main__":
     parser.add_argument('-i', '--input', metavar='input', nargs='+', action='append', help='An input, trajectory, and a list of particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
-    parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a tsv to this filename')
+    parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a json to this filename for loading in oxView or your own scripts')
     parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the clusterer on each configuration's distance?")
     args = parser.parse_args()
 
@@ -124,19 +121,25 @@ if __name__ == "__main__":
     #get the specified distances
     distances = get_distances(trajectories, p1s, p2s)
     
-    # -d will dump the DNAnalysis output to a text file.
+    # -d will dump the distances as json files for loading with the trajectories in oxView
     if args.data:
-        from itertools import zip_longest
-        datafile = args.data[0]
-        with open(datafile, 'w+') as f:
-            [f.write("{}-{}\t".format(p1, p2)) for p1, p2 in zip([i for sl in p1s for i in sl], [i for sl in p2s for i in sl])]
-            f.write("\n")
-            data = [d for d in zip_longest(*[i for sl in distances for i in sl], fillvalue="")]
-            for tup in data:
-                for value in tup:
-                    if value != "":
-                        f.write('{:.2f}\t'.format(value))
-                f.write('\n')
+        from json import dump
+        if len(trajectories) > 1:
+            print("INFO: distance lists from separate trajectories are printed to separate files for oxView compatibility.  Trajectory names will be appended to your provided data file name.", file=stderr)
+            file_names = ["{}_{}.json".format(args.data[0].strip('.json'), t) for t in trajectories]
+        else:
+            file_names = [args.data[0].strip('.json')+'.json']
+        names_by_traj = [['{}-{}'.format(p1, p2) for p1, p2 in zip(p1l, p2l)] for p1l, p2l in zip(p1s, p2s)]
+        
+        for file_name, names, dist_list in zip(file_names, names_by_traj, distances):
+            obj = {}
+            for n, d in zip(names, dist_list):
+                obj[n] = d        
+            with open(file_name, 'w+') as f:
+                print("INFO: writing data to {}.  This can be opened in oxView using the Order parameter selector".format(file_name))
+                dump(obj, f)
+        
+
 
     #convert the distance list into numpy arrays because they're easier to work with
     for i, l in enumerate(distances):
