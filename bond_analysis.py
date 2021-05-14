@@ -96,7 +96,7 @@ if __name__ == "__main__":
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
     parser.add_argument('designed_pairs', type=str, nargs=1, help="The file containing the desired nucleotides pairings in the format \n a b\nc d")
-    parser.add_argument('output_file', type=str, nargs=1, help="name of the file to save the output json to")
+    parser.add_argument('output_file', type=str, nargs=1, help="name of the file to save the output json overlay to")
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     
     #run system checks
@@ -118,9 +118,6 @@ if __name__ == "__main__":
     else:
         environ["OXRNA"] = "0"
     num_confs = cal_confs(traj_file)
-
-    import UTILS.base #this needs to be imported after the model type is set
-
 
     with open(designfile, 'r') as file:
         pairs = file.readlines()
