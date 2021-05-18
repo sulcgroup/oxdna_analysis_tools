@@ -131,3 +131,6 @@ dmypy.json
 
 # emacs files
 *~
+
+# VSC files
+.vscode/

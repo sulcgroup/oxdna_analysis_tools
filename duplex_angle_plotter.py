@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from sys import argv, stderr, exit #argv is much better than argparse for how I'm structuring my args
-from math import sqrt
-from os import environ
+from sys import stderr, exit
+from os import environ, path
 import argparse
+
+from numpy.core.numeric import count_nonzero
 
 def rad2degree(angle):
     """
@@ -33,10 +34,12 @@ def angle_between (axis1, axis2):
 
 if __name__ == "__main__":
     #Get command line arguments.
-    parser = argparse.ArgumentParser(description="Finds the ensemble of distances between any two particles in the system")
-    parser.add_argument('-i', metavar=('angle_file', 'particle1', 'particle2'), dest="input", nargs=3, action='append', help='An angle file, particle1, particle2 set.  Can call -i multiple times to plot multiple datasets.')
+    parser = argparse.ArgumentParser(description="Finds the ensemble of angles between any two duplexes defined by a starting or ending nucleotide in the system")
+    parser.add_argument('-i', '--input', metavar='angle_file', dest='input', nargs='+', action='append', help='An angle file from duplex_angle_finder.py and a list of duplex-end particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
+    parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a json to this filename for loading in oxView or your own scripts')
+
     args = parser.parse_args()
 
     from config import check_dependencies
@@ -44,15 +47,15 @@ if __name__ == "__main__":
 
     try:
         files = [i[0] for i in args.input]
-        p1s = [i[1] for i in args.input]
-        p2s = [i[2] for i in args.input]
+        p1s = [i[1::2] for i in args.input]
+        p2s = [i[2::2] for i in args.input]
     except Exception as e:
         print("ERROR: Failed to read files")
         print(e)
         parser.print_help()
         exit(1)
-    
-    n_angles = len(p1s)
+
+    n_angles = sum(len(p) for p in p1s)
 
     #Make sure that the input is correctly formatted
     if(len(files) != len(p1s) != len(p2s)):
@@ -87,19 +90,18 @@ if __name__ == "__main__":
         print("INFO: No graph format specified, defaulting to histogram", file=stderr)
         hist = True
 
-    all_angles = []
-    means = []
-    medians = []
-    stdevs = []
-    representations = []
+    all_angles = [[] for _ in files]
+    means = [[] for _ in files]
+    medians = [[] for _ in files]
+    stdevs = [[] for _ in files]
+    representations = [[] for _ in files]
 
     #For each input triplet
-    for anglefile, search1, search2 in zip(files, p1s, p2s):
+    for i, (anglefile, search1, search2) in enumerate(zip(files, p1s, p2s)):
 
-        steps = 1
+        steps = 0 #counts the number of configurations in the file
         last_step = 0
-        axis1 = axis2 = np.array([0,0,0])
-        angles = []
+        all_angles[i] = [[] for _ in p1s[i]]
         found = False
 
         #the format of the angle file is as follows: (tbh this should be a JSON)
@@ -115,6 +117,9 @@ if __name__ == "__main__":
         # 9: Helix position
 
         with open(anglefile) as file:
+            all_search = search1.copy()
+            all_search.extend(search2)
+            d = {i : np.array([0, 0, 0]) for i in all_search}
             for l in file.readlines()[1:]: #the first line is a header, so it can be dropped
                 try:
                     l = l.split("\t")
@@ -126,42 +131,50 @@ if __name__ == "__main__":
                     print("skiping the line")
                     continue
 
-                #reset if we're in a new time
+                #dump values and reset if we're in a new time (but also skip the first pass)
                 if (t != last_step):
+                    if (steps != 0):
+                        for j, (p1, p2) in enumerate(zip(search1, search2)):
+                            if np.linalg.norm(d[p1]) != 0 and np.linalg.norm(d[p2]) != 0:
+                                angle = rad2degree(angle_between(d[p1], -1*d[p2])) #add a -90 here if your duplexes in question are antiparallel
+                                all_angles[i][j].append(angle)
+                            else:
+                                all_angles[i][j].append(np.nan)
+
                     found = False
                     steps += 1
-                    axis1 = axis2 = np.array([0,0,0])
+                    d = dict.fromkeys(d, np.array([0, 0, 0]))
+                    count = 0 #counts the number of search targets found
 
                 #don't need to do anything if both angles were already found for this timestep
                 if found:
                     continue
 
                 #look for the nucleotide IDs.  The -1 on axis 2 assumes you're looking at contiguous duplexes
-                if l[2] == search1 or l[3] == search1:
-                    axis1 = np.array([float(l[6]), float(l[7]), float(l[8])])
-                if l[2] == search2 or l[3] == search2:
-                    axis2 = -1*np.array([float(l[6]), float(l[7]), float(l[8])])
+                for s in all_search:
+                    idx = l.index(s, 2, 6) if s in l[2:6] else None
+                    if idx:
+                        d[s] = np.array([float(l[6]), float(l[7]), float(l[8])])
+                        count += 1
 
-                #once both are found, add them to angle list
-                if np.linalg.norm(axis1) > 0 and np.linalg.norm(axis2) > 0:
-                    angles.append(rad2degree(angle_between(axis1, axis2))) #add a -90 here if your duplexes in question are antiparallel
+                #once all are found, add them to angle list
+                if count == len(d):
                     found = True
 
                 last_step = t
 
         #compute some statistics
-        angles = np.array(angles)
-        mean = np.mean(angles)
-        median = np.median(angles)
-        stdev = np.std(angles)
-        representation = len(angles)/steps
+        all_angles[i] = [np.array(a) for a in all_angles[i]]
+        mean = [np.nanmean(a) for a in all_angles[i]]
+        median = [np.nanmedian(a) for a in all_angles[i]]
+        stdev = [np.nanstd(a) for a in all_angles[i]]
+        representation = [np.count_nonzero(~np.isnan(a))/steps for a in all_angles[i]]
 
         #add to the output data
-        all_angles.append(angles)
-        means.append(mean)
-        medians.append(median)
-        stdevs.append(stdev)
-        representations.append(representation)
+        means[i] = mean
+        medians[i] = median
+        stdevs[i] = stdev
+        representations[i] = representation
 
     #for i, m in enumerate(means):
     #    if m > 90:
@@ -169,13 +182,32 @@ if __name__ == "__main__":
     #        means[i] = 180 - m
     #        medians[i] = 180 - medians[i]
 
+    # -d will dump the distances as json files for loading with the trajectories in oxView
+    if args.data:
+        from json import dump
+        if len(files) > 1:
+            f_names = [path.basename(f) for f in files]
+            print("INFO: angle lists from separate trajectories are printed to separate files for oxView compatibility.  Trajectory names will be appended to your provided data file name.", file=stderr)
+            file_names = ["{}_{}.json".format(args.data[0].strip('.json'), f) for f in f_names]
+        else:
+            file_names = [args.data[0].strip('.json')+'.json']
+        names_by_traj = [['{}-{}'.format(p1, p2) for p1, p2 in zip(p1l, p2l)] for p1l, p2l in zip(p1s, p2s)]
+
+        for file_name, names, ang_list in zip(file_names, names_by_traj, all_angles):
+            obj = {}
+            for n, a in zip(names, ang_list):
+                obj[n] = list(a)        
+            with open(file_name, 'w+') as f:
+                print("INFO: writing data to {}.  This can be opened in oxView using the Order parameter selector".format(file_name))
+                dump(obj, f)
+
     #PUT THE NAMES OF YOUR DATA SERIES HERE
     names = ["1", "2", "3", "4", "5", "6", "7", "8"]
     print("INFO: Name your data series by modifying the \"names\" variable in the script", file=stderr)
     if len(names) < n_angles:
         print("ERROR: Not enough names provided.  There are {} items in the names list and {} data series".format(len(names), n_angles), file=stderr)
         print("INFO: Defaulting to particle IDs as data series names")
-        names = ["{}-{}".format(p1, p2) for p1, p2 in zip(p1s, p2s)]
+        names = ["{}-{}".format(p1, p2) for p1, p2 in zip([i for sl in p1s for i in sl], [i for sl in p2s for i in sl])]
 
     #print statistical information
     print("name:\t", end='')
@@ -183,19 +215,19 @@ if __name__ == "__main__":
     print("")
 
     print("mean:\t", end='')
-    [print("{:.2f}\t".format(m), end='') for m in means]
+    [print("{:.2f}\t".format(m), end='') for m in [i for sl in means for i in sl]]
     print("")
 
     print("stdevs:\t", end='')
-    [print("{:.2f}\t".format(s), end='') for s in stdevs]
+    [print("{:.2f}\t".format(s), end='') for s in [i for sl in stdevs for i in sl]]
     print("")
 
     print("median:\t", end='')
-    [print("{:.2f}\t".format(m), end='') for m in medians]
+    [print("{:.2f}\t".format(m), end='') for m in [i for sl in medians for i in sl]]
     print("")
 
     print("freqs:\t", end='')
-    [print("{:.2f}\t".format(r), end='') for r in representations]
+    [print("{:.2f}\t".format(r), end='') for r in [i for sl in representations for i in sl]]
     print("")
 
     #make a histogram
@@ -209,9 +241,10 @@ if __name__ == "__main__":
         bins = np.linspace(0, 180, 60)
     
         artists = []
-        for i,alist in enumerate(all_angles):
-            a = plt.hist(alist, bins, weights=np.ones(len(alist)) / len(alist),  alpha=0.3, label=names[i], histtype=u'stepfilled', edgecolor='k')
-            artists.append(a)
+        for i,traj_set in enumerate(all_angles):
+            for alist in traj_set:
+                a = plt.hist(alist, bins, weights=np.ones(len(alist)) / len(alist),  alpha=0.3, label=names[i], histtype=u'stepfilled', edgecolor='k')
+                artists.append(a)
         plt.legend(labels=names)
         plt.xlim((0, 180))
         plt.xlabel("Angle (degrees)")
@@ -231,9 +264,10 @@ if __name__ == "__main__":
             out = outfile
         
         artists = []
-        for i,alist in enumerate(all_angles):
-            a = plt.plot(alist)
-            artists.append(a)
+        for i,traj_set in enumerate(all_angles):
+            for alist in traj_set:
+                a = plt.plot(alist)
+                artists.append(a)
         plt.legend(labels=names)
         plt.xlabel("Configuration Number")
         plt.ylabel("Angle (degrees)")
