@@ -163,6 +163,14 @@ if __name__ == "__main__":
 
                 last_step = t
 
+        #catch last configuration
+        for j, (p1, p2) in enumerate(zip(search1, search2)):
+            if np.linalg.norm(d[p1]) != 0 and np.linalg.norm(d[p2]) != 0:
+                angle = rad2degree(angle_between(d[p1], -1*d[p2])) #add a -90 here if your duplexes in question are antiparallel
+                all_angles[i][j].append(angle)
+            else:
+                all_angles[i][j].append(np.nan)
+
         #compute some statistics
         all_angles[i] = [np.array(a) for a in all_angles[i]]
         mean = [np.nanmean(a) for a in all_angles[i]]
