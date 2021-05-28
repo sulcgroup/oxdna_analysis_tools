@@ -9,7 +9,7 @@ if __name__ == "__main__":
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('outfile',    type=str, nargs=1, help='minified file')
 
-    parser.add_argument('-a', help='Discard a vectors.')
+    parser.add_argument('-a', action = 'store_true', help='Discard a vectors.')
     parser.add_argument('-p', action = 'store_true',  help='Round positions to 7 digits.')
 
     args = parser.parse_args()
