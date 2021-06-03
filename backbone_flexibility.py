@@ -94,8 +94,9 @@ if __name__ == "__main__":
 
     if parallel:
         out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_internal_coords, num_confs, n_cpus)
-        torsions = np.concatenate([i for i in out[0]], axis=1)
-        dihedrals = np.concatenate([i for i in out[1]], axis=1)
+        # Out Dims: 1 Processor, 2 Torsion or Dihedrals, 3 Specific list of torsions listed by conf
+        torsions = np.concatenate([out[i][0] for i in range(n_cpus)], axis=1)
+        dihedrals = np.concatenate([out[i][1] for i in range(n_cpus)], axis=1)
 
     torsion_mean = np.mean(torsions, axis=1).tolist()
     dihedral_mean = np.mean(dihedrals, axis=1).tolist()
