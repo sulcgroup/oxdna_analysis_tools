@@ -6,7 +6,7 @@ from sys import exit, stderr
 
 #set the path to your compiled copy of DNAnalysis here
 def set_analysis_path():
-	PROCESSPROGRAM = '/home/erik/software/oxDNA_protein/oxDNA/build/bin/DNAnalysis'
+	PROCESSPROGRAM = '/home/micha/oxDNA/build/bin/DNAnalysis'
 
 	if not path.isfile(PROCESSPROGRAM):
 		print ("ERROR: Cannot execute DNAnalysis program. Please edit config.py to point to your compiled DNAnalysis. Current target:", PROCESSPROGRAM, file=stderr)
