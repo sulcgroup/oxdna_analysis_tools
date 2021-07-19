@@ -3,23 +3,24 @@
 #A utility that prints out the number of hydrogen bonds between different strands in the system
 
 import numpy as np
-from os import environ, path
+from os import environ, path, getcwd
 from sys import stderr, exit
-from UTILS.readers import LorenzoReader2, get_input_parameter
+from .UTILS.readers import LorenzoReader2, get_input_parameter
 import subprocess
 import tempfile
 
-from config import set_analysis_path
+from .config import set_analysis_path
 PROCESSPROGRAM = set_analysis_path()
 
 command_for_data =  'analysis_data_output_1={ \n name = stdout \n print_every = 1 \n col_1 = { \n type=pair_energy \n} \n}'
 
 def output_bonds (inputfile, system):
 	tempfile_obj = tempfile.NamedTemporaryFile()
-	system.print_lorenzo_output(tempfile_obj.name,'/dev/null')
+	temp_top = tempfile.NamedTemporaryFile()
+	system.print_lorenzo_output(tempfile_obj.name,temp_top.name)
 	tempfile_obj.flush()
 
-	launchargs = [PROCESSPROGRAM,inputfile ,'trajectory_file='+tempfile_obj.name,command_for_data]
+	launchargs = [PROCESSPROGRAM, inputfile, 'trajectory_file='+tempfile_obj.name, 'topology='+temp_top.name, command_for_data]
 
 	myinput = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 	out = myinput.stdout.strip()
@@ -43,13 +44,14 @@ if __name__ == "__main__":
 
 	traj_file = args.trajectory[0]
 	inputfile = args.inputfile[0]
+
 	try:
 		outfile = args.outfile[0]
 		visualize = True
 	except:
 		visualize = False
 
-	top_file = get_input_parameter(inputfile, "topology")
+	top_file = sim_directory + get_input_parameter(inputfile, "topology")
 	if "RNA" in get_input_parameter(inputfile, "interaction_type"):
 		environ["OXRNA"] = "1"
 	else:
