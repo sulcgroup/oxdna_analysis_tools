@@ -105,3 +105,6 @@ class MichaReader:
         if self.state >= self.conf_count:
             return None
         return self._parse_conf(self.state)
+    
+    def __del__(self):
+        self.traj_file.close()
