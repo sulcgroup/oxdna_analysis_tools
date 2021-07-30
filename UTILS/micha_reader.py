@@ -1,14 +1,13 @@
 from collections import namedtuple
 import os
 import numpy as np
-from base_array import base_array
+from .base_array import base_array
 from copy import deepcopy
 
 # chunk file into blocks of given size
 Chunk = namedtuple('Chunk', ['block','offset', 'is_last','file_size'])
-def blocks(file, size=1000000):
-    current_chunk = 0 
-    fsize = os.stat(traj_file).st_size
+def blocks(file, fsize, size=1000000):
+    current_chunk = 0  
     while True:
         b = file.read(size)
         if not b: break
@@ -31,7 +30,9 @@ def index(traj_file):
     val = b"t" 
     conf_starts = []
     counter = 0
-    for chunk in blocks(open(traj_file, 'rb'), size=5000000):
+    fsize = os.stat(traj_file).st_size
+    print(traj_file)
+    for chunk in blocks(open(traj_file, 'rb'), fsize, size=5000000):
         idxs = np.array(find_all(chunk.block,val)) + chunk.offset # find all offsets of t in file
         conf_starts.extend(idxs)
 
@@ -40,7 +41,7 @@ def index(traj_file):
     idxs = [ConfInfo(conf_starts[i], conf_starts[i+1] - conf_starts[i],i) 
                                             for i in range(len(conf_starts)-1)]
     #handle last offset
-    idxs.append(ConfInfo(conf_starts[-1], size - conf_starts[-1], len(conf_starts)-1))
+    idxs.append(ConfInfo(conf_starts[-1], fsize - conf_starts[-1], len(conf_starts)-1))
     return idxs
 
 TopInfo = namedtuple('TopInfo', ['bases', 'strands'])
@@ -105,6 +106,6 @@ class MichaReader:
         if self.state >= self.conf_count:
             return None
         return self._parse_conf(self.state)
-    
+        
     def __del__(self):
         self.traj_file.close()
