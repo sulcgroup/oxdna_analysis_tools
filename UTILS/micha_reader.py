@@ -31,7 +31,6 @@ def index(traj_file):
     conf_starts = []
     counter = 0
     fsize = os.stat(traj_file).st_size
-    print(traj_file)
     for chunk in blocks(open(traj_file, 'rb'), fsize, size=5000000):
         idxs = np.array(find_all(chunk.block,val)) + chunk.offset # find all offsets of t in file
         conf_starts.extend(idxs)
@@ -73,7 +72,7 @@ class MichaReader:
         self.state = -1
     
     def _get_conf(self, idx):
-        if idx >= self.conf_count:
+        if idx > self.conf_count:
             raise Exception("Invalid configuration index")
 
         self.traj_file.seek(self.idxs[idx].offset)
@@ -82,8 +81,13 @@ class MichaReader:
 
     def _parse_conf(self,idx):
         lines = self._get_conf(idx).split('\n') # adds an extra empty one at the end
-        if len(lines) -4 != self.top_info.bases:
-            raise Exception("Invalid configuration.")
+        
+        if lines[-1] == '' and len(lines) -4 != self.top_info.bases:
+            raise Exception("Incorrect number of bases in topology file")
+        elif lines[-1] != '' and len(lines) -3 != self.top_info.bases:
+            raise Exception("Incorrect number of bases in topology file")
+
+       
         
         # populate our dummy conf by data from the conf
         self._conf.time = float(lines[0][lines[0].index("=")+1:])
@@ -106,6 +110,6 @@ class MichaReader:
         if self.state >= self.conf_count:
             return None
         return self._parse_conf(self.state)
-        
+
     def __del__(self):
         self.traj_file.close()
