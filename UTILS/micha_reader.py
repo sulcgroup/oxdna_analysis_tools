@@ -69,6 +69,8 @@ def parse_conf(lines,nbases):
         conf.a3s[i] = np.array(line[6:9], dtype=float)
     return conf
 
+def partition(confs, n):
+    return [confs[i:i+n] for i in range(0, len(confs), n)]
 
 TopInfo = namedtuple('TopInfo', ['bases', 'strands'])
 class MichaReader:
