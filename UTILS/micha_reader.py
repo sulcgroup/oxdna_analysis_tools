@@ -45,7 +45,7 @@ def index(traj_file):
 
 TopInfo = namedtuple('TopInfo', ['bases', 'strands'])
 class MichaReader:
-    def __init__(self, top, traj_file, idxs = None):
+    def __init__(self, top, traj_file, idxs = None, buff_size = 10):
         # setup configuration index
         if idxs is None: # handle case when we have no indexes provided
             self.idxs = index(traj_file)
@@ -70,7 +70,7 @@ class MichaReader:
             np.zeros([self.top_info.bases, 3], dtype=float),
         )
         self.ptr = 0
-        self.buff_size = 10
+        self.buff_size = buff_size
         self.buff = []
     
     def _get_conf(self, idx):
@@ -119,7 +119,7 @@ class MichaReader:
             if idx >= self.conf_count: return None
             lines = self._get_conf(idx).split('\n') # adds an extra empty one at the end
             return self._parse_conf(lines)
-        if(not self.buff): # no confs in the buff - try get some 
+        if(not self.buff and self.ptr < self.conf_count): # no confs in the buff - try get some 
             self.buff.extend( 
                 self._get_confs(self.ptr, self.buff_size)
             )
