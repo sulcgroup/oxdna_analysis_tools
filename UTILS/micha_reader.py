@@ -3,6 +3,7 @@ import os
 import numpy as np
 from .base_array import base_array
 from copy import deepcopy
+from io import StringIO
 
 # chunk file into blocks of given size
 Chunk = namedtuple('Chunk', ['block','offset', 'is_last','file_size'])
@@ -78,7 +79,7 @@ class MichaReader:
             raise Exception("Invalid configuration index")
         self.traj_file.seek(self.idxs[idx].offset)
         conf = self.traj_file.read(self.idxs[idx].size)
-        return conf
+        return conf.split('\n')
     
     def _get_confs(self, start, nconfs):
         if(start+nconfs >= self.conf_count): # make sure we stay in bounds 
@@ -87,13 +88,10 @@ class MichaReader:
         self.traj_file.seek(self.idxs[start].offset)
         # figure out how big of a chunk we want to read 
         size = sum([self.idxs[i].size for i in range(start,start+nconfs)])
-        # split it into lines
-        confs_lines = self.traj_file.read(size).split("\n")
-        if confs_lines[-1] == '': confs_lines.pop() # remove trailing \n
-        conf_lines_cnt = self.top_info.bases+3
-        # split lines into confs
-        return [confs_lines[i:i + conf_lines_cnt]
-                        for i in range(0, len(confs_lines), conf_lines_cnt)]
+        # read chunk and prepare to split
+        chunk = StringIO(self.traj_file.read(size)) # work with the string like a file 
+        return [chunk.read(self.idxs[i].size).split("\n") 
+                            for i in range(start,start+nconfs)] 
 
     def _parse_conf(self,lines):
         if lines[-1] == '' and len(lines) -4 != self.top_info.bases:
@@ -117,7 +115,7 @@ class MichaReader:
     def read(self,idx=None):
         if(idx):
             if idx >= self.conf_count: return None
-            lines = self._get_conf(idx).split('\n') # adds an extra empty one at the end
+            lines = self._get_conf(idx) 
             return self._parse_conf(lines)
         if(not self.buff and self.ptr < self.conf_count): # no confs in the buff - try get some 
             self.buff.extend( 
