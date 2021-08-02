@@ -74,20 +74,30 @@ class MichaReader:
     def _get_conf(self, idx):
         if idx > self.conf_count:
             raise Exception("Invalid configuration index")
-
         self.traj_file.seek(self.idxs[idx].offset)
         conf = self.traj_file.read(self.idxs[idx].size)
         return conf
+    
+    def _get_confs(self, start, nconfs):
+        if(start+nconfs >= self.conf_count): # make sure we stay in bounds 
+            nconfs = self.conf_count - start
+        # go to start position 
+        self.traj_file.seek(self.idxs[start].offset)
+        # figure out how big of a chunk we want to read 
+        size = sum([self.idxs[i].size for i in range(start,start+nconfs)])
+        # split it into lines
+        confs_lines = self.traj_file.read(size).split("\n")
+        if confs_lines[-1] == '': confs_lines.pop() # remove trailing \n
+        conf_lines_cnt = self.top_info.bases+3
+        # split lines into confs
+        return [confs_lines[i:i + conf_lines_cnt]
+                        for i in range(0, len(confs_lines), conf_lines_cnt)]
 
-    def _parse_conf(self,idx):
-        lines = self._get_conf(idx).split('\n') # adds an extra empty one at the end
-        
+    def _parse_conf(self,lines):
         if lines[-1] == '' and len(lines) -4 != self.top_info.bases:
             raise Exception("Incorrect number of bases in topology file")
         elif lines[-1] != '' and len(lines) -3 != self.top_info.bases:
             raise Exception("Incorrect number of bases in topology file")
-
-       
         
         # populate our dummy conf by data from the conf
         self._conf.time = float(lines[0][lines[0].index("=")+1:])
@@ -109,7 +119,9 @@ class MichaReader:
             self.state+=1
         if self.state >= self.conf_count:
             return None
-        return self._parse_conf(self.state)
+        lines = self._get_conf(self.state).split('\n') # adds an extra empty one at the end
+        return self._parse_conf(lines)
+      
 
     def __del__(self):
         self.traj_file.close()
