@@ -79,7 +79,7 @@ class MichaReader:
             raise Exception("Invalid configuration index")
         self.traj_file.seek(self.idxs[idx].offset)
         conf = self.traj_file.read(self.idxs[idx].size)
-        return conf.split('\n')
+        return conf
     
     def _get_confs(self, start, nconfs):
         if(start+nconfs >= self.conf_count): # make sure we stay in bounds 
@@ -90,7 +90,7 @@ class MichaReader:
         size = sum([self.idxs[i].size for i in range(start,start+nconfs)])
         # read chunk and prepare to split
         chunk = StringIO(self.traj_file.read(size)) # work with the string like a file 
-        return [chunk.read(self.idxs[i].size).split("\n") 
+        return [chunk.read(self.idxs[i].size)
                             for i in range(start,start+nconfs)] 
 
     def _parse_conf(self,lines):
@@ -115,7 +115,7 @@ class MichaReader:
     def read(self,idx=None):
         if(idx):
             if idx >= self.conf_count: return None
-            lines = self._get_conf(idx) 
+            lines = self._get_conf(idx).split("\n")  
             return self._parse_conf(lines)
         if(not self.buff and self.ptr < self.conf_count): # no confs in the buff - try get some 
             self.buff.extend( 
@@ -124,7 +124,7 @@ class MichaReader:
             self.ptr += self.buff_size
         if(self.buff): #handle the conf 
             return self._parse_conf(
-                self.buff.pop(0) # pops the 1st element out 
+                self.buff.pop(0).split("\n")  # pops the 1st element out 
             )
         return None
       
