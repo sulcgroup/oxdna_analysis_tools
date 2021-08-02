@@ -129,16 +129,6 @@ class MichaReader:
                 self.buff.pop(0) # pops the 1st element out 
             )
         return None
-            
-
-        #if(idx):
-        #    self.state=idx
-        #else:
-        #    self.state+=1
-        #if self.state >= self.conf_count:
-        #    return None
-        #lines = self._get_conf(self.state).split('\n') # adds an extra empty one at the end
-        #return self._parse_conf(lines)
       
 
     def __del__(self):
