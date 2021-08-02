@@ -69,7 +69,9 @@ class MichaReader:
             np.zeros([self.top_info.bases, 3], dtype=float),
             np.zeros([self.top_info.bases, 3], dtype=float),
         )
-        self.state = -1
+        self.ptr = 0
+        self.buff_size = 10
+        self.buff = []
     
     def _get_conf(self, idx):
         if idx > self.conf_count:
@@ -114,13 +116,29 @@ class MichaReader:
     
     def read(self,idx=None):
         if(idx):
-            self.state=idx
-        else:
-            self.state+=1
-        if self.state >= self.conf_count:
-            return None
-        lines = self._get_conf(self.state).split('\n') # adds an extra empty one at the end
-        return self._parse_conf(lines)
+            if idx >= self.conf_count: return None
+            lines = self._get_conf(idx).split('\n') # adds an extra empty one at the end
+            return self._parse_conf(lines)
+        if(not self.buff): # no confs in the buff - try get some 
+            self.buff.extend( 
+                self._get_confs(self.ptr, self.buff_size)
+            )
+            self.ptr += self.buff_size
+        if(self.buff): #handle the conf 
+            return self._parse_conf(
+                self.buff.pop(0) # pops the 1st element out 
+            )
+        return None
+            
+
+        #if(idx):
+        #    self.state=idx
+        #else:
+        #    self.state+=1
+        #if self.state >= self.conf_count:
+        #    return None
+        #lines = self._get_conf(self.state).split('\n') # adds an extra empty one at the end
+        #return self._parse_conf(lines)
       
 
     def __del__(self):
