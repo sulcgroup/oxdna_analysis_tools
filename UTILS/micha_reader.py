@@ -46,6 +46,7 @@ def index(traj_file):
 
 
 def parse_conf(lines,nbases):
+    lines = lines.split('\n')
     if lines[-1] == '' and len(lines) -4 != nbases:
         raise Exception("Incorrect number of bases in topology file")
     elif lines[-1] != '' and len(lines) -3 != nbases:
@@ -71,6 +72,12 @@ def parse_conf(lines,nbases):
 
 def partition(confs, n):
     return [confs[i:i+n] for i in range(0, len(confs), n)]
+
+def flatten(t): # more versions @ https://stackoverflow.com/questions/952914/how-to-make-a-flat-list-out-of-a-list-of-lists
+    return [item for sublist in t for item in sublist]
+
+def handle_confs(ti, process, confs):
+    return [process(parse_conf(x,ti.bases)) for x in confs]
 
 TopInfo = namedtuple('TopInfo', ['bases', 'strands'])
 class MichaReader:
@@ -121,7 +128,7 @@ class MichaReader:
     def read(self,idx=None):
         if(idx):
             if idx >= self.conf_count: return None
-            lines = self._get_conf(idx).split("\n")  
+            lines = self._get_conf(idx)
             return self._parse_conf(lines)
         if(not self.buff and self.ptr < self.conf_count): # no confs in the buff - try get some 
             self.buff.extend( 
@@ -130,7 +137,7 @@ class MichaReader:
             self.ptr += self.buff_size
         if(self.buff): #handle the conf 
             return self._parse_conf(
-                self.buff.pop(0).split("\n")  # pops the 1st element out 
+                self.buff.pop(0)  # pops the 1st element out 
             )
         return None
       
