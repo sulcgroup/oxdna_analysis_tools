@@ -82,6 +82,15 @@ class base_array(object):
     f : _io.TextIOWrapper
         An open Python file handler.
     """
+    def conf_to_str(self):
+        out = []
+        out.append('t = {}\n'.format(int(self.time)))
+        out.append('b = {}\n'.format(' '.join(self.box.astype(str))))
+        out.append('E = {}\n'.format(' '.join(self.energy.astype(str))))
+        for p, a1, a3 in zip(self.positions, self.a1s, self.a3s):
+            out.append('{} {} {} 0.0 0.0 0.0 0.0 0.0 0.0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
+        return ''.join(out)
+
     def _write_configuration(self, f):
         f.write('t = {}\n'.format(int(self.time)))
         f.write('b = {}\n'.format(' '.join(self.box.astype(str))))
