@@ -51,6 +51,11 @@ if __name__ == "__main__":
 	except:
 		visualize = False
 
+	if path.dirname(inputfile) != getcwd():
+		sim_directory = path.dirname(inputfile)
+	else:
+		sim_directory = ""
+
 	top_file = sim_directory + get_input_parameter(inputfile, "topology")
 	if "RNA" in get_input_parameter(inputfile, "interaction_type"):
 		environ["OXRNA"] = "1"

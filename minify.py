@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser.add_argument('outfile',    type=str, nargs=1, help='minified file')
 
     parser.add_argument('-a', action = 'store_true', help='Discard a vectors.')
-    parser.add_argument('-p', action = 'store_true',  help='Round positions to 7 digits.')
+    parser.add_argument('-p', type=int, nargs=1,  help='Round positions and orientations to the specified number of digits.')
 
     args = parser.parse_args()
 
@@ -30,7 +30,9 @@ if __name__ == "__main__":
             # Erik reader ignores velocities 
             system = reader.read()
             if args.p: # round positions
-                system.positions = round(system.positions, 7)
+                system.positions = round(system.positions, args.p[0])
+                system.a1s = round(system.a1s, args.p[0])
+                system.a3s = round(system.a3s, args.p[0])
             if args.a: # discard a vectors
                 system.a1s -= system.a1s 
                 system.a3s -= system.a3s
