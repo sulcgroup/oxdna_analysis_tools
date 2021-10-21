@@ -129,7 +129,11 @@ if __name__ == "__main__":
 
     if parallel:
         print("INFO: Computing base pairs in {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, bond_analysis, num_confs, n_cpus, pairs)
+        try:
+            out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, bond_analysis, num_confs, n_cpus, pairs)
+        except:
+            print("ERROR: DNAnalysis encountered an error and could not analyze the trajectory")
+            exit(1)
         tot_bonds = sum((i[0] for i in out))
         tot_missbonds = sum((i[1] for i in out))
         out_array = sum((i[2] for i in out))

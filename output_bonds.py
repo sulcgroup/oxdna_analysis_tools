@@ -5,11 +5,11 @@
 import numpy as np
 from os import environ, path, getcwd
 from sys import stderr, exit
-from .UTILS.readers import LorenzoReader2, get_input_parameter
+from UTILS.readers import LorenzoReader2, get_input_parameter
 import subprocess
 import tempfile
 
-from .config import set_analysis_path
+from config import set_analysis_path
 PROCESSPROGRAM = set_analysis_path()
 
 command_for_data =  'analysis_data_output_1={ \n name = stdout \n print_every = 1 \n col_1 = { \n type=pair_energy \n} \n}'
@@ -28,7 +28,8 @@ def output_bonds (inputfile, system):
 	for line in err.split('\n'):
 		if "CRITICAL" in line or "ERROR" in line:
 			print(err, file=stderr)
-			exit(1)
+			print("Bad configuration, outputting blank string", file=stderr)
+			return ''
 	return out
 
 if __name__ == "__main__":
@@ -74,7 +75,7 @@ if __name__ == "__main__":
 		out = output_bonds(inputfile, mysystem)
 		if visualize:
 			for line in out.split('\n'):
-				if not line.startswith('#'):
+				if not (line.startswith('#') or line == ''):
 					line = [float(l) for l in line.split(' ')]
 					energies[int(line[0])] += sum(line[2:])
 					energies[int(line[1])] += sum(line[2:])
