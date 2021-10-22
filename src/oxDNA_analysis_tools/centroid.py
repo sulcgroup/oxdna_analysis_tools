@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
 from sys import stderr
+
+from src.oxDNA_analysis_tools.UTILS.micha_reader import index
 try:
     from Bio.SVDSuperimposer import SVDSuperimposer
 except:
@@ -12,7 +14,7 @@ import argparse
 from UTILS import parallelize_erik_onefile
 from json import load
 
-def compute_centroid(reader, mean_structure, num_confs, start=None, stop=None):
+def compute_centroid(reader, mean_structure, indexes, num_confs, start=None, stop=None):
     """
         Compares each structure to the mean and returns the one with the lowest RMSF
 
@@ -133,7 +135,7 @@ def main():
     if not parallel:
         print("INFO: Computing centroid from the mean of {} configurations using 1 core.".format(num_confs), file=stderr)
         r = ErikReader(traj_file)
-        centroid, centroid_a1s, centroid_a3s, centroid_rmsf, centroid_time = compute_centroid(r, mean_structure, num_confs)
+        centroid, centroid_a1s, centroid_a3s, centroid_rmsf, centroid_time = compute_centroid(r, mean_structure, indexes, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the results are compiled .
@@ -144,7 +146,7 @@ def main():
         a1s = []
         a3s = []
         ts = []
-        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_centroid, num_confs, n_cpus, mean_structure)
+        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_centroid, num_confs, n_cpus, mean_structure, indexes)
         [candidates.append(i[0]) for i in out]
         [rmsfs.append(i[3]) for i in out]
         [a1s.append(i[1]) for i in out]

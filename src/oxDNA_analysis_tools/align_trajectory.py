@@ -16,7 +16,7 @@ import argparse
 from compute_mean import normalize
 
 #aligner
-def align_frame(ref_conf, sup, mysystem):
+def align_frame(ref_conf, sup, mysystem, indexes):
     #Need to get rid of fix_diffusion artifacts or SVD doesn't work
     mysystem.inbox()
     indexed_cur_conf = mysystem.positions[indexes]
@@ -93,7 +93,7 @@ def main():
     while mysystem != False:
         print("working on t = ", mysystem.time)
         
-        mysystem = align_frame(ref_conf, sup, mysystem)
+        mysystem = align_frame(ref_conf, sup, mysystem, indexes)
     
         mysystem.write_append(outfile)
     

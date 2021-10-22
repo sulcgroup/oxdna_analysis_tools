@@ -33,7 +33,7 @@ def make_heatmap(contact_map):
     b.set_label("distance", rotation = 270)
     plt.show()
 
-def get_mean(reader, num_confs, start=None, stop=None):
+def get_mean(reader, inputfile, num_confs, start=None, stop=None):
     """
     Computes the mean distance between every pair of nucleotides.
 
@@ -66,7 +66,7 @@ def get_mean(reader, num_confs, start=None, stop=None):
 
     return (cartesian_distances)
 
-def get_devs(reader, masked_mean, num_confs, start=None, stop=None):
+def get_devs(reader, masked_mean, inputfile, cutoff_distance, num_confs, start=None, stop=None):
     """
     Computes the RMSD in each particle's distance to other particles in its neighborhood.
 
@@ -223,11 +223,11 @@ def main():
     print("INFO: Computing distance deviations of {} configurations using 1 core.".format(num_confs), file=stderr)
     if not parallel:
         r = LorenzoReader2(traj_file,top_file)
-        devs = get_devs(r, masked_mean, num_confs)
+        devs = get_devs(r, masked_mean, inputfile, cutoff_distance, num_confs)
 
     if parallel:
         print("INFO: Computing distance deviations of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_devs, num_confs, n_cpus, masked_mean)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_devs, num_confs, n_cpus, masked_mean, inputfile, cutoff_distance)
         devs = np.sum(np.array([i for i in out]), axis=0)
 
     #Dump the deviations to an oxView overlay file

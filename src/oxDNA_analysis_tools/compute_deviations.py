@@ -11,7 +11,7 @@ from UTILS.readers import ErikReader, cal_confs
 import numpy as np
 import argparse
 
-def compute_deviations(reader, mean_structure, indexed_mean_structure, num_confs, start=None, stop=None):
+def compute_deviations(reader, mean_structure, indexed_mean_structure, indexes, num_confs, start=None, stop=None):
     """
         Computes RMSF of each particle from the mean structure
 
@@ -136,7 +136,7 @@ def main():
     if not parallel:
         print("INFO: Computing deviations from the mean of {} configurations with an alignment of {} particles using 1 core.".format(num_confs, len(indexed_mean_structure)), file=stderr)
         r = ErikReader(traj_file)
-        deviations, RMSDs = compute_deviations(r, mean_structure, indexed_mean_structure, num_confs)
+        deviations, RMSDs = compute_deviations(r, mean_structure, indexed_mean_structure, indexes, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the results are compiled .
@@ -144,7 +144,7 @@ def main():
         print("INFO: Computing deviations from the mean of {} configurations with an alignment of {} particles using {} cores.".format(num_confs, len(indexed_mean_structure), n_cpus), file=stderr)
         deviations = []
         RMSDs = []
-        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_deviations, num_confs, n_cpus, mean_structure, indexed_mean_structure)
+        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_deviations, num_confs, n_cpus, mean_structure, indexed_mean_structure, indexes)
         [deviations.extend(i[0]) for i in out]
         [RMSDs.extend(i[1]) for i in out]
 

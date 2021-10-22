@@ -86,7 +86,7 @@ def find_duplex(system):
 
     return duplex_list
 
-def find_angles(reader, num_confs, start=None, stop=None):
+def find_angles(reader, inputfile, num_confs, start=None, stop=None):
     """
         Fits a vector to every duplex in each snapshot of a trajectory
 
@@ -180,12 +180,12 @@ def main():
     if not parallel:
         print("INFO: Fitting duplexes to {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
-        duplexes_at_step = find_angles(r, num_confs)
+        duplexes_at_step = find_angles(r, inputfile, num_confs)
 
     if parallel:
         print("INFO: Fitting duplexes to {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         duplexes_at_step = []
-        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, find_angles, num_confs, n_cpus)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, find_angles, num_confs, n_cpus, inputfile)
         [duplexes_at_step.extend(i) for i in out]
 
     #print duplexes to a file

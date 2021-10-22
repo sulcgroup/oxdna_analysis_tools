@@ -13,7 +13,7 @@ from os import environ
 import subprocess
 import pickle
 import matplotlib.pyplot as plt
-import UTILS.all_vectors
+from .UTILS.all_vectors import all_vectors
 import argparse
 from clustering import perform_DBSCAN
 from UTILS import parallelize_lorenzo_onefile
@@ -27,7 +27,7 @@ def calc_matrix(system, inputfile):
 
     #calculate the interaction network    
     #from warnings import catch_warnings, simplefilter
-    Vvec = all_vectors.all_vectors(inputfile, system, True)
+    Vvec = all_vectors(inputfile, system, True)
     Vtransform_matrix = np.linalg.inv(np.array(interaction_sites[:, 1:].transpose(0, 2, 1))) 
     Vvec = np.einsum('ijk,ilk -> ilj', Vtransform_matrix, Vvec) #magic to apply the transform matrix to each vector in Vvec
     #in the bussi paper, they scale the structures to make the stacking and H-bonding the same length

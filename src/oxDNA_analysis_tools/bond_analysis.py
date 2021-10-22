@@ -15,7 +15,7 @@ import argparse
 from UTILS import parallelize_lorenzo_onefile
 from os import environ
 
-def bond_analysis(reader, pairs, num_confs, start=None, stop=None):
+def bond_analysis(reader, pairs, inputfile, num_confs, start=None, stop=None):
     """
     Compares a list of desired base pairs with the base pairs present in a trajectory.
 
@@ -125,12 +125,12 @@ def main():
     if not parallel:
         print("INFO: Computing base pairs in {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
-        tot_bonds, tot_missbonds, out_array, confid = bond_analysis(r, pairs, num_confs)
+        tot_bonds, tot_missbonds, out_array, confid = bond_analysis(r, pairs, inputfile, num_confs)
 
     if parallel:
         print("INFO: Computing base pairs in {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         try:
-            out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, bond_analysis, num_confs, n_cpus, pairs)
+            out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, bond_analysis, num_confs, n_cpus, pairs, inputfile)
         except:
             print("ERROR: DNAnalysis encountered an error and could not analyze the trajectory")
             exit(1)

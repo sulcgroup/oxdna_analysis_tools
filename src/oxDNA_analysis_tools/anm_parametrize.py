@@ -9,7 +9,7 @@ import argparse
 def mean_pos(conf,idxs):
     return np.sum(conf.positions[idxs], axis=0) / idxs.shape[0]
 # calculate the particle positions
-def get_mean_positions(conf):
+def get_mean_positions(conf, particles_array):
     return np.array(
         list(map(lambda idx: mean_pos(conf,idx),particles_array))
     )
@@ -48,7 +48,7 @@ def main():
     ref.inbox()
 
     # calculate reference conf particle positions
-    reference_configuration = get_mean_positions(ref)
+    reference_configuration = get_mean_positions(ref, particles_array)
 
     # to collect the distance data of the superparticles 
     trajectory_devs = []

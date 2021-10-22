@@ -12,7 +12,7 @@ import argparse
 import time
 start_t = time.time()
 
-def pick_starting_configuration(traj_file, max_bound):
+def pick_starting_configuration(traj_file, max_bound, align=None):
     """
         Pick a random conf out of the trajectory file to use as the reference structure.
         
@@ -27,8 +27,8 @@ def pick_starting_configuration(traj_file, max_bound):
             initial_structure (base.System): The oxDNA system representing the reference configuration.
     """
     with ErikReader(traj_file) as reader:
-        if args.align:
-            stop_at = int(args.align[0])
+        if align:
+            stop_at = int(align)
         else:
             stop_at = randint(0, max_bound-1)
         print("INFO: We chose {} as reference".format(stop_at), file=stderr)
@@ -56,7 +56,13 @@ def normalize(v):
         return v
     return v / norm
 
-def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
+# helper to prepare a configuration of np.array coordinates
+# into smth json is able to serialize
+prep_pos_for_json = lambda conf: list(
+                        list(p) for p in conf
+                    )
+
+def compute_mean (reader, align_conf, indexes, num_confs, start = None, stop = None):
     """
         Computes the mean structure of a trajectory
 
@@ -76,17 +82,26 @@ def compute_mean (reader, align_conf, num_confs, start = None, stop = None):
             intermediate_mean_structures (list): mean structures computed periodically during the summing to check decoorrelation.
             confid (int): the number of configurations summed for the storage arrays.
     """
+    parallel = True
     if stop is None:
         stop = num_confs
     else: stop = int(stop)
     if start is None:
         start = 0
+        parallel = False
     else: start = int(start)
 
     mysystem = reader.read(n_skip = start)
+    n_nuc = len(mysystem.positions)
 
-    # storage for the intermediate mean structures
+    if not parallel:
+        #This also computes the mean every num_confs/10 configurations to check decorrelation.
+        #Only works when run in serial.
+        INTERMEDIATE_EVERY = np.floor(num_confs / 10)
+        # storage for the intermediate mean structures
+
     intermediate_mean_structures = []
+
     # the class doing the alignment of 2 structures
     sup = SVDSuperimposer()
 
@@ -206,12 +221,6 @@ def main():
         with ErikReader(traj_file) as r:
             indexes = list(range(len(r.read().positions)))
 
-    # helper to prepare a configuration of np.array coordinates
-    # into smth json is able to serialize
-    prep_pos_for_json = lambda conf: list(
-                            list(p) for p in conf
-                        )
-
 
     # The reference configuration which is used to define alignment
     align_conf = []
@@ -219,15 +228,13 @@ def main():
     #calculate the number of configurations in the trajectory 
     num_confs = cal_confs(traj_file)
 
-    #This also computes the mean every num_confs/10 configurations to check decorrelation.
-    #Only works when run in serial.
-    INTERMEDIATE_EVERY = np.floor(num_confs / 10)
-
     # if we have no align_conf we need to chose one
     # and realign its cms to be @ 0,0,0
     if align_conf == []:
-        align_conf_id, align_poses = pick_starting_configuration(traj_file, num_confs)
-        n_nuc = len(align_poses.positions)
+        align = None
+        if args.align:
+            align = args.align[0]
+        align_conf_id, align_poses = pick_starting_configuration(traj_file, num_confs, align)
         # we are just interested in the nucleotide positions
         align_conf = align_poses.positions[indexes]
 
@@ -235,13 +242,13 @@ def main():
     if not parallel:
         print("INFO: Computing mean of {} configurations with an alignment of {} particles using 1 core.".format(num_confs, len(align_conf)), file=stderr)
         r = ErikReader(traj_file)
-        mean_pos_storage, mean_a1_storage, mean_a3_storage, intermediate_mean_structures, processed_frames = compute_mean(r, align_conf, num_confs)
+        mean_pos_storage, mean_a1_storage, mean_a3_storage, intermediate_mean_structures, processed_frames = compute_mean(r, align_conf, indexes, num_confs)
 
     #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
     #Each of those chunks is then calculated seperatley and the result is summed.
     if parallel:
         print("INFO: Computing mean of {} configurations with an alignment of {} particles using {} cores.".format(num_confs, len(align_conf), n_cpus), file=stderr)
-        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_mean, num_confs, n_cpus, align_conf)
+        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_mean, num_confs, n_cpus, align_conf, indexes)
         mean_pos_storage = np.sum(np.array([i[0] for i in out]), axis=0)
         mean_a1_storage = np.sum(np.array([i[1] for i in out]), axis=0)
         mean_a3_storage = np.sum(np.array([i[2] for i in out]), axis=0)
