@@ -6,7 +6,7 @@ except:
 import numpy as np
 from json import loads, dumps
 from sys import exit, stderr
-from UTILS.readers import ErikReader, cal_confs
+from .UTILS.readers import ErikReader, cal_confs
 from random import randint
 import argparse
 import time
@@ -160,15 +160,14 @@ def main():
     parser.add_argument('-a', '--align', metavar='alignment_configuration', nargs=1, help='The id of the configuration to align to, otherwise random')
     args = parser.parse_args()
 
-    from config import check_dependencies
+    from .config import check_dependencies
     check_dependencies(["python", "Bio", "numpy"])
 
     #get file names
     traj_file = args.trajectory[0]
     parallel = args.parallel
     if parallel:
-        #from UTILS import parallelize3
-        from UTILS import parallelize_erik_onefile
+        from .UTILS import parallelize_erik_onefile
         n_cpus = args.parallel[0]
 
     #-f defines the format of the output file
@@ -296,7 +295,7 @@ def main():
             outname = outfile.split(".")[0]+".dat"
         else:
             outname = outfile
-        from mean2dat import make_dat
+        from .mean2dat import make_dat
         make_dat(loads(mean_file), outname)
 
     #If requested, run compute_deviations.py using the output from this script.

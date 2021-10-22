@@ -5,7 +5,7 @@ This is less memory-intensive than multi-file, but is a significant performance 
 
 import pathos.multiprocessing as pp
 from os import getenv
-from UTILS.readers import ErikReader
+from .readers import ErikReader
 import numpy as np
 
 #actually unused these days, but just in case...
