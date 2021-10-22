@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
-from UTILS import parallelize_lorenzo_onefile
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
+from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 from os import environ
 import argparse
 from json import dumps
@@ -76,7 +76,7 @@ def main():
     args = parser.parse_args()
 
     #run system checks
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy"])
 
     top_file  = args.topology[0]

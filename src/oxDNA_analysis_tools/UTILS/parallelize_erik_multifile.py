@@ -5,9 +5,9 @@ This is more memory-intensive than one-file, but is a significant performance in
 
 import pathos.multiprocessing as pp
 from os import getenv, remove
-from UTILS.readers import blocks, ErikReader
 import numpy as np
 from tempfile import NamedTemporaryFile
+from oxDNA_analysis_tools.UTILS.readers import blocks, ErikReader
 
 #actually unused these days, but just in case...
 def get_n_cpu():

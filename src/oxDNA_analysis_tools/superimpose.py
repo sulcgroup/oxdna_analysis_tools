@@ -10,10 +10,9 @@ try:
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
 from sys import exit, stderr
-from UTILS.readers import ErikReader
+from oxDNA_analysis_tools.UTILS.readers import ErikReader
 import numpy as np
 import argparse
-from compute_mean import normalize
 
 def main():
     parser = argparse.ArgumentParser(description="superimposes one or more structures sharing a topology to a reference structure")

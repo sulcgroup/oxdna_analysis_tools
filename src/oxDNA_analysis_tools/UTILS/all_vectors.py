@@ -7,7 +7,7 @@ import tempfile
 import numpy as np
 from functools import partial
 
-from config import set_analysis_path
+from oxDNA_analysis_tools.config import set_analysis_path
 PROCESSPROGRAM = set_analysis_path()
 
 def all_vectors (inputfile, mysystem, return_full_matrix):

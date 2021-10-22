@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 from sys import stderr
-import subprocess
-from output_bonds import output_bonds
+from oxDNA_analysis_tools.output_bonds import output_bonds
 import argparse
-from UTILS.readers import LorenzoReader2, get_input_parameter
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
 
 # Created by Hao Liu 
 # Date 01/22/2019 

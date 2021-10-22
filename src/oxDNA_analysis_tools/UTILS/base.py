@@ -44,7 +44,7 @@ def import_model_constants():
 # if you are using the oxRNA model, then environmental variable RNA has to be set to 1. base.py then uses the constants defined in rna_model.h
 def import_rna_model_constants():
 	PI = np.pi
-	model = os.path.join(os.path.dirname(__file__), "../src/Interactions/rna_model.h")
+	model = os.path.join(os.path.dirname(__file__), "./rna_model.h")
 	f = open(model)
 	for line in f.readlines():
 		# line = line.strip().partition("//")[0].strip()
@@ -61,7 +61,7 @@ def import_rna_model_constants():
 				val = val.replace(";","")
 				# this awful exec is needed in order to get the right results out of macro definitions
 				#print 'Importing ',key,val
-				exec ("tmp = %s" % (val))
+				tmp = eval(val)
 				globals()[key] = tmp
 	f.close()
 

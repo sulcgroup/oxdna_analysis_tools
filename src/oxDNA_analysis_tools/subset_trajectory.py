@@ -1,5 +1,5 @@
-from UTILS.readers import LorenzoReader2
-import UTILS.base as base
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2
+from oxDNA_analysis_tools.UTILS import base
 import argparse
 from sys import stderr
 

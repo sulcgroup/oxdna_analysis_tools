@@ -8,12 +8,12 @@
 #This is used to compute a per-nucleotide deviation in the contact map, which can be visualized with oxView
 
 import numpy as np
-from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from sys import exit, stderr
 from json import dumps, loads
 from contact_map import contact_map
 import argparse
-from UTILS import parallelize_lorenzo_onefile
+from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 from os import environ
 
 def make_heatmap(contact_map):

@@ -2,10 +2,10 @@ try:
     from Bio.SVDSuperimposer import SVDSuperimposer
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
-from UTILS.micha_reader import MichaReader
+from oxDNA_analysis_tools.UTILS.micha_reader import MichaReader
 import numpy as np
 from os import getenv
-from UTILS.micha_reader import partition, flatten, handle_confs
+from oxDNA_analysis_tools.UTILS.micha_reader import partition, flatten, handle_confs
 from pathos.pools import ProcessPool
 from pathos.multiprocessing import cpu_count
 from functools import partial

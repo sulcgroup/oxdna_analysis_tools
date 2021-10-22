@@ -1,7 +1,7 @@
 from collections import namedtuple
 import os
 import numpy as np
-from .base_array import base_array
+from oxDNA_analysis_tools.UTILS.base_array import base_array
 from copy import deepcopy
 from io import StringIO
 

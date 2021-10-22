@@ -7,9 +7,9 @@ except:
     from bio.SVDSuperimposer import SVDSuperimposer
 import matplotlib.pyplot as plt
 from json import loads, dumps
-from UTILS.readers import ErikReader, cal_confs
 import numpy as np
 import argparse
+from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
 
 def compute_deviations(reader, mean_structure, indexed_mean_structure, indexes, num_confs, start=None, stop=None):
     """
@@ -78,7 +78,7 @@ def main():
     args = parser.parse_args()
 
     #system check
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "Bio", "numpy", "matplotlib"])
 
     #-o names the output file
@@ -94,7 +94,7 @@ def main():
     traj_file = args.trajectory[0]
     parallel = args.parallel
     if parallel:
-        from UTILS import parallelize_erik_onefile
+        from oxDNA_analysis_tools.UTILS import parallelize_erik_onefile
         n_cpus = args.parallel[0]
     num_confs = cal_confs(traj_file)
 

@@ -7,13 +7,14 @@
 #Takes a trajectory and a pairs file (indicating the desired design) and prints out in how many configurations the 
 #designed pairs are present in.  Also prints out the list of missbonds found in the trajectory and their frequency.
 
-from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
+
 import numpy as np
 from sys import exit, stderr
-from output_bonds import output_bonds
 import argparse
-from UTILS import parallelize_lorenzo_onefile
 from os import environ
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
+from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
+from oxDNA_analysis_tools.output_bonds import output_bonds
 
 def bond_analysis(reader, pairs, inputfile, num_confs, start=None, stop=None):
     """

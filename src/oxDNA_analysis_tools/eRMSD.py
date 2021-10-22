@@ -8,15 +8,15 @@
 #between snapshots
 
 import numpy as np
-from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from os import environ
 import subprocess
 import pickle
 import matplotlib.pyplot as plt
-from .UTILS.all_vectors import all_vectors
+from oxDNA_analysis_tools.UTILS.all_vectors import all_vectors
 import argparse
 from clustering import perform_DBSCAN
-from UTILS import parallelize_lorenzo_onefile
+from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 
 #a matrix of vectors in local cylindrical coordinates
 def calc_matrix(system, inputfile):

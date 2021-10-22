@@ -6,16 +6,16 @@
 #Calculates a vector corresponding to every duplex in a structure.  
 #The output from this file is used by duplex_angle_finder.py to make plots of structure flexibility.
 
-from UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 import numpy as np
 import argparse
 from os import environ
 from sys import stderr
 import subprocess
 import tempfile
-import UTILS.geom as geom
+from oxDNA_analysis_tools.UTILS import geom
 from output_bonds import output_bonds
-from UTILS import parallelize_lorenzo_onefile
+from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 
 class Duplex:
     """
@@ -167,8 +167,6 @@ def main():
         environ["OXRNA"] = "1"
     else:
         environ["OXRNA"] = "0"
-
-    import UTILS.base #this needs to be imported after the model type is set
 
     #Calculate the number of configurations.
     num_confs = cal_confs(traj_file)

@@ -5,15 +5,14 @@ from os import environ, remove
 from sys import stderr
 import subprocess
 import matplotlib.pyplot as plt
-from output_bonds import output_bonds
-from UTILS.readers import LorenzoReader2, get_input_parameter
-import UTILS.base
 from sklearn.cluster import DBSCAN
 from sklearn import metrics
 from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
 from json import loads, dump
 import codecs
+from oxDNA_analysis_tools.output_bonds import output_bonds
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
 
 #Runs principal component analysis of the points to produce orthogonal variation allowing for flattening of data to 3D
 def perform_pca(points, out_dims):

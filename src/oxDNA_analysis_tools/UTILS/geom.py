@@ -1,8 +1,8 @@
 
 #This script should not assume that center of the helix is on the line between two bonded bases
 #Created by: Petr Sulc
-import UTILS.base
-from UTILS.readers import LorenzoReader2
+import oxDNA_analysis_tools.UTILS.base
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2
 try:
     import numpy as np
 except:

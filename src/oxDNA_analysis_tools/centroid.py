@@ -5,12 +5,11 @@ try:
     from Bio.SVDSuperimposer import SVDSuperimposer
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
-from json import loads, dumps
-from UTILS.readers import ErikReader, cal_confs
 import numpy as np
 import argparse
-from UTILS import parallelize_erik_onefile
 from json import load
+from oxDNA_analysis_tools.UTILS import parallelize_erik_onefile
+from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
 
 def compute_centroid(reader, mean_structure, indexes, num_confs, start=None, stop=None):
     """

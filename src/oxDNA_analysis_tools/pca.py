@@ -7,7 +7,7 @@
 #the output JSON can be loaded into the viewer where it will overlay as arrows
 
 import numpy as np 
-from UTILS.readers import ErikReader, cal_confs, get_input_parameter
+from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs, get_input_parameter
 from sys import exit, stderr
 import argparse
 from json import load, dumps
@@ -16,7 +16,7 @@ try:
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
 from random import randint
-from UTILS import parallelize_erik_onefile
+from oxDNA_analysis_tools.UTILS import parallelize_erik_onefile
 from warnings import catch_warnings, simplefilter
 from os import environ
 from config import check_dependencies

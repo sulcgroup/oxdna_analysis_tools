@@ -5,8 +5,8 @@ This is less memory-intensive than multi-file, but is a significant performance 
 
 import pathos.multiprocessing as pp
 from os import getenv
-from .readers import ErikReader
 import numpy as np
+from oxDNA_analysis_tools.UTILS.readers import ErikReader
 
 #actually unused these days, but just in case...
 def get_n_cpu():

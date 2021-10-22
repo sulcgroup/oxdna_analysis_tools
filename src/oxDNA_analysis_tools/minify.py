@@ -1,4 +1,4 @@
-from UTILS.readers import ErikReader, cal_confs
+from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
 import argparse
 from os import remove
 from numpy import round

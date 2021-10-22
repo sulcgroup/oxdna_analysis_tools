@@ -5,7 +5,7 @@
 import numpy as np
 from os import environ, path, getcwd
 from sys import stderr, exit
-from UTILS.readers import LorenzoReader2, get_input_parameter
+from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
 import subprocess
 import tempfile
 

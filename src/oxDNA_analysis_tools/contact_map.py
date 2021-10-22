@@ -64,7 +64,7 @@ def contact_map (inputfile, mysystem, return_full_matrix):
 def main():
     import argparse
     import matplotlib.pyplot as plt
-    from UTILS.readers import LorenzoReader2, get_input_parameter
+    from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
 
     from config import check_dependencies
     check_dependencies(["python", "numpy", "matplotlib"])

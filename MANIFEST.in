@@ -1,1 +1,1 @@
-include src/oxDNA_analysis_tools/UTILS/model.h
+include src/oxDNA_analysis_tools/UTILS/*.h

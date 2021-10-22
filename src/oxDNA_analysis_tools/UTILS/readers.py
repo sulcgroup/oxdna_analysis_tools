@@ -1,8 +1,8 @@
 import os.path
 import sys
 import numpy as np
-from . import base
-from .base_array import base_array
+from oxDNA_analysis_tools.UTILS import base
+from oxDNA_analysis_tools.UTILS.base_array import base_array
 
 #helper for cal_confs
 def blocks(file, size=1000000):

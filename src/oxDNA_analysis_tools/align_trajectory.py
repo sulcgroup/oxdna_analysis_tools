@@ -10,10 +10,9 @@ try:
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
 from sys import exit
-from UTILS.readers import ErikReader
+from oxDNA_analysis_tools.UTILS.readers import ErikReader
 import numpy as np
 import argparse
-from compute_mean import normalize
 
 #aligner
 def align_frame(ref_conf, sup, mysystem, indexes):

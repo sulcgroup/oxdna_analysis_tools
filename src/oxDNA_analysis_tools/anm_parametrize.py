@@ -2,7 +2,7 @@ from sys import path
 import numpy as np
 import json
 
-from UTILS.readers import ErikReader
+from oxDNA_analysis_tools.UTILS.readers import ErikReader
 import argparse
 
 # calculate the position of the super particle
