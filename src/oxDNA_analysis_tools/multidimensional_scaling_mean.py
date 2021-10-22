@@ -151,12 +151,12 @@ def main():
     if not parallel:
         print("INFO: Computing interparticle distances of {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
-        cartesian_distances = get_mean(r, num_confs)
+        cartesian_distances = get_mean(r, inputfile, num_confs)
         mean_distance_map = cartesian_distances * (1/(num_confs))
 
     if parallel:
         print("INFO: Computing interparticle distances of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_mean, num_confs, n_cpus)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_mean, num_confs, n_cpus, inputfile, num_confs)
         cartesian_distances = np.sum(np.array([i for i in out]), axis=0)
 
     mean_distance_map = cartesian_distances * (1/(num_confs))

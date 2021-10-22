@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
 from sys import stderr
-
-from src.oxDNA_analysis_tools.UTILS.micha_reader import index
 try:
     from Bio.SVDSuperimposer import SVDSuperimposer
 except:
