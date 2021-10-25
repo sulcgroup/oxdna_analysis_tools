@@ -67,7 +67,8 @@ def main():
     #the positional arguments for this are: 
     # 1. the mean structure from compute_mean.py in json format
     # 2. the trajectory from which to compute the deviations
-    # 3. the name of the file to write out the deviations to.  Should be a .json because oxView uses file extensions
+    from sys import argv
+    print(argv)
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Compute the RMSD of each nucleotide from the mean structure produced by compute_mean.py")
     parser.add_argument('mean_structure', type=str, nargs=1, help="The mean structure .json file from compute_mean.py")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')

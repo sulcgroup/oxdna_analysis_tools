@@ -5,12 +5,14 @@ except:
     from bio.SVDSuperimposer import SVDSuperimposer
 import numpy as np
 from json import loads, dumps
-from sys import exit, stderr
+from sys import exit, stderr, argv
 from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
 from random import randint
 import argparse
 import time
 import os
+
+from oxDNA_analysis_tools.compute_deviations import compute_deviations
 start_t = time.time()
 
 def pick_starting_configuration(traj_file, max_bound, align=None):
@@ -302,20 +304,26 @@ def main():
     #If requested, run compute_deviations.py using the output from this script.
     if dev_file:
         print("INFO: launching compute_deviations.py", file=stderr)
-        #fire up a subprocess running compute_deviations.py
-        import subprocess
-        from sys import executable, path
-        launchargs = [executable, path[0]+"/compute_deviations.py", "-o", dev_file, "-r", dev_file.split('.')[0]+"_rmsd.png", "-d", dev_file.split('.')[0]+"_rmsd_data.json"]
-        if args.index_file:
-            launchargs.append("-i")
-            launchargs.append(index_file)
-        if parallel:
-            launchargs.append("-p") 
-            launchargs.append(str(n_cpus))
-        launchargs.append(jsonfile)
-        launchargs.append(traj_file)
 
-        subprocess.run(launchargs)
+        #this is probably horrible practice, but to maintain the ability to call things from the command line, I cannot pass arguments between main() calls.
+        #so instead we're gonna spoof a global variable to make it look like compute_deviations was called explicitally
+        argv.clear()
+        argv.extend(['compute_deviations.py', '-o', dev_file, "-r", dev_file.split('.')[0]+"_rmsd.png", "-d", dev_file.split('.')[0]+"_rmsd_data.json"])
+        if args.index_file:
+            argv.append("-i")
+            argv.append(index_file)
+        if parallel:
+            argv.append("-p") 
+            argv.append(str(n_cpus))
+        argv.append(jsonfile)
+        argv.append(traj_file)
+
+        from oxDNA_analysis_tools import compute_deviations
+        from sys import executable
+        print(executable)
+        print(argv)
+
+        compute_deviations.main()
 
         #compute_deviations needs the json meanfile, but its not useful for visualization
         #so we dump it
