@@ -228,7 +228,7 @@ def main():
         if not all([x == trajectories[0] for x in trajectories]):
             print("ERROR: Clustering can only be run on a single trajectory", file=stderr)
             exit(1)
-        from clustering import perform_DBSCAN
+        from oxDNA_analysis_tools.clustering import perform_DBSCAN
 
         labs = perform_DBSCAN(distances[0].T, len(distances[0][0]), trajectories[0], input_files[0], "euclidean")
 
