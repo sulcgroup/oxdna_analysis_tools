@@ -154,7 +154,7 @@ def main():
 
     if parallel:
         print("INFO: Computing interparticle distances of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_mean, num_confs, n_cpus, inputfile, num_confs)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_mean, num_confs, n_cpus, inputfile)
         cartesian_distances = np.sum(np.array([i for i in out]), axis=0)
 
     mean_distance_map = cartesian_distances * (1/(num_confs))
