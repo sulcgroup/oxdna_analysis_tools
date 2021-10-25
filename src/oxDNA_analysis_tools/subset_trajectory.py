@@ -2,6 +2,7 @@ from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2
 from oxDNA_analysis_tools.UTILS import base
 import argparse
 from sys import stderr
+import os
 
 def subset_traj(system, ids):
     new_systems = [base.System(system._box) for _ in ids]
@@ -29,7 +30,7 @@ def subset_traj(system, ids):
 
 def main():
     #command line arguments
-    parser = argparse.ArgumentParser(description="Extracts parts of a structure into separate trajectories")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Extracts parts of a structure into separate trajectories")
     parser.add_argument('trajectory', type=str, nargs=1, help="The trajectory file to subset")
     parser.add_argument('topology', type=str, nargs=1, help="The topology file corresponding to the trajectory")
     parser.add_argument('-i', '--index', metavar='index', action='append', nargs=2, help='A space separated index file and the associated output file name.  This can be called multiple times')

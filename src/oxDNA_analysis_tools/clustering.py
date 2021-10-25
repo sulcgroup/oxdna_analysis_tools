@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import numpy as np
-from os import environ, remove
+from os import environ, remove, path
 from sys import stderr
 import subprocess
 import matplotlib.pyplot as plt
@@ -293,7 +293,7 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
 
 def main():
     import argparse
-    parser = argparse.ArgumentParser(description="Calculates clusters based on provided order parameters.")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculates clusters based on provided order parameters.")
     parser.add_argument('serialized_data', type=str, nargs=1, help="The json-formatted input file")
     args = parser.parse_args()
     data_file = args.serialized_data[0]

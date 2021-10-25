@@ -34,7 +34,7 @@ def angle_between (axis1, axis2):
 
 def main():
     #Get command line arguments.
-    parser = argparse.ArgumentParser(description="Finds the ensemble of angles between any two duplexes defined by a starting or ending nucleotide in the system")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Finds the ensemble of angles between any two duplexes defined by a starting or ending nucleotide in the system")
     parser.add_argument('-i', '--input', metavar='angle_file', dest='input', nargs='+', action='append', help='An angle file from duplex_angle_finder.py and a list of duplex-end particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')

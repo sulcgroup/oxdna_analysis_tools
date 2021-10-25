@@ -11,7 +11,7 @@
 import numpy as np
 from sys import exit, stderr
 import argparse
-from os import environ
+from os import environ, path
 from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 from oxDNA_analysis_tools.output_bonds import output_bonds
@@ -93,7 +93,7 @@ def bond_analysis(reader, pairs, inputfile, num_confs, start=None, stop=None):
 
 def main():
     #read data from files
-    parser = argparse.ArgumentParser(description="Calculate and display the contact map for a structure")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculate and display the contact map for a structure")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
     parser.add_argument('designed_pairs', type=str, nargs=1, help="The file containing the desired nucleotides pairings in the format \n a b\nc d")

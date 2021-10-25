@@ -3,6 +3,7 @@
 import numpy as np
 from sys import exit, stderr
 import argparse
+import os
 import matplotlib.pyplot as plt
 
 #Calculates distance taking PBC into account
@@ -53,7 +54,7 @@ def get_distances(trajectories, p1s, p2s):
 def main():
     #handle commandline arguments
     #this program has no positional arguments, only flags
-    parser = argparse.ArgumentParser(description="Finds the ensemble of distances between any two particles in the system")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Finds the ensemble of distances between any two particles in the system")
     parser.add_argument('-i', '--input', metavar='input', nargs='+', action='append', help='An input, trajectory, and a list of particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')

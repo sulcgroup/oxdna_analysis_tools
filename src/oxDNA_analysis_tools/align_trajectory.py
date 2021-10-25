@@ -13,6 +13,7 @@ from sys import exit
 from oxDNA_analysis_tools.UTILS.readers import ErikReader
 import numpy as np
 import argparse
+import os
 
 #aligner
 def align_frame(ref_conf, sup, mysystem, indexes):
@@ -34,7 +35,7 @@ def align_frame(ref_conf, sup, mysystem, indexes):
 
 def main():
     #handle commandline arguments
-    parser = argparse.ArgumentParser(description="Aligns each frame in a trajectory to the first frame")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Aligns each frame in a trajectory to the first frame")
     parser.add_argument('traj', type=str, nargs=1, help="The trajectory file to align")
     parser.add_argument('outfile', type=str, nargs=1, help='The name of the new trajectory file to write out')
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Align to only a subset of particles from a space-separated list in the provided file')

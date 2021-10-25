@@ -10,6 +10,7 @@ from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
 from random import randint
 import argparse
 import time
+import os
 start_t = time.time()
 
 def pick_starting_configuration(traj_file, max_bound, align=None):
@@ -150,7 +151,7 @@ def compute_mean (reader, align_conf, indexes, num_confs, start = None, stop = N
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Computes the mean structure of a trajectory file")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Computes the mean structure of a trajectory file")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the mean structure to')

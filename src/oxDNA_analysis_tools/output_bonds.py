@@ -34,7 +34,7 @@ def output_bonds (inputfile, system):
 
 def main():
 	import argparse
-	parser = argparse.ArgumentParser(description="List all the interactions between nucleotides")
+	parser = argparse.ArgumentParser(prog = path.basename(__file__), description="List all the interactions between nucleotides")
 	parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
 	parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
 	parser.add_argument('-v', type=str, nargs=1, dest='outfile', help='if you want instead average per-particle energy as a viewer JSON')

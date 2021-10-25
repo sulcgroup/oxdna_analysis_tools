@@ -3,7 +3,7 @@
 import numpy as np
 from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
-from os import environ
+import os
 import argparse
 from json import dumps
 
@@ -68,7 +68,7 @@ def get_internal_coords(reader, num_confs, start = None, stop = None):
     return(torsions, dihedrals)
 
 def main():
-    parser = argparse.ArgumentParser(description="Computes the deviations in the backbone torsion angles")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Computes the deviations in the backbone torsion angles")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('topology', type=str, nargs=1, help="The topology file associated with the trajectory file")
     parser.add_argument('outfile', type=str, nargs=1, help='The file name for the output .json file.')

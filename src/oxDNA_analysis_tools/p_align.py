@@ -4,7 +4,7 @@ except:
     from bio.SVDSuperimposer import SVDSuperimposer
 from oxDNA_analysis_tools.UTILS.micha_reader import MichaReader
 import numpy as np
-from os import getenv
+from os import getenv, path
 from oxDNA_analysis_tools.UTILS.micha_reader import partition, flatten, handle_confs
 from pathos.pools import ProcessPool
 from pathos.multiprocessing import cpu_count
@@ -52,7 +52,7 @@ def align(indexes, ref_conf, mysystem):
 
 def main():
     #handle commandline arguments
-    parser = argparse.ArgumentParser(description="Aligns each frame in a trajectory to the first frame")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Aligns each frame in a trajectory to the first frame")
     parser.add_argument('top', type=str, nargs=1, help="The trajectory file to align")
     parser.add_argument('traj', type=str, nargs=1, help="The trajectory file to align")
     parser.add_argument('outfile', type=str, nargs=1, help='The name of the new trajectory file to write out')

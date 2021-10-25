@@ -9,7 +9,7 @@
 from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 import numpy as np
 import argparse
-from os import environ
+from os import environ, path
 from sys import stderr
 import subprocess
 import tempfile
@@ -136,7 +136,7 @@ def find_angles(reader, inputfile, num_confs, start=None, stop=None):
     return(duplexes_at_step)
 
 def main():
-    parser = argparse.ArgumentParser(description="Fit vectors to every duplex in the structure")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Fit vectors to every duplex in the structure")
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help="The trajectory file from the simulation")

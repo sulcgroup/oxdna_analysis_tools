@@ -9,7 +9,7 @@
 
 import numpy as np
 from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
-from os import environ
+from os import environ, path
 import subprocess
 import pickle
 import matplotlib.pyplot as plt
@@ -131,7 +131,7 @@ def get_eRMSDs(r1, r2, inputfile, traj_file, top_file, num_confs, start=None, st
 #First, we read arguments and calculate the eRMSD between all structures
 #This will not produce any outputs
 def main():
-    parser = argparse.ArgumentParser(description="Calculate differences between structures and automatically apply DBSCAN to retrieve clusters")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculate differences between structures and automatically apply DBSCAN to retrieve clusters")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")

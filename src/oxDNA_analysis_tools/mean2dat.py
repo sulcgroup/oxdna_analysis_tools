@@ -3,6 +3,7 @@ from json import loads
 from sys import stderr
 import argparse
 import numpy as np
+import os
 
 def make_dat(mean_info, outfile):
     """
@@ -36,7 +37,7 @@ def make_dat(mean_info, outfile):
             )
 def main(): 
     #get commandline arguments 
-    parser = argparse.ArgumentParser(description="Converts a mean structure .json from compute_mean.py to an oxDNA-readable .dat")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Converts a mean structure .json from compute_mean.py to an oxDNA-readable .dat")
     parser.add_argument('mean', type=str, nargs=1, help="A mean structure from compute_mean.py")
     parser.add_argument('output', type=str, nargs=1, help="The name of the output file")
     args = parser.parse_args()

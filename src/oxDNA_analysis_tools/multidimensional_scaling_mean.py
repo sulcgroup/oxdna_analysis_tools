@@ -14,7 +14,7 @@ from json import dumps, loads
 from oxDNA_analysis_tools.contact_map import contact_map
 import argparse
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
-from os import environ
+from os import environ, path
 
 def make_heatmap(contact_map):
     """
@@ -117,7 +117,7 @@ def main():
     cutoff_distance = 2.5
 
     #get commandline arguments
-    parser = argparse.ArgumentParser(description="Calculate molecular contacts, and assembles an average set of contacts based on MDS")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculate molecular contacts, and assembles an average set of contacts based on MDS")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('meanfile', type=str, nargs=1, help='the name of the .dat file where the mean will be written')

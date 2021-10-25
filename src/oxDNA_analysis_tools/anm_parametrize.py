@@ -1,5 +1,6 @@
 from sys import path
 import numpy as np
+import os
 import json
 
 from oxDNA_analysis_tools.UTILS.readers import ErikReader
@@ -21,7 +22,7 @@ def calculate_deviations(positions, reference_configuration):
     return devs
 
 def main():
-    parser = argparse.ArgumentParser(description="compute par file for DNA-ANM model")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="compute par file for DNA-ANM model")
     parser.add_argument('index_file', type=str, help="Index file describing what Bases belong to which Super particle.")
     parser.add_argument('mean_file', type=str,  help="Reference configuratio.")
     parser.add_argument('trajectory', type=str,  help="Trajectory to evaluate.")

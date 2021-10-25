@@ -13,9 +13,10 @@ from sys import exit, stderr
 from oxDNA_analysis_tools.UTILS.readers import ErikReader
 import numpy as np
 import argparse
+import os
 
 def main():
-    parser = argparse.ArgumentParser(description="superimposes one or more structures sharing a topology to a reference structure")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="superimposes one or more structures sharing a topology to a reference structure")
     parser.add_argument('reference', type=str, nargs=1, help="The reference configuration to superimpose to")
     parser.add_argument('victims', type=str, nargs='+', help="The configuraitons to superimpose on the reference")
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Align to only a subset of particles from a space-separated list in the provided file')

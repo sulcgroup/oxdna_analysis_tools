@@ -1,10 +1,11 @@
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 from sys import stderr
 
 def main():
-    parser = argparse.ArgumentParser(description="A very simple plotting utility for oxDNA.org")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="A very simple plotting utility for oxDNA.org")
     parser.add_argument('energy', nargs='+', help='Energy files to plot')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')

@@ -1,11 +1,11 @@
 from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
 import argparse
-from os import remove
+from os import remove, path
 from numpy import round
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Compress given configuration.")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Compress given configuration.")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('outfile',    type=str, nargs=1, help='minified file')
 

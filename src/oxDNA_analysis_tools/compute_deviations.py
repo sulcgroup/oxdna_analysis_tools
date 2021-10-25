@@ -9,6 +9,7 @@ import matplotlib.pyplot as plt
 from json import loads, dumps
 import numpy as np
 import argparse
+import os
 from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
 
 def compute_deviations(reader, mean_structure, indexed_mean_structure, indexes, num_confs, start=None, stop=None):
@@ -67,7 +68,7 @@ def main():
     # 1. the mean structure from compute_mean.py in json format
     # 2. the trajectory from which to compute the deviations
     # 3. the name of the file to write out the deviations to.  Should be a .json because oxView uses file extensions
-    parser = argparse.ArgumentParser(description="Compute the RMSD of each nucleotide from the mean structure produced by compute_mean.py")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Compute the RMSD of each nucleotide from the mean structure produced by compute_mean.py")
     parser.add_argument('mean_structure', type=str, nargs=1, help="The mean structure .json file from compute_mean.py")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")

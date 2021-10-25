@@ -70,7 +70,7 @@ def main():
     check_dependencies(["python", "numpy", "matplotlib"])
 
     #get commandline arguments
-    parser = argparse.ArgumentParser(description="Calculate and display the contact map for a structure")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculate and display the contact map for a structure")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
     parser.add_argument('-v', dest='visualize', action='store_const', const=True, default=False, help="should we display the contact map once its calculated? Only recommend if there are few confs.")

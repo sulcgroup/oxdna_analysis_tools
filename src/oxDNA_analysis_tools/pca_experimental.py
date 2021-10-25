@@ -18,7 +18,7 @@ except:
 from random import randint
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 from warnings import catch_warnings, simplefilter
-from os import environ
+from os import environ, path
 from oxDNA_analysis_tools.config import check_dependencies
 from sklearn.decomposition import PCA
 
@@ -91,7 +91,7 @@ def get_pca(reader, align_conf, num_confs, start=None, stop=None):
     return deviations_matrix
 
 def main():
-    parser = argparse.ArgumentParser(description="Calculates a principal component analysis of nucleotide deviations over a trajectory")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculates a principal component analysis of nucleotide deviations over a trajectory")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('meanfile', type=str, nargs=1, help='The mean structure .json file from compute_mean.py')
