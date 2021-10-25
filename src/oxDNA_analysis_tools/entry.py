@@ -2,13 +2,6 @@
 
 # Created by Erik Poppleton, October 2021
 
-"""
-Create command line entry points for scripts
-"""
-from posixpath import realpath
-import oxDNA_analysis_tools
-
-
 def main():
     from sys import argv
     from importlib import import_module

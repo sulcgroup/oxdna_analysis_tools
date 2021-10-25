@@ -142,8 +142,6 @@ def main():
     from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy"])
 
-    import UTILS.base #this needs to be imported after the model type is set
-
     #get the number of configurations in the trajectory
     num_confs = cal_confs(traj_file)
 
