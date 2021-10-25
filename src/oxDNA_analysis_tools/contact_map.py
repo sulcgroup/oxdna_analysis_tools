@@ -6,10 +6,10 @@ import subprocess
 import tempfile
 import numpy as np
 
-from config import set_analysis_path
+from oxDNA_analysis_tools.config import set_analysis_path
 PROCESSPROGRAM = set_analysis_path()
 
-from config import check_dependencies
+from oxDNA_analysis_tools.config import check_dependencies
 check_dependencies(["numpy"])
 
 def contact_map (inputfile, mysystem, return_full_matrix):
@@ -66,7 +66,7 @@ def main():
     import matplotlib.pyplot as plt
     from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
 
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy", "matplotlib"])
 
     #get commandline arguments

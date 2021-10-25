@@ -41,7 +41,7 @@ def main():
     parser.add_argument('output', type=str, nargs=1, help="The name of the output file")
     args = parser.parse_args()
 
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy"])
 
     #load the mean file, which is in .json format

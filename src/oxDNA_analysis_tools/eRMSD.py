@@ -15,7 +15,7 @@ import pickle
 import matplotlib.pyplot as plt
 from oxDNA_analysis_tools.UTILS.all_vectors import all_vectors
 import argparse
-from clustering import perform_DBSCAN
+from oxDNA_analysis_tools.clustering import perform_DBSCAN
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 
 #a matrix of vectors in local cylindrical coordinates
@@ -137,7 +137,7 @@ def main():
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     args = parser.parse_args()
 
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy", "matplotlib"])
 
     traj_file = args.trajectory[0]

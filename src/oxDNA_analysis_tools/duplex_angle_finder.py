@@ -14,7 +14,7 @@ from sys import stderr
 import subprocess
 import tempfile
 from oxDNA_analysis_tools.UTILS import geom
-from output_bonds import output_bonds
+from oxDNA_analysis_tools.output_bonds import output_bonds
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 
 class Duplex:
@@ -143,7 +143,7 @@ def main():
     parser.add_argument('-o', '--output', metavar='output_file',  type=str, nargs=1, help='name of the file to write the angle list to')
     args = parser.parse_args()
 
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy"])
 
     #Process command line arguments:

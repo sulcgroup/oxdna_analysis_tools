@@ -190,7 +190,7 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
     """
 
     #run system checks
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "sklearn", "matplotlib"])
     
     print("INFO: Running DBSCAN...", file=stderr)

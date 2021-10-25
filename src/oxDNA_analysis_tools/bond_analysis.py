@@ -101,7 +101,7 @@ def main():
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     
     #run system checks
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy"])
 
     args = parser.parse_args()

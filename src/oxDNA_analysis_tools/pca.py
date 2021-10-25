@@ -19,7 +19,7 @@ from random import randint
 from oxDNA_analysis_tools.UTILS import parallelize_erik_onefile
 from warnings import catch_warnings, simplefilter
 from os import environ
-from config import check_dependencies
+from oxDNA_analysis_tools.config import check_dependencies
 
 def make_heatmap(covariance):
     """

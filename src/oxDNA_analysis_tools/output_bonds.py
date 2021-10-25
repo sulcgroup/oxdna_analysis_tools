@@ -9,7 +9,7 @@ from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_paramet
 import subprocess
 import tempfile
 
-from config import set_analysis_path
+from oxDNA_analysis_tools.config import set_analysis_path
 PROCESSPROGRAM = set_analysis_path()
 
 command_for_data =  'analysis_data_output_1={ \n name = stdout \n print_every = 1 \n col_1 = { \n type=pair_energy \n} \n}'
@@ -40,7 +40,7 @@ def main():
 	parser.add_argument('-v', type=str, nargs=1, dest='outfile', help='if you want instead average per-particle energy as a viewer JSON')
 	args = parser.parse_args()
 
-	from config import check_dependencies
+	from oxDNA_analysis_tools.config import check_dependencies
 	check_dependencies(["python", "numpy"])
 
 	traj_file = args.trajectory[0]

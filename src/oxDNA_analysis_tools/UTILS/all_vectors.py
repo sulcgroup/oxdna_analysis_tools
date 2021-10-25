@@ -51,7 +51,7 @@ def main():
     parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
     args = parser.parse_args()
 
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy"])
 
     inputfile = args.inputfile[0]

@@ -61,7 +61,7 @@ def main():
     parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the clusterer on each configuration's distance?")
     args = parser.parse_args()
 
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "matplotlib", "numpy"])
 
     #-i requires 4 or more arguments, the topology file of the structure, the trajectory to analyze, and any number of particle pairs to compute the distance between.

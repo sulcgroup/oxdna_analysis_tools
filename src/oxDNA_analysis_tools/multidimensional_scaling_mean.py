@@ -11,7 +11,7 @@ import numpy as np
 from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from sys import exit, stderr
 from json import dumps, loads
-from contact_map import contact_map
+from oxDNA_analysis_tools.contact_map import contact_map
 import argparse
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 from os import environ
@@ -139,7 +139,7 @@ def main():
     else:
         environ["OXRNA"] = "0"
 
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy"])
 
     import UTILS.base #this needs to be imported after the model type is set

@@ -85,7 +85,7 @@ def main():
     args = parser.parse_args()
 
     #system check
-    from config import check_dependencies
+    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "Bio", "numpy"])
 
     #-o names the output file
