@@ -87,8 +87,6 @@ def main():
     else:
         environ["OXRNA"] = "0"
 
-    import UTILS.base #this needs to be imported after the model type is set
-
     #create system object from first configuration in the trajectory
     r = LorenzoReader2(traj_file, top_file)
     system = r._get_system()
