@@ -159,7 +159,7 @@ def main():
 
     print("INFO: Centroid configuration found at configuration t = {}, RMSF = {}".format(centroid_time, centroid_rmsf), file=stderr)
     
-    from mean2dat import make_dat
+    from oxDNA_analysis_tools.mean2dat import make_dat
 
     make_dat({'g_mean' : centroid, 'a1_mean': centroid_a1s, 'a3_mean': centroid_a3s}, outfile)
 

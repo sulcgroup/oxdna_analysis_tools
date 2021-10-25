@@ -93,9 +93,9 @@ def bond_analysis(reader, pairs, inputfile, num_confs, start=None, stop=None):
 
 def main():
     #read data from files
-    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculate and display the contact map for a structure")
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Compare the bonds found at each trajectory with the intended design")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
-    parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
+    parser.add_argument('trajectory', type=str, nargs=1, help="The trajecotry file to compare against the designed pairs")
     parser.add_argument('designed_pairs', type=str, nargs=1, help="The file containing the desired nucleotides pairings in the format \n a b\nc d")
     parser.add_argument('output_file', type=str, nargs=1, help="name of the file to save the output json overlay to")
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
