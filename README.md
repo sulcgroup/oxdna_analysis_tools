@@ -43,7 +43,7 @@ Or add it to your global completions with:
 `sudo cp oat-completion.sh /etc/bash_completion.d/`
 
 ### DNAnalysis and verifying installation
-Some scripts require DNAnalysis, a program in the oxDNA distribution.  Unfortunatley, there is not a good way to detect the location of this program on each user's system when installing from pip, so the path to it must be hardcoded.  In order to use scripts which compute the oxDNA energy function (particularly `bond_analysis`, `multidimensional_scaling_mean`, and `duplex_angle_finder`), you need to locate `config.py` in the oxDNA_analysis_tools source directory. There, edit the `PROCESSPROGRAM` variable in to point to the compiled DNAnalysis binary.  
+Some scripts require DNAnalysis, a program in the oxDNA distribution to calcuate the oxDNA energy function for identifying bonded nucleotides.  Unfortunatley, there is not a good way to detect the location of this program on each user's system when installing from pip, so the path to it must be hardcoded.  In order to use scripts which check base pairing (particularly `bond_analysis`, `multidimensional_scaling_mean`, and `duplex_angle_finder`), you need to locate `config.py` in the oxDNA_analysis_tools source directory. There, edit the `PROCESSPROGRAM` variable in to point to the compiled DNAnalysis binary.  
 
 To verify your environment is set up correctly, run 
 
