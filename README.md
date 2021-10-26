@@ -24,7 +24,7 @@ It can also be installed from the [GitHub repository](https://github.com/sulcgro
    `pip install .`  
    `python setup.py install`  
 
-If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:
+If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:  
 [Python](https://www.python.org/): 3.7 (minimum version 3.6),<br/>
 [oxDNA](https://dna.physics.ox.ac.uk/index.php/Main_Page): 6985 (minimum version June 2019)<br/>
 [NumPy](https://numpy.org/): 1.16,<br/>
