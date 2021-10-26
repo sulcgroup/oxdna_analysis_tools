@@ -53,7 +53,7 @@ The scripts which use DNAnalysis require at least release 6985 (June 2019) of ox
 
 ## Using oxDNA analysis tools
 Once installed, all standalone scripts can be called from the command line via the following invocation:  
-`oat \<script name> \<script arguments>`  
+`oat <script name> <script arguments>`  
 
 For example, to compute the mean structure and deviations of a file called `trajectory.dat` using 4 CPUs and outputting to files called `mean.dat` and `devs.json`, you would run:  
 `oat compute_mean -p 4 -o mean.dat -d devs.json trajectory.dat`
