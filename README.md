@@ -1,4 +1,4 @@
-# oxdna_analysis_tools
+# oxDNA Analysis Tools
 
 A suite of Python tools for performing generic structural analyses of oxDNA simulations.
 Our goal in developing these tools is to provide a foundation of common analyses applicable to most simulations and to provide code examples for researchers looking to implement tools to meet their own research needs.
@@ -9,13 +9,22 @@ An overarching description can be found in this paper: https://academic.oup.com/
 
 ## Dependencies and installation
 
-To install these scripts, clone or download and unzip the repository.  Some scripts require DNAnalysis, a program in the oxDNA distribution.  Edit the `PROCESSPROGRAM` variable in config.py to point to the compiled binary.  To check your environment, run 
+### Pip installation
+oxDNA analysis tools can be installed from PyPi via pip:
 
-`python config.py`
+`pip install oxDNA-analysis-tools`
 
-To verify that Python can find all the required packages.  Many of these packages can be installed via either pip or conda with `pip install <package>` or `conda install <package>`.
+This will also install all dependencies.  Bash autocompletes will not be set up, see below for setting up autocompletion.
 
-This software package was written and tested using the following outside resources:<br/>
+### Installation from source
+It can also be installed from the [GitHub repository](https://github.com/sulcgroup/oxdna_analysis_tools) or the zip file of the source code available on PyPi via the following method:  
+
+1. Clone the repository or download and inflate the zip file.  
+2. Run one of the following commands (pip to automatically install dependencies or setup.py if you would like to manage them yourself):  
+   `pip install .`  
+   `python setup.py install`  
+
+If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:
 [Python](https://www.python.org/): 3.7 (minimum version 3.6),<br/>
 [oxDNA](https://dna.physics.ox.ac.uk/index.php/Main_Page): 6985 (minimum version June 2019)<br/>
 [NumPy](https://numpy.org/): 1.16,<br/>
@@ -24,7 +33,38 @@ This software package was written and tested using the following outside resourc
 [Scikit-Learn](https://scikit-learn.org/stable/): 0.21.2,<br/>
 [Pathos](https://github.com/uqfoundation/pathos): 0.2.3</br>
 
-Unfortunately, there is not currently a good way to check oxDNA version.  If `multidimensional_Scaling_mean.py` or `duplex_angle_finder.py` throw an error from oxDNA, then your version is probably out of date.
+### Setting up Bash autocompletes
+The invocation `oat` is calling a Python script which then handles calling the other available scripts.  If you would like autocompletes for the specific script names (and are using a Unix command line), these are provided by `oat-completion.sh` which can also be found in the repository.  To add autocompletes to your system, either append it to your `.bashrc` with:  
+
+`cat oat-completion.sh >> ~/.bashrc`
+
+Or add it to your global completions with:  
+
+`sudo cp oat-completion.sh /etc/bash_completion.d/`
+
+### DNAnalysis and verifying installation
+Some scripts require DNAnalysis, a program in the oxDNA distribution.  Unfortunatley, there is not a good way to detect the location of this program on each user's system when installing from pip, so the path to it must be hardcoded.  In order to use scripts which compute the oxDNA energy function (particularly `bond_analysis`, `multidimensional_scaling_mean`, and `duplex_angle_finder`), you need to locate `config.py` in the oxDNA_analysis_tools source directory. There, edit the `PROCESSPROGRAM` variable in to point to the compiled DNAnalysis binary.  
+
+To verify your environment is set up correctly, run 
+
+`oat config`
+
+The scripts which use DNAnalysis require at least release 6985 (June 2019) of oxDNA. Unfortunately, there is not currently a good way to check oxDNA version (this has been fixed in the [bleeding edge repository](https://github.com/lorenzo-rovigatti/oxDNA)).  If `multidimensional_scaling_mean.py` or `duplex_angle_finder.py` throw an error from oxDNA, then your version is probably out of date.
+
+## Using oxDNA analysis tools
+Once installed, all standalone scripts can be called from the command line via the following invocation:  
+`oat \<script name> \<script arguments>`  
+
+For example, to compute the mean structure and deviations of a file called `trajectory.dat` using 4 CPUs and outputting to files called `mean.dat` and `devs.json`, you would run:  
+`oat compute_mean -p 4 -o mean.dat -d devs.json trajectory.dat`
+
+To see a detailed description of the script command line arguments, run the script withe the `-h` flag.
+
+These scripts are intended to be extensible and re-used for custom analysis by users.  The functions in this library can be imported into your Python scripts via:  
+`from oxDNA_analysis_tools.<script name> import <object name>`
+
+So for example, if you would like to use the ErikReader trajectory reader, you would include this line at the start of your Python script:  
+`from oxDNA_analysis_tools.UTILS.readers import ErikReader`
 
 ## File formats
 
