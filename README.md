@@ -58,7 +58,7 @@ Once installed, all standalone scripts can be called from the command line via t
 For example, to compute the mean structure and deviations of a file called `trajectory.dat` using 4 CPUs and outputting to files called `mean.dat` and `devs.json`, you would run:  
 `oat compute_mean -p 4 -o mean.dat -d devs.json trajectory.dat`
 
-To see a detailed description of the script command line arguments, run the script withe the `-h` flag.
+To see a detailed description of the script command line arguments, run the script with the `-h` flag.
 
 These scripts are intended to be extensible and re-used for custom analysis by users.  The functions in this library can be imported into your Python scripts via:  
 `from oxDNA_analysis_tools.<script name> import <object name>`
