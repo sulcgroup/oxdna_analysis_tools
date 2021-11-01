@@ -10,6 +10,8 @@ def set_analysis_path():
 
 	if not path.isfile(PROCESSPROGRAM):
 		print ("ERROR: Cannot execute DNAnalysis program. Please edit config.py to point to your compiled DNAnalysis. Current target:", PROCESSPROGRAM, file=stderr)
+		print()
+		print("config.py can be found in", path.realpath(__file__), file=stderr)
 		exit()
 	return PROCESSPROGRAM
 
