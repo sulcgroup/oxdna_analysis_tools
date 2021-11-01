@@ -34,9 +34,9 @@ If you are not installing via pip, the following dependencies are required and c
 [Pathos](https://github.com/uqfoundation/pathos): 0.2.3</br>
 
 ### Setting up Bash autocompletes
-The invocation `oat` is calling a Python script which then handles calling the other available scripts.  If you would like autocompletes for the specific script names (and are using a Unix command line), these are provided by `oat-completion.sh` which can also be found in the repository.  To add autocompletes to your system, either append it to your `.bashrc` with:  
+The invocation `oat` is calling a Python script which then handles calling the other available scripts.  If you would like autocompletes for the specific script names (and are using a Unix command line), these are provided by `oat-completion.sh` which can also be found in the repository.  To add autocompletes to your system, either append it to your local `.bash_completion` file with:  
 
-`cat oat-completion.sh >> ~/.bashrc`
+`cat oat-completion.sh >> ~/.bash_completion`
 
 Or add it to your global completions with:  
 
