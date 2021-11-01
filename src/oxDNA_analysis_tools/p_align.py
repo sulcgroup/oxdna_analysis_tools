@@ -25,12 +25,6 @@ def get_n_cpu():
         available_cpus = cpu_count()
     return available_cpus
 
-ncpus = get_n_cpu()
-ntopart = 5
-#prepare to fire multiple processes 
-pool = ProcessPool(nodes=ncpus)
-
-
 
 #aligner
 def align(indexes, ref_conf, mysystem):
@@ -51,6 +45,12 @@ def align(indexes, ref_conf, mysystem):
     return mysystem.conf_to_str() # we finally need a string 
 
 def main():
+
+    ncpus = get_n_cpu()
+    ntopart = 5
+    #prepare to fire multiple processes 
+    pool = ProcessPool(nodes=ncpus)
+
     #handle commandline arguments
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Aligns each frame in a trajectory to the first frame")
     parser.add_argument('top', type=str, nargs=1, help="The trajectory file to align")
