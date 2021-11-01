@@ -24,7 +24,7 @@ It can also be installed from the [GitHub repository](https://github.com/sulcgro
    `pip install .`  
    `python setup.py install`  
 
-If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:
+If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:  
 [Python](https://www.python.org/): 3.7 (minimum version 3.6),<br/>
 [oxDNA](https://dna.physics.ox.ac.uk/index.php/Main_Page): 6985 (minimum version June 2019)<br/>
 [NumPy](https://numpy.org/): 1.16,<br/>
@@ -43,7 +43,7 @@ Or add it to your global completions with:
 `sudo cp oat-completion.sh /etc/bash_completion.d/`
 
 ### DNAnalysis and verifying installation
-Some scripts require DNAnalysis, a program in the oxDNA distribution.  Unfortunatley, there is not a good way to detect the location of this program on each user's system when installing from pip, so the path to it must be hardcoded.  In order to use scripts which compute the oxDNA energy function (particularly `bond_analysis`, `multidimensional_scaling_mean`, and `duplex_angle_finder`), you need to locate `config.py` in the oxDNA_analysis_tools source directory. There, edit the `PROCESSPROGRAM` variable in to point to the compiled DNAnalysis binary.  
+Some scripts require DNAnalysis, a program in the oxDNA distribution to calcuate the oxDNA energy function for identifying bonded nucleotides.  Unfortunatley, there is not a good way to detect the location of this program on each user's system when installing from pip, so the path to it must be hardcoded.  In order to use scripts which check base pairing (particularly `bond_analysis`, `multidimensional_scaling_mean`, and `duplex_angle_finder`), you need to locate `config.py` in the oxDNA_analysis_tools source directory. There, edit the `PROCESSPROGRAM` variable in to point to the compiled DNAnalysis binary.  
 
 To verify your environment is set up correctly, run 
 
@@ -53,12 +53,12 @@ The scripts which use DNAnalysis require at least release 6985 (June 2019) of ox
 
 ## Using oxDNA analysis tools
 Once installed, all standalone scripts can be called from the command line via the following invocation:  
-`oat \<script name> \<script arguments>`  
+`oat <script name> <script arguments>`  
 
 For example, to compute the mean structure and deviations of a file called `trajectory.dat` using 4 CPUs and outputting to files called `mean.dat` and `devs.json`, you would run:  
 `oat compute_mean -p 4 -o mean.dat -d devs.json trajectory.dat`
 
-To see a detailed description of the script command line arguments, run the script withe the `-h` flag.
+To see a detailed description of the script command line arguments, run the script with the `-h` flag.
 
 These scripts are intended to be extensible and re-used for custom analysis by users.  The functions in this library can be imported into your Python scripts via:  
 `from oxDNA_analysis_tools.<script name> import <object name>`
