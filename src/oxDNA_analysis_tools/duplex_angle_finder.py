@@ -11,8 +11,6 @@ import numpy as np
 import argparse
 from os import environ, path
 from sys import stderr
-import subprocess
-import tempfile
 from oxDNA_analysis_tools.UTILS import geom
 from oxDNA_analysis_tools.output_bonds import output_bonds
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
@@ -113,7 +111,13 @@ def find_angles(reader, inputfile, num_confs, start=None, stop=None):
     while mysystem != False and confid < stop:
         print("Working on  t = {}".format(mysystem._time))
         mysystem.map_nucleotides_to_strands()
-        out = output_bonds(inputfile, mysystem) 
+        out = output_bonds(inputfile, mysystem)
+        if out == '':
+            duplex_list = []
+            duplexes_at_step.append(duplex_list)
+            confid += 1 
+            mysystem = reader._get_system()
+            continue
         mysystem.read_H_bonds_output_bonds(out)
         duplex_list = find_duplex(mysystem)
 
@@ -185,6 +189,9 @@ def main():
         duplexes_at_step = []
         out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, find_angles, num_confs, n_cpus, inputfile)
         [duplexes_at_step.extend(i) for i in out]
+    
+    if [] in duplexes_at_step:
+        print("WARNING: Some configurations were invalid and not included in the analysis.  Please check the logs", file=stderr)
 
     #print duplexes to a file
     print("INFO: Writing duplex data to {}.  Use axis_analysis_overlay.py to graph data".format(outfile), file=stderr)
@@ -192,8 +199,8 @@ def main():
     output.write("time\tduplex\tstart1\tend1\tstart2\tend2\taxisX\taxisY\taxisZ\thel_pos\n")
     for i in range (0, len(duplexes_at_step)):
         for j in range(0, len(duplexes_at_step[i])):
-                       line = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t[{},{},{}]\n'.format(duplexes_at_step[i][j].time,duplexes_at_step[i][j].index,duplexes_at_step[i][j].start1,duplexes_at_step[i][j].end1,duplexes_at_step[i][j].start2,duplexes_at_step[i][j].end2,duplexes_at_step[i][j].axis[0],duplexes_at_step[i][j].axis[1],duplexes_at_step[i][j].axis[2],duplexes_at_step[i][j].final_hel_pos[0],duplexes_at_step[i][j].final_hel_pos[1],duplexes_at_step[i][j].final_hel_pos[2])
-                       output.write(line)
+            line = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t[{},{},{}]\n'.format(duplexes_at_step[i][j].time,duplexes_at_step[i][j].index,duplexes_at_step[i][j].start1,duplexes_at_step[i][j].end1,duplexes_at_step[i][j].start2,duplexes_at_step[i][j].end2,duplexes_at_step[i][j].axis[0],duplexes_at_step[i][j].axis[1],duplexes_at_step[i][j].axis[2],duplexes_at_step[i][j].final_hel_pos[0],duplexes_at_step[i][j].final_hel_pos[1],duplexes_at_step[i][j].final_hel_pos[2])
+            output.write(line)
     output.close()
 
 if __name__ == '__main__':

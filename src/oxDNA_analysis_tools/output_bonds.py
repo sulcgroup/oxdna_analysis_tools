@@ -28,7 +28,7 @@ def output_bonds (inputfile, system):
 	for line in err.split('\n'):
 		if "CRITICAL" in line or "ERROR" in line:
 			print(err, file=stderr)
-			print("Bad configuration, outputting blank string", file=stderr)
+			print("Bad configuration found at t = {}, outputting blank string".format(int(system._time)), file=stderr)
 			return ''
 	return out
 

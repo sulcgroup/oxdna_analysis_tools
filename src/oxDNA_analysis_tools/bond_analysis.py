@@ -56,6 +56,8 @@ def bond_analysis(reader, pairs, inputfile, num_confs, start=None, stop=None):
     while mysystem != False and confid < stop:
         mysystem.map_nucleotides_to_strands()
         out = output_bonds(inputfile, mysystem)  
+        if out == '':
+            return None, None, [], None #return something to indicate that the configuration is not valid
         mysystem.read_H_bonds_output_bonds(out) #maps the output of output_bonds to the system object
         #count_bonds = 0
         count_correct_bonds = 0
@@ -127,18 +129,33 @@ def main():
         print("INFO: Computing base pairs in {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
         tot_bonds, tot_missbonds, out_array, confid = bond_analysis(r, pairs, inputfile, num_confs)
-
-    if parallel:
-        print("INFO: Computing base pairs in {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
         try:
-            out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, bond_analysis, num_confs, n_cpus, pairs, inputfile)
+            _ = tot_bonds[0] #this will fail if DNAnalysis failed.
         except:
             print("ERROR: DNAnalysis encountered an error and could not analyze the trajectory")
             exit(1)
-        tot_bonds = sum((i[0] for i in out))
-        tot_missbonds = sum((i[1] for i in out))
-        out_array = sum((i[2] for i in out))
-        confid = sum((i[3] for i in out))
+
+    if parallel:
+        print("INFO: Computing base pairs in {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
+        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, bond_analysis, num_confs, n_cpus, pairs, inputfile)
+
+        tot_bonds = 0
+        tot_missbonds = 0
+        out_array = np.zeros(len(open(top_file, 'r').readlines())-1)
+        confid = 0
+        for i in out:
+            if i[0] is not None:
+                tot_bonds += i[0]
+                tot_missbonds += i[1]
+                #out_array += i[2]
+                confid += i[3]
+            else:
+                print("WARNING: Some configurations were invalid and not included in the analysis.  Please check the logs", file=stderr)
+
+            #tot_bonds = sum((i[0] for i in out if i[0] != None))
+            #tot_missbonds = sum((i[1] for i in out if i[1] != None))
+        out_array = sum((i[2] for i in out if len(i[2]) > 0))
+            #confid = sum((i[3] for i in out if i[3] != None))
 
     print("\nSummary:\navg bonds: {}\navg_missbonds: {}".format(tot_bonds/(int(confid)),tot_missbonds/int(confid)))
 
