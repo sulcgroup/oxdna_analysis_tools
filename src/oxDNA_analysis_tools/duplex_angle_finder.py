@@ -191,7 +191,7 @@ def main():
         [duplexes_at_step.extend(i) for i in out]
     
     if [] in duplexes_at_step:
-        print("WARNING: Some configurations were invalid and not included in the analysis.  Please check the logs", file=stderr)
+        print("WARNING: Some configurations were invalid and not included in the analysis.  Please check the log to view the error", file=stderr)
 
     #print duplexes to a file
     print("INFO: Writing duplex data to {}.  Use axis_analysis_overlay.py to graph data".format(outfile), file=stderr)
