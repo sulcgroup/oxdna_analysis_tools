@@ -59,6 +59,7 @@ def main():
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
     parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a json to this filename for loading in oxView or your own scripts')
+    parser.add_argument('-n', '--names', metavar='names', nargs='+', action='append', help='Names of the data series.  Will default to particle ids if not provided')
     parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the clusterer on each configuration's distance?")
     args = parser.parse_args()
 
@@ -121,26 +122,39 @@ def main():
     
     #get the specified distances
     distances = get_distances(trajectories, p1s, p2s)
+
+    # -n sets the names of the data series
+    if args.names:
+        names = args.names[0]
+        if len(names) < n_dists:
+            print("WARNING: Names list too short.  There are {} items in names and {} distances were calculated.  Will pad with particle IDs".format(len(names), n_dists), file=stderr)
+            for i in range(len(names), len(distances)):
+                names.append("{}-{}".format([j for sl in p1s for j in sl][i], [j for sl in p2s for j in sl][i]))
+        if len(names) > n_dists:
+            print("WARNING: Names list too long. There are {} items in names and {} distances were calculated.  Truncating to be the same as distances".format(len(names), n_dists), file=stderr)
+            names = names[:n_dists]
+
+    else:
+        print("INFO: Defaulting to particle IDs as data series names")
+        names = ["{}-{}".format(p1, p2) for p1, p2 in zip([i for sl in p1s for i in sl], [i for sl in p2s for i in sl])]
     
     # -d will dump the distances as json files for loading with the trajectories in oxView
     if args.data:
         from json import dump
         if len(trajectories) > 1:
-            print("INFO: distance lists from separate trajectories are printed to separate files for oxView compatibility.  Trajectory names will be appended to your provided data file name.", file=stderr)
-            file_names = ["{}_{}.json".format(args.data[0].strip('.json'), t) for t in trajectories]
+            print("INFO: distance lists from separate trajectories are printed to separate files for oxView compatibility.  Trajectory numbers will be appended to your provided data file name.", file=stderr)
+            file_names = ["{}_{}.json".format(args.data[0].strip('.json'), i) for i,_ in enumerate(trajectories)]
         else:
             file_names = [args.data[0].strip('.json')+'.json']
         names_by_traj = [['{}-{}'.format(p1, p2) for p1, p2 in zip(p1l, p2l)] for p1l, p2l in zip(p1s, p2s)]
         
-        for file_name, names, dist_list in zip(file_names, names_by_traj, distances):
+        for file_name, ns, dist_list in zip(file_names, names_by_traj, distances):
             obj = {}
-            for n, d in zip(names, dist_list):
+            for n, d in zip(ns, dist_list):
                 obj[n] = d        
             with open(file_name, 'w+') as f:
                 print("INFO: writing data to {}.  This can be opened in oxView using the Order parameter selector".format(file_name))
                 dump(obj, f)
-        
-
 
     #convert the distance list into numpy arrays because they're easier to work with
     for i, l in enumerate(distances):
@@ -153,14 +167,6 @@ def main():
     #get some min/max values to make the plots pretty
     lower = min((l.min() for l in distances))
     upper = max((l.max() for l in distances))
-
-    #PUT THE NAMES OF YOUR DATA SERIES HERE
-    names = ["1", "2", "3", "4", "5", "6", "7", "8"]
-    print("INFO: Name your data series by modifying the \"names\" variable in the script", file=stderr)
-    if len(names) < n_dists:
-        print("ERROR: Not enough names provided.  There are {} items in the names list and {} data series".format(len(names), n_dists), file=stderr)
-        print("INFO: Defaulting to particle IDs as data series names")
-        names = ["{}-{}".format(p1, p2) for p1, p2 in zip([i for sl in p1s for i in sl], [i for sl in p2s for i in sl])]
 
     #those horrific list comprehensions unpack lists of lists into a single list
     print("input:\t", end='')

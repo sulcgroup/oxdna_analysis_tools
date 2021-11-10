@@ -194,7 +194,7 @@ def main():
         print("WARNING: Some configurations were invalid and not included in the analysis.  Please check the log to view the error", file=stderr)
 
     #print duplexes to a file
-    print("INFO: Writing duplex data to {}.  Use axis_analysis_overlay.py to graph data".format(outfile), file=stderr)
+    print("INFO: Writing duplex data to {}.  Use duplex_angle_plotter to graph data".format(outfile), file=stderr)
     output = open(outfile, 'w')
     output.write("time\tduplex\tstart1\tend1\tstart2\tend2\taxisX\taxisY\taxisZ\thel_pos\n")
     for i in range (0, len(duplexes_at_step)):
