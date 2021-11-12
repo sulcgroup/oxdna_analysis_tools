@@ -62,8 +62,7 @@ def main():
 		environ["OXRNA"] = "1"
 	else:
 		environ["OXRNA"] = "0"
-	import UTILS.base #this needs to be imported after the model type is set
-
+	import oxDNA_analysis_tools.UTILS.base #this needs to be imported after the model type is set
 
 	myreader = LorenzoReader2(traj_file,top_file)
 	mysystem = myreader._get_system()
