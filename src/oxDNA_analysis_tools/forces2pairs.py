@@ -13,7 +13,7 @@ def main():
 
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Convert an external force file to a list of particle pairs")
     parser.add_argument('force_file', type=str, nargs=1, help="The force file to generate pairs from")
-    parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the angle list to')
+    parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the pair list to')
 
     args = parser.parse_args()
 
