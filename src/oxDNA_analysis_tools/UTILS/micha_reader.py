@@ -137,12 +137,12 @@ class MichaReader:
             return self._parse_conf(lines)
         if(not self.buff and self.ptr < self.conf_count): # no confs in the buff - try get some 
             self.buff.extend( 
-                self._get_confs(self.ptr, self.buff_size)
+                self._get_confs(self.ptr, self.buff_size)[::-1] # save reversed list for speed with pop
             )
             self.ptr += self.buff_size
         if(self.buff): #handle the conf 
             return self._parse_conf(
-                self.buff.pop(0)  # pops the 1st element out 
+                self.buff.pop()  # pops the last element out (as it's faster than using pop(0) which is O(n))
             )
         return None
       
