@@ -130,7 +130,7 @@ def main():
         r = LorenzoReader2(traj_file,top_file)
         tot_bonds, tot_missbonds, out_array, confid = bond_analysis(r, pairs, inputfile, num_confs)
         try:
-            _ = tot_bonds[0] #this will fail if DNAnalysis failed.
+            _ = tot_bonds #this will fail if DNAnalysis failed.
         except:
             print("ERROR: DNAnalysis encountered an error and could not analyze the trajectory")
             exit(1)
