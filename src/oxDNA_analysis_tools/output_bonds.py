@@ -15,6 +15,16 @@ PROCESSPROGRAM = set_analysis_path()
 command_for_data =  'analysis_data_output_1={ \n name = stdout \n print_every = 1 \n col_1 = { \n type=pair_energy \n} \n}'
 
 def output_bonds (inputfile, system):
+    """
+    Use DNAnalysis's builtin interaction potential calculator to calculate the interactions between nucleotides
+
+    Parameters:
+        inputfile (str): the inputfile used to run the simulation
+        system (System): the system object representing a single configuration
+
+    Returns:
+        out (str): the output of the interaction potential calculator
+    """
     tempfile_obj = tempfile.NamedTemporaryFile()
     temp_top = tempfile.NamedTemporaryFile()
     system.print_lorenzo_output(tempfile_obj.name,temp_top.name)

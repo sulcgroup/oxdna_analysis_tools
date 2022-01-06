@@ -5,6 +5,16 @@ from sys import stderr
 import os
 
 def subset_traj(system, ids):
+    """
+    Extracts specified parts of a configuration into separate configuration files
+
+    Parameters:
+        system (System): the system object representing a single configuration
+        ids (list[]): a list of lists of particle ids to extract
+
+    Returns:
+        new_systems (list[System]): a list of systems representing the extracted configurations
+    """
     new_systems = [base.System(system._box) for _ in ids]
     for s in new_systems:
         s._time = system._time

@@ -8,9 +8,31 @@ import argparse
 from json import dumps
 
 def rad2degree(angle):
+    """
+    Convert radians to degrees
+
+    Parameters:
+        angle (float): angle in radians
+
+    Returns:
+        angle (float): angle in degrees
+    """
     return (angle * 180 / np.pi)
 
 def get_internal_coords(reader, num_confs, start = None, stop = None):
+    """
+    Get the internal coordinates of the nucleic acid backbone
+
+    Parameters:
+        reader (LorenzoReader2): the reader object attached to a trajectory file
+        num_confs (int): the number of conformations in the trajectory
+        start (int): the starting frame to read in
+        stop (int): the last frame to read in
+
+    Returns:
+        torsions (list[]): the torsion angles for each configuration
+        dihedrals (list[]): the dihedral angles for each configuration
+    """
     if stop is None:
         stop = num_confs
     else: stop = int(stop)

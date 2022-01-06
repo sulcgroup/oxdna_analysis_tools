@@ -8,6 +8,16 @@ import matplotlib.pyplot as plt
 
 #Calculates distance taking PBC into account
 def min_image(p1, p2, box):
+    """
+    Calculates distance between two particles taking PBC into account
+
+    Parameters:
+        p1 (np.array): The first particle's position
+        p2 (np.array): The second particle's position
+
+    Returns:
+        distance (float): The distance between the two particles
+    """
     p1 = p1 - (np.floor(p1/box) * box)
     p2 = p2 - (np.floor(p2/box) * box)
     diff = p1 - p2
@@ -15,6 +25,17 @@ def min_image(p1, p2, box):
     return np.linalg.norm(diff)
 
 def get_distances(trajectories, p1s, p2s):
+    """
+    Calculates specified distances in each of the provided trajectories
+
+    Parameters:
+        trajectories (string[]): A list of trajectory file names
+        p1s (int[]): A list of particle indexes for the first particle in each distance
+        p2s (int[]): A list of particle indexes for the second particle in each distance
+
+    Returns:
+        distances (float[][]): A list of distances for each particle pair in each trajectory
+    """
     distances = [[] for _ in trajectories]
     for i,trajectory in enumerate(trajectories):
         with open(trajectory, 'r') as traj:

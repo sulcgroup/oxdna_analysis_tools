@@ -17,6 +17,18 @@ import os
 
 #aligner
 def align_frame(ref_conf, sup, mysystem, indexes):
+    """
+    Aligns a frame to the reference configuration
+
+    Parameters
+        ref_conf (base_array): The reference configuration
+        sup (SVDSuperimposer): The superimposer object
+        mysystem (base_array): The configuration to align
+        indexes (list): The indexes of the particles to align
+
+    Returns
+        mysystem (base_array): The aligned configuration
+    """
     #Need to get rid of fix_diffusion artifacts or SVD doesn't work
     mysystem.inbox()
     indexed_cur_conf = mysystem.positions[indexes]

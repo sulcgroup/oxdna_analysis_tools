@@ -28,6 +28,17 @@ def get_n_cpu():
 
 #aligner
 def align(indexes, ref_conf, mysystem):
+    """
+    Aligns a single frame to the reference configuration.
+
+    Parameters:
+        indexes (list): The indexes of the particles to align.
+        ref_conf (base_array): The reference configuration to align to.
+        mysystem (base_array): The configuration to align.
+
+    Returns:
+        str: The aligned configuration in the format of the original trajectory file.
+    """
     sup = SVDSuperimposer()
     #Need to get rid of fix_diffusion artifacts or SVD doesn't work
     mysystem.inbox()
