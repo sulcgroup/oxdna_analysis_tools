@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
+
+# Created by Hao Liu 
+# Date 01/22/2019 
+# A short script generating force file from the given .dat and .top
+
 from sys import stderr
 import os
 from oxDNA_analysis_tools.output_bonds import output_bonds
 import argparse
 from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
 
-# Created by Hao Liu 
-# Date 01/22/2019 
-# A short script generating force file from the given .dat and .top
-
-
 def main():
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Create an external forces file enforcing the current base-pairing arrangement")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('configuration', type=str, nargs=1, help="The configuration to generate the forces from")
-    parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the force list to')
+    parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the forces to. Defaults to forces.txt')
     parser.add_argument('-f', '--pairs', type=str, nargs=1, help='name of the file to write the designed pairs list to')
 
     args = parser.parse_args()
