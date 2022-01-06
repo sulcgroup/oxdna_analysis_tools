@@ -47,10 +47,10 @@ class base_array(object):
         self.a1s = a1s
         self.a3s = a3s
     
-    """
-    Modify the positions attribute such that all positions are inside the box.
-    """
     def inbox(self):
+        """
+        Modify the positions attribute such that all positions are inside the box.
+        """
         def realMod (n, m):
             return(((n % m) + m) % m)
 
@@ -73,16 +73,15 @@ class base_array(object):
         new_poses = coord_in_box(self.positions.copy())
         self.positions += (new_poses - old_poses)
 
-
-    """
-    Write array to an oxDNA configuration file
-
-    Parameters
-    ----------
-    f : _io.TextIOWrapper
-        An open Python file handler.
-    """
     def conf_to_str(self):
+        """
+        Write array to an oxDNA configuration file
+
+        Parameters
+        ----------
+        f : _io.TextIOWrapper
+            An open Python file handler.
+        """
         out = []
         out.append('t = {}\n'.format(int(self.time)))
         out.append('b = {}\n'.format(' '.join(self.box.astype(str))))
@@ -92,32 +91,40 @@ class base_array(object):
         return ''.join(out)
 
     def _write_configuration(self, f):
+        """
+        Write a configuration line to a file
+
+        Parameters
+        ----------
+        f: _io.TextIOWrapper
+            An open Python file handler to write to.
+        """
         f.write('t = {}\n'.format(int(self.time)))
         f.write('b = {}\n'.format(' '.join(self.box.astype(str))))
         f.write('E = {}\n'.format(' '.join(self.energy.astype(str))))
         for p, a1, a3 in zip(self.positions, self.a1s, self.a3s):
             f.write('{} {} {} 0.0 0.0 0.0 0.0 0.0 0.0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
 
-    """
-    Starts writing a new configuration file.  Will overwrite existing content.
-    
-    Parameters
-    ----------
-    filename: str
-        The filename to write out to.  Should end in .dat, .conf or .oxdna for oxView compatibility
-    """
     def write_new(self, filename):
+        """
+        Starts writing a new configuration file.  Will overwrite existing content.
+        
+        Parameters
+        ----------
+        filename: str
+            The filename to write out to.  Should end in .dat, .conf or .oxdna for oxView compatibility
+        """
         with open(filename, 'w') as f:
             self._write_configuration(f)
 
-    """
-    Appends to an existing trajectory file.
-
-    Parameters
-    ----------
-    filename: str
-        The filename to write out to.  Should end in .dat, .conf or .oxdna for oxView compatibility
-    """
     def write_append(self, filename):
+        """
+        Appends to an existing trajectory file.
+
+        Parameters
+        ----------
+        filename: str
+            The filename to write out to.  Should end in .dat, .conf or .oxdna for oxView compatibility
+        """
         with open(filename, 'a') as f:
             self._write_configuration(f)

@@ -91,7 +91,6 @@ def fire_multiprocess(traj_file, function, num_confs, n_cpus, *args):
 
     Parameters:
         traj_file (str): The name of the trajectory file to analyze.
-        top_file (str): The name of the topology file associated with the trajectory.
         function (function): The analysis function to be parallelized.
         num_confs (int): The number of configurations in the trajectory.
         n_cpus (int): The number of processes to launch.

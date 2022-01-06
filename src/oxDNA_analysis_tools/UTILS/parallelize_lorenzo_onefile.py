@@ -10,6 +10,12 @@ import numpy as np
 
 #actually unused these days, but just in case...
 def get_n_cpu():
+    """
+    Gets the number of CPUs available from either the slum environment or pathos' check of available resources.
+
+    Returns:
+        available_cpus (int): Either the number of slurm tasks assigned to the process or the count of CPUs on the machine.
+    """
     try:
         available_cpus = int(getenv('SLURM_NTASKS'))
     except:
@@ -20,6 +26,19 @@ def get_n_cpu():
 #partitions the trajectory file to the number of workers defined by n_cpus
 #each worker runs the given function on its section of the trajectory
 def fire_multiprocess(traj_file, top_file, function, num_confs, n_cpus, *args, **kwargs):
+    """
+    Splits a trajectory file into temporary files and attaches a reader to each file.
+
+    Parameters:
+        traj_file (str): Name of the trajectory file to split.  
+        top_file (str): Name of the topology file associated with the trajectory. 
+        num_confs (int): The number of configurations in the trajectory.  
+        n_cpus (int): The number of chunks to split the trajectory into.  
+        conf_per_processor (int): The number of configurations per chunk (equivalent to floor(num_confs/n_cpus))  
+
+    Returns:
+        readers (list of LorenzoReader2s): A list of readers with each one on a unique chunk of the file.
+    """
     confs_per_processor = int(np.floor(num_confs/n_cpus))
 
     reader_pool = []

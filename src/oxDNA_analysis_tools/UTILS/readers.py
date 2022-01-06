@@ -31,6 +31,15 @@ def cal_confs(traj_file):
 
 #gets the value out of an oxDNA input file
 def get_input_parameter(input_file, parameter):
+    """
+    Gets the value of a parameter in an oxDNA input file
+    Parameters:
+        input_file (str): The path to the input file
+        parameter (str): The parameter you want to get the value of
+
+    Returns:
+        value (str): The value of the parameter
+    """
     fin = open(input_file)
     value = ''
     for line in fin:
@@ -47,6 +56,11 @@ def get_input_parameter(input_file, parameter):
 #Reads in oxDNA trajectory files one configuration at a time to avoid memory overflow
 #_get_system() returns a System object as defined in base.py
 class LorenzoReader2:
+    """
+    Reads oxDNA trajectory files and creates System objects from individual configurations
+
+    The System object is a descriptive representation of DNA which is made of strands which are made of nucleotides.  It has many built-in methods defined in base.py.
+    """
     def __enter__(self):
         return self
 
@@ -86,6 +100,16 @@ class LorenzoReader2:
             raise StopIteration
   
     def _read(self, only_strand_ends=False, skip=False):
+        """
+        Read a single configuration from the trajectory file
+
+        Parameters:
+            <optional> only_strand_ends (bool): If True, only the first and last nucleotide of a strand will be read.  Defaults to False.
+            <optional> skip (bool): If True, the configuration will be skipped. This is how you track to a specific configuration.  Defaults to False.
+        
+        Returns:
+            system (System): The System object representing the configuration
+        """
         timeline = self._conf.readline()
         time = 0
         if  len(timeline) == 0:
@@ -178,6 +202,9 @@ class LorenzoReader2:
 
 
 class ErikReader:
+    """
+    A bare-bones trajectory reader which only reads positions and rotations, ignoring connectivities. Produces a base_array object.
+    """
     def __enter__(self):
         return self
 
@@ -202,10 +229,11 @@ class ErikReader:
         self._conf_energy = np.zeros(3)
         self._len = 0
 
-    """
-    Special reader that handles the first line and allocates the memory for storing the system
-    """
+
     def _read_first(self):
+        """
+        Special reader that handles the first line and allocates the memory for storing the system
+        """
         self._line = self._conf.readline().split()
         if len(self._line) == 0:
             print("ERROR: the configuration file is empty")
@@ -236,16 +264,17 @@ class ErikReader:
 
         return (self._configuration)
     
-    """
-    Read the next configuration in the trajectory.
 
-    Parameters:
-        <optional> n_skip (int): skip the next n configurations before returning
-
-    Returns:
-        system (base_array): a set of numpy arrays containing positions and orientations of each nucleotides
-    """
     def read(self, n_skip=0):
+        """
+        Read the next configuration in the trajectory.
+
+        Parameters:
+            <optional> n_skip (int): skip the next n configurations before returning
+
+        Returns:
+            system (base_array): a set of numpy arrays containing positions and orientations of each nucleotides
+        """
         if not self._time:
             if n_skip == 0:
                 return self._read_first()

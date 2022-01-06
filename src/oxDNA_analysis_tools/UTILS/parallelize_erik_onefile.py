@@ -10,6 +10,11 @@ from oxDNA_analysis_tools.UTILS.readers import ErikReader
 
 #actually unused these days, but just in case...
 def get_n_cpu():
+    """
+    Gets the number of CPUs available from either the slum environment or pathos' check of available resources.
+    Returns:
+        available_cpus (int): Either the number of slurm tasks assigned to the process or the count of CPUs on the machine.
+    """
     try:
         available_cpus = int(getenv('SLURM_NTASKS'))
     except:
@@ -20,6 +25,22 @@ def get_n_cpu():
 #partitions the trajectory file to the number of workers defined by n_cpus
 #each worker runs the given function on its section of the trajectory
 def fire_multiprocess(traj_file, function, num_confs, n_cpus, *args, **kwargs):
+    """
+    Distributes a function over a given number of processes
+
+    Parameters:
+        traj_file (str): The name of the trajectory file to analyze.
+        function (function): The analysis function to be parallelized.
+        num_confs (int): The number of configurations in the trajectory.
+        n_cpus (int): The number of processes to launch.
+        *args: The arguments for the provided function.
+        **kwargs: Used to pass additional parameters to the parallelizer (currently only used by eRMSD.py to correctly allocate tasks to processors)
+
+    Returns:
+        results (list): The results from each individual processor's run.
+
+    Note: The manner in which to concatenate the results is function-specific so should be handled in the calling module.
+    """
     confs_per_processor = int(np.floor(num_confs/n_cpus))
 
     reader_pool = []
