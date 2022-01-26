@@ -4,6 +4,8 @@ import numpy as np
 from oxDNA_analysis_tools.UTILS.base_array import base_array
 from copy import deepcopy
 from io import StringIO
+from os.path import exists
+from pickle import loads, dumps
 
 # chunk file into blocks of given size
 Chunk = namedtuple('Chunk', ['block','offset', 'is_last','file_size'])
@@ -81,11 +83,18 @@ def handle_confs(ti, process, confs):
 
 TopInfo = namedtuple('TopInfo', ['bases', 'strands'])
 class MichaReader:
-    def __init__(self, top, traj_file, idxs = None, buff_size = 10):
+    def __init__(self, top, traj_file, idxs = None, buff_size = 50):
         # setup configuration index
         if idxs is None: # handle case when we have no indexes provided
-            self.idxs = index(traj_file)
-        else:
+            if not(exists(traj_file+".pyidx")):
+                self.idxs = index(traj_file) # no index created yet
+                with open(traj_file+".pyidx","wb") as file:
+                    file.write(dumps(self.idxs)) # save it
+            else:
+                #we can load the index file
+                with open(traj_file+".pyidx","rb") as file:
+                    self.idxs = loads(file.read())
+        else: # index provided
             self.idxs = idxs
         # store the number of configurations
         self.conf_count = len(self.idxs)
