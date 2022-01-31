@@ -26,7 +26,7 @@ def print_usage():
 
 def parse_options():
     shortArgs = 'H:uosp'
-    longArgs = ['hydrogens=','uniform-residue-names', 'one-file-per-strand', 'same_pdb_all_protein_strands', 'contains-protein']
+    longArgs = ['hydrogens=','uniform-residue-names', 'one-file-per-strand', 'contains-protein']
     
     opts = {
         "configuration" : "",
@@ -35,7 +35,6 @@ def parse_options():
         "print_hydrogens" : True,
         "uniform_residue_names" : False,
         "one_file_per_strand" : False,
-        "same_pdb_all_protein_strands" : False,
         "contains_protein" : False,
     }
     
