@@ -119,8 +119,9 @@ The UTILS directory contains utility modules used by other scripts in this packa
 * `parallelize_old.py` An older implementation of the parallelizer that does not split into temporary files.  Certain multiprocessing architectures can have issues with reader congestion when using this scheme.  Left in place in case of use cases where memory usage is an issue.
 * `pdb.py` Helper Functions/Classes for pdb conversion <br/>
 * `protein_to_pdb` Contains protein specific functions for protein to pdb conversion<br/>
-* `readers.py` Contains utility functions for working with oxDNA files, including extracting input file parameters, calculating the number of configurations in a trajectory and creating a system as defined in `base.py` from a configuration/topology pair.
+* `readers.py` Contains utility functions for working with oxDNA files, including extracting input file parameters, calculating the number of configurations in a trajectory and creating a system as defined in `base.py` from a configuration/topology pair.<br/>
 * `utils.py` Contains utility functions for pdb conversion<br/>
+* `dd12_na.pdb` Used during pdb conversion script
 ## Output files and visualization
 
 Many scripts in this package produce data overlay json files that can be used with [oxView](https://github.com/sulcgroup/oxdna-viewer).
