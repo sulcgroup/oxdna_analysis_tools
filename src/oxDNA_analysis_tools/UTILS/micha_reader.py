@@ -34,7 +34,7 @@ def index(traj_file):
     conf_starts = []
     counter = 0
     fsize = os.stat(traj_file).st_size
-    for chunk in blocks(open(traj_file, 'rb'), fsize, size=5000000):
+    for chunk in blocks(open(traj_file, 'rb'), fsize, size=1000000):
         idxs = np.array(find_all(chunk.block,val)) + chunk.offset # find all offsets of t in file
         conf_starts.extend(idxs)
 

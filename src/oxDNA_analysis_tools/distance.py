@@ -257,7 +257,7 @@ def main():
             exit(1)
         from oxDNA_analysis_tools.clustering import perform_DBSCAN
 
-        labs = perform_DBSCAN(distances[0].T, len(distances[0][0]), trajectories[0], input_files[0], "euclidean")
+        labs = perform_DBSCAN(distances[0].T, len(distances[0][0]), trajectories[0], input_files[0], "euclidean", 12, 8)
 
 if __name__ == '__main__':
     main()

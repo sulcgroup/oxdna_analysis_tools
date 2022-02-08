@@ -200,7 +200,7 @@ def main():
         #out = out[:,0:3]
 
         from clustering import perform_DBSCAN
-        labs = perform_DBSCAN(out, num_confs, traj_file, inputfile, "euclidean")
+        labs = perform_DBSCAN(out, num_confs, traj_file, inputfile, "euclidean", 12, 8)
 
 if __name__ == '__main__':
     main()    
