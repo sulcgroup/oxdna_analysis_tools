@@ -5,8 +5,6 @@ import os
 def get_property(prop):
     result = re.search(r'{}\s*=\s*[\'"]([^\'"]*)[\'"]'.format(prop), open('src/oxDNA_analysis_tools/__init__.py').read())
     return result.group(1)
-print(os.listdir())
-print(get_property('__version__'))
 
 setup(version = get_property('__version__'))
 
