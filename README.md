@@ -104,6 +104,7 @@ Running instructions can be obtained for all scripts by running them with no arg
  * `mean2dat.py` \<mean.json> \<output>  Converts the .json configuration file produced by `compute_mean.py` to a .dat file readable by oxDNA or oxView.<br/>
  * `multidimensional_scaling_mean.py` (-p \<n_cpus>) \<input> \<trajectory> \<mean prefix> \<dev prefix> Computes the mean structure based on local pairwise distances between particles.  An alternative to `compute_mean.py` that works better for highly flexible structures.  Produces an oxDNA configuration/topology file pair and an oxView json file showing the per-particle deviation in distance to neighboring particles.<br/>
  * `output_bonds.py` (-v \<output>) \<input> \<trajectory> Lists all the interactions between nucleotides.  The output is the same as the `output_bonds.py` found in the oxDNA UTILS, this one is written in Python3, and has the option of an oxView json overlay showing average total energy per nucleotide. <br/>
+ * `oxDNA_PDB.py` (topology configuration_file direction -p <list of protein pdb files in system in order of occurence>)  Converts either oxDNA DNA files to pdb, or oxDNA DNA/Protein hybrids to pdb format.br/>
  * `pca.py` (-p \<n_cpus> -c) \<input> \<trajectory> \<mean file> \<output> Computes the principal components of deviations away from the mean.  The principal components are written as an oxView json overlay file that will show the direction of the top mode.  More components can be summed and added to the overlay by modifying the "SUM" variable in the script.  If the -c flag is used it will also run the clustering script on each configuration's position in principal component space. <br/>
  * `superimpose.py` (-i \<index_file>) \<configuration> \<configuration> (<configuration> <configuration> ...) Superimposes all further configurations onto the first file provided.  Produces an oxDNA trajectory file that is a copy of the input file with all translations and rotations removed.  It is expected that all referenced nucleotides are the same, so the configurations either must share the same topology, or you must only align to the shared particles using an index file. An index file can be downloaded from oxView using the "Download selected base list" button.
  
@@ -116,8 +117,11 @@ The UTILS directory contains utility modules used by other scripts in this packa
 * `model.h` The model parameters of the oxDNA model.  Used by base.py. <br/>
 * `parallelize.py` The parallelization module used by the analysis scripts.  Splits the trajectory file into temporary files and attaches a reader managed by a different CPU to each chunk.  Each reader then feeds successive configurations into a specified function.<br/>
 * `parallelize_old.py` An older implementation of the parallelizer that does not split into temporary files.  Certain multiprocessing architectures can have issues with reader congestion when using this scheme.  Left in place in case of use cases where memory usage is an issue.
-* `readers.py` Contains utility functions for working with oxDNA files, including extracting input file parameters, calculating the number of configurations in a trajectory and creating a system as defined in `base.py` from a configuration/topology pair.
-
+* `pdb.py` Helper Functions/Classes for pdb conversion <br/>
+* `protein_to_pdb` Contains protein specific functions for protein to pdb conversion<br/>
+* `readers.py` Contains utility functions for working with oxDNA files, including extracting input file parameters, calculating the number of configurations in a trajectory and creating a system as defined in `base.py` from a configuration/topology pair.<br/>
+* `utils.py` Contains utility functions for pdb conversion<br/>
+* `dd12_na.pdb` Used during pdb conversion script
 ## Output files and visualization
 
 Many scripts in this package produce data overlay json files that can be used with [oxView](https://github.com/sulcgroup/oxdna-viewer).
