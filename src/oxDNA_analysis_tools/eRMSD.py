@@ -180,7 +180,7 @@ def main():
 
     ###############################################################################################################
     #Next, we're going to perform a DBSCAN on that matrix of eRMSDs to find clusters of similar structures
-    perform_DBSCAN(eRMSDs, num_confs, traj_file, inputfile, "precomputed")
+    perform_DBSCAN(eRMSDs, num_confs, traj_file, inputfile, "precomputed", 12, 8)
 
     ##############################################################################################################
 

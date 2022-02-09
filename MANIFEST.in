@@ -1,1 +1,2 @@
 include src/oxDNA_analysis_tools/UTILS/*.h
+include src/oxDNA_analysis_tools/UTILS/dd12_na.pdb

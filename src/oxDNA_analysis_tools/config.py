@@ -40,6 +40,12 @@ def check_dependencies(to_check):
 		"pathos": "pypi.org/project/pathos/"
 	}
 
+	#get version of this package
+	oat = __import__('oxDNA_analysis_tools')
+	print("INFO: oxDNA_analysis_tools version: {}".format(oat.__version__), file=stderr)
+	print("INFO: running config.py installed at: ", path.realpath(__file__), file=stderr)
+
+
 	#check python version
 	if "python" in to_check:
 		from sys import version_info

@@ -34,7 +34,7 @@ def make_heatmap(inputfile, system, filename):
         system (base.system): The system to make a heatmap from.
         filename (str): The file to write the heatmap to.
     """
-    from contact_map import contact_map
+    from oxDNA_analysis_tools.contact_map import contact_map
     m = contact_map(inputfile, system, True)
     fig, ax = plt.subplots()
     a = ax.imshow(m, cmap='viridis', origin='lower')
@@ -174,7 +174,7 @@ def get_centroid(points, metric_name, num_confs, labs, traj_file, inputfile):
 
 #Runs a DBSCAN on the points matrix and creates a 3D plot showing the clusters
 #There is code for both animating the plot and just having an interactive 3D plot.  Comment out the one you don't want
-def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
+def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name, eps, min_samples):
     """
     Runs the DBSCAN algorithm using the provided analysis as positions and splits the trajectory into clusters.
 
@@ -194,10 +194,8 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
     check_dependencies(["python", "sklearn", "matplotlib"])
     
     print("INFO: Running DBSCAN...", file=stderr)
-    EPS=12
-    MIN_SAMPLES=8
 
-    #dump the input as a json file so you can iterate on EPS and MIN_SAMPLES
+    #dump the input as a json file so you can iterate on eps and min_samples
     dump_file = "cluster_data.json"
     print("INFO: Serializing input data to {}".format(dump_file), file=stderr)
     print("INFO: Run just clustering.py with the serialized data to adjust clustering parameters", file=stderr)
@@ -228,12 +226,12 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name):
     #eps: the pairwise distance that configurations below are considered neighbors
     #min_samples: The smallest number of neighboring configurations required to start a cluster
     #metric: If the matrix fed in are points in n-dimensional space, then the metric needs to be "euclidean".
-    #If the matrix is already a square distance matrix, the metrix needs to be "precomputed".
-    #the eps and min_samples need to be determined for each structure
+    #        If the matrix is already a square distance matrix, the metrix needs to be "precomputed".
+    #the eps and min_samples need to be determined for each input based on the values of the input data
     #If you're making your own multidimensional data, you probably want to normalize your data first.
-    print("INFO: Adjust clustering parameters by modifying the 'EPS' and 'MIN_SAMPLES' values in the script.", file=stderr)
-    print("INFO: Current values: eps={}, min_samples={}".format(EPS, MIN_SAMPLES))
-    db = DBSCAN(eps=EPS, min_samples=MIN_SAMPLES, metric=metric_name).fit(points) 
+    print("INFO: Adjust clustering parameters by adding the -e and -m flags to the invocation of this script.", file=stderr)
+    print("INFO: Current values: eps={}, min_samples={}".format(eps, min_samples))
+    db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric_name).fit(points) 
     labels = db.labels_
     
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
@@ -295,14 +293,24 @@ def main():
     import argparse
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculates clusters based on provided order parameters.")
     parser.add_argument('serialized_data', type=str, nargs=1, help="The json-formatted input file")
+    parser.add_argument('eps', '-e', type=float, nargs=1, help="The epsilon parameter for DBSCAN")
+    parser.add_argument('min_samples', '-m', type=int, nargs=1, help="The min_samples parameter for DBSCAN")
     args = parser.parse_args()
     data_file = args.serialized_data[0]
+    if args.eps:
+        eps = args.eps[0]
+    else:
+        eps = 12
+    if args.min_samples:
+        min_samples = args.min_samples[0]
+    else:
+        min_samples = 8
 
     #load a previously serialized dataset
     data = codecs.open(data_file, 'r', encoding='utf-8').read()
     unpacked = loads(data)
     points = np.array(unpacked[0])
-    labels = perform_DBSCAN(points, unpacked[1], unpacked[2], unpacked[3], unpacked[4])
+    labels = perform_DBSCAN(points, unpacked[1], unpacked[2], unpacked[3], unpacked[4], eps, min_samples)
 
 if __name__ == '__main__':
     main()

@@ -97,7 +97,7 @@ def align(full_base, ox_base):
             R = utils.get_rotation_matrix(axis, theta)
             full_base.rotate(R)
 
-if __name__ == '__main__':
+def main():
     opts, protein_pdb_files = parse_options()
         
     # Open PDB File of nice lookin duplex
@@ -301,8 +301,8 @@ if __name__ == '__main__':
                     occ = data[10][:4]
                     bfactor = data[10][4:]
             else: 
-            	bfactor=0
-            	occ = 1
+                bfactor=0
+                occ = 1
 
             for x in [occ, bfactor]:
                 spcs = 4-len(str(x))
@@ -336,4 +336,7 @@ if __name__ == '__main__':
         print("\n## Wrote data to '%s'" % out_name, file=sys.stderr)
         
     print("## DONE", file=sys.stderr)
+
+if __name__ == '__main__':
+    main()
 
