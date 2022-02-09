@@ -13,4 +13,4 @@ print("\nAll set up! All scripts in the package can now be run from the command 
 
 print("")
 
-print("If you would like to enable autocomplete in Bash, either add\n\n    source oat-completion.sh\n\nto your .bashrc or run \n\n    sudo cp oat-completion.sh /etc/bash_completion.d/\n\nto make autocompletes available to all users.")
+print("If you would like to enable autocomplete in Bash, either add\n\n    source oat-completion.sh\n\nto your .bashrc or run \n\n    cat oat-completion.sh >> ~/.bash_completion\n\nto make autocompletes available to all users.")
