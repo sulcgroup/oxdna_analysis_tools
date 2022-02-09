@@ -273,17 +273,33 @@ if __name__ == '__main__':
                 del data[-1]
 
             if len(data) == 8:
-                bfactor = float(data[7])
-                occ = float(data[6])
+                try:
+                    bfactor = float(data[7])
+                    occ = float(data[6])
+                except ValueError:
+                    occ = data[7][:4]
+                    bfactor = data[7][4:]
             elif len(data) == 9:
-                bfactor = float(data[8])
-                occ = float(data[7])
+                try:
+                    bfactor = float(data[8])
+                    occ = float(data[7])
+                except ValueError:
+                    occ = data[8][:4]
+                    bfactor = data[8][4:]
             elif len(data) == 10:
-                bfactor = float(data[9])
-                occ = float(data[8])
+                try:
+                    bfactor = float(data[9])
+                    occ = float(data[8])
+                except ValueError:
+                    occ = data[9][:4]
+                    bfactor = data[9][4:]
             elif len(data) == 11:
-                bfactor=float(data[10])
-                occ = float(data[9])
+                try:
+                    bfactor=float(data[10])
+                    occ = float(data[9])
+                except ValueError:
+                    occ = data[10][:4]
+                    bfactor = data[10][4:]
             else: 
             	bfactor=0
             	occ = 1
