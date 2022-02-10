@@ -21,10 +21,10 @@ class Duplex:
 
         Init Parameters:
             index (int): Unique identifier for the duplex
-            start_s1 (int): Particle ID of the first particle in the first strand
-            end_s1 (int): Particle ID of the last particle in the first strand
-            start_s2 (int): Particle ID of the first particle in the complementary strand
-            end_s2 (int): Particle ID of the last particle in the complementary strand
+            start1 (int): Particle ID of the first particle in the first strand
+            end1 (int): Particle ID of the last particle in the first strand
+            start2 (int): Particle ID of the first particle in the complementary strand
+            end2 (int): Particle ID of the last particle in the complementary strand
 
         Member Functions:
             get_len()
