@@ -56,7 +56,6 @@ def find_duplex(system):
     paired_bases = []
     for s in system._strands:
         for n in s._nucleotides:
-            #print(n.index, n.interactions)
             if len(n.interactions) == 1:
                 paired_bases.append(np.array([int(n.index), int(n.interactions[0])]))
 
@@ -110,15 +109,15 @@ def find_angles(reader, inputfile, num_confs, start=None, stop=None):
     duplexes_at_step = []
     while mysystem != False and confid < stop:
         print("Working on  t = {}".format(mysystem._time))
-        mysystem.map_nucleotides_to_strands()
-        out = output_bonds(inputfile, mysystem)
-        if out == '':
+
+        #map_bonds_to_system runs output_bonds and updates the system.  It returns 0 if successful.
+        if not mysystem.map_bonds_to_system(inputfile):
             duplex_list = []
             duplexes_at_step.append(duplex_list)
             confid += 1 
             mysystem = reader._get_system()
             continue
-        mysystem.read_H_bonds_output_bonds(out)
+
         duplex_list = find_duplex(mysystem)
 
         #call geom.get_axis on each duplex

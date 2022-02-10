@@ -10,6 +10,7 @@ base.py includes the classes: System, Strand, Nucleotide
 """
 import sys, os
 import numpy as np
+from sqlalchemy import false, true
 
 def partition(s, d):
     if d in s:
@@ -1684,6 +1685,23 @@ class System(object):
                 nuclA = int(vals[0])
                 nuclB = int(vals[1])
                 self.add_H_interaction(nuclA,nuclB,float(vals[6]))
+
+    def map_bonds_to_system(self, inputfile):
+        """
+        Run output bonds on this system and map the output to each nucleotide's interactions
+        """
+        from oxDNA_analysis_tools.output_bonds import output_bonds
+        self.map_nucleotides_to_strands()
+        out = output_bonds(inputfile, self)
+        if out == '':
+            return false
+        try:
+            self.read_H_bonds_output_bonds(out)
+        except Exception as e:
+            print ('Error while reading output bonds:', e)
+            return false
+
+        return true
 
     def read_all_interactions(self, inputpipe):
         for line in inputpipe:
