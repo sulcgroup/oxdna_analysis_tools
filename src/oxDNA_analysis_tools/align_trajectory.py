@@ -86,7 +86,7 @@ def main():
         r = ErikReader(traj_file)
         ref_conf = ref.positions[indexes]
         
-        mysystem = align_frame(ref_conf, sup, r.read())
+        mysystem = align_frame(ref_conf, sup, r.read(), indexes)
     
     else:
         #read the first configuration and use it as the reference configuration for the rest

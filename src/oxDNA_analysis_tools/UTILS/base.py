@@ -1,11 +1,12 @@
 """
 Utility functions for oxDNA.
 base.py includes the classes: System, Strand, Nucleotide
-    - Make initial configurations (generate.py)
-    - Generate PDB, Chimera, VMD files from trajectory/config (traj2pdb.py, traj2chimera.py, traj2tcl.py)
-    - Get detailed energy information (process_data/)
-    - If you want to use it with oxRNA, you have to set environment variable OXRNA to 1  (export OXRNA=1)
-    - This is the Python3 version of the code created by the Sulc Group to work with our structure analysis package
+- Make initial configurations (generate.py)
+- Generate PDB, Chimera, VMD files from trajectory/config (traj2pdb.py, traj2chimera.py, traj2tcl.py)
+- Get detailed energy information (process_data/)
+- If you want to use it with oxRNA, you have to set environment variable OXRNA to 1  (export OXRNA=1)
+- This is the Python3 version of the code created by the Sulc Group to work with our structure analysis package
+
     We have not tested any of the output functions except the Lorenzo_output. 
 """
 import sys, os

@@ -223,6 +223,7 @@ class ErikReader:
         if not os.path.isfile(configuration):
             print("Configuration file '{}' is not readable".format(configuration))
             sys.exit(1)
+        print(configuration)
         self._conf = open(configuration, "r")
         self._time = None
         self._box = np.zeros(3)
@@ -237,6 +238,7 @@ class ErikReader:
         self._line = self._conf.readline().split()
         if len(self._line) == 0:
             print("ERROR: the configuration file is empty")
+            sys.exit(1)
         else:
             self._time = float(self._line[2])
 
