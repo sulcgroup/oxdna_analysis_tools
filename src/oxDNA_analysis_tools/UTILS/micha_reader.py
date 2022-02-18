@@ -56,7 +56,7 @@ def parse_confs(confs, nbases):
         elif lines[-1] != '' and len(lines) -3 != nbases:
             raise Exception("Incorrect number of bases in topology file")
 
-    confLinesSplit = [[line.split(maxsplit=9)[0:9] for line in lines[3:3+nbases]] for lines in confsLines]
+    confLinesSplit = [[np.array(line.split(maxsplit=9)[0:9], dtype=float) for line in lines[3:3+nbases]] for lines in confsLines]
 
     aligned_coords = np.array(confLinesSplit, dtype=float)
 
