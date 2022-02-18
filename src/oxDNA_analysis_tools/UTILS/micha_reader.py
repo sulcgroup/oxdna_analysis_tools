@@ -66,7 +66,7 @@ def parse_conf(lines,nbases):
     conf.energy = np.array(lines[2].split("=")[1].split(), dtype=float)
     # parse out the pos and a's 
     for i in range(nbases):
-        line = lines[3+i].split()
+        line = lines[3+i].split(maxsplit=9)
         conf.positions[i] = np.array(line[0:3], dtype=float)
         conf.a1s[i] = np.array(line[3:6], dtype=float)
         conf.a3s[i] = np.array(line[6:9], dtype=float)
@@ -156,5 +156,3 @@ class MichaReader:
         return None
       
 
-    def __del__(self):
-        self.traj_file.close()
