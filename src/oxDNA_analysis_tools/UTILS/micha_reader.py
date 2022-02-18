@@ -47,6 +47,21 @@ def index(traj_file):
     return idxs
 
 
+def parse_confs(confs, nbases):
+    confsLines = [conf.split('\n') for conf in confs]
+
+    for lines in confsLines:
+        if lines[-1] == '' and len(lines) -4 != nbases:
+            raise Exception("Incorrect number of bases in topology file")
+        elif lines[-1] != '' and len(lines) -3 != nbases:
+            raise Exception("Incorrect number of bases in topology file")
+
+    confLinesSplit = [[np.array(line.split(maxsplit=9)[0:9], dtype=float) for line in lines[3:3+nbases]] for lines in confsLines]
+
+    aligned_coords = np.array(confLinesSplit, dtype=float)
+
+    return aligned_coords
+
 def parse_conf(lines,nbases):
     lines = lines.split('\n')
     if lines[-1] == '' and len(lines) -4 != nbases:
@@ -138,7 +153,10 @@ class MichaReader:
 
     def _parse_conf(self,lines):
         return parse_conf(lines, self.top_info.bases)
-    
+
+    def _parse_confs(self, confs):
+        return parse_confs(confs, self.top_info.bases)
+
     def read(self,idx=None):
         if(idx):
             if idx >= self.conf_count: return None
