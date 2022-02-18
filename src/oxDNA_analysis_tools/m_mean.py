@@ -29,10 +29,10 @@ def get_n_cpu():
 def align(centered_ref_coords, cms_ref_cords ,coords):
     # center on centroid
     av1, reference_coords = cms_ref_cords, centered_ref_coords
-    av2 = np.mean(coords[:, 0:3], axis=0)
-    coords[:, 0:3]= coords[:, 0:3] - av2
+    av2 = np.mean(coords[0], axis=0)
+    coords[0]= coords[0] - av2
     # correlation matrix
-    a = np.dot(np.transpose(coords[:, 0:3]), reference_coords)
+    a = np.dot(np.transpose(coords[0]), reference_coords)
     u, _, vt = np.linalg.svd(a)
     rot = np.transpose(np.dot(np.transpose(vt), np.transpose(u)))
     # check if we have found a reflection
@@ -40,9 +40,9 @@ def align(centered_ref_coords, cms_ref_cords ,coords):
         vt[2] = -vt[2]
         rot = np.transpose(np.dot(np.transpose(vt), np.transpose(u)))
     tran = av1 - np.dot(av2, rot)
-    return  (np.dot(coords[:, 0:3], rot) + tran,
-             np.dot(coords[:, 3:6], rot),
-             np.dot(coords[:, 6:9], rot))
+    return  (np.dot(coords[0], rot) + tran,
+             np.dot(coords[1], rot),
+             np.dot(coords[2], rot))
 
 
 BaseArray = namedtuple("BaseArray", ["time","box", "energy", "positions", "a1s", "a3s"])
