@@ -52,7 +52,7 @@ ref_conf = inbox(ref_conf)
 # figure out how much resorces we have
 ncpus = get_n_cpu()
 # how many confs we want to distribute between the processes
-ntopart = 50
+ntopart = 10
 #prepare to fire multiple processes 
 pool = Pool(ncpus)
 
