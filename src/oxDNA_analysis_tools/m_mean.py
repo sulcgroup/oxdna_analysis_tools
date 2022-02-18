@@ -45,14 +45,6 @@ def align(centered_ref_coords, cms_ref_cords ,coords):
              np.dot(coords[:, 6:9], rot))
 
 
-<<<<<<< Updated upstream
-def compute(top, traj,centered_ref_coords, cms_ref_cords, ntopart, ptr):
-    reader = MichaReader(top,traj)
-    confs = reader._get_confs(ptr*ntopart,ntopart)
-
-    # convert to numpy repr
-    aligned_coords = reader._parse_confs(confs)
-=======
 BaseArray = namedtuple("BaseArray", ["time","box", "energy", "positions", "a1s", "a3s"])
 def parse_conf(lines,nbases):
     lines = lines.split('\n')
@@ -90,60 +82,11 @@ def compute(traj,nbases, idxs, centered_ref_coords, cms_ref_cords, ntopart, ptr)
     # convert to numpy repr
     aligned_coords = np.asarray([[align_conf.positions, align_conf.a1s, align_conf.a3s] 
                                                                   for align_conf in confs])
->>>>>>> Stashed changes
     aligned_coords = [align(centered_ref_coords,cms_ref_cords, c) for c in aligned_coords]
     sub_mean = np.sum(aligned_coords, axis=0)
     return sub_mean
 
 
-<<<<<<< Updated upstream
-if __name__ == "__main__":
-    top, traj = "/home/erik/Simulations/hinge_all/hinge1/hinge_correct_seq.top", "/home/erik/Simulations/hinge_all/hinge1/aligned.dat"
-
-    reader = MichaReader(top,traj)
-    ref_conf = reader.read(0) # say it's always the 1st one
-    ref_conf.inbox()
-
-    ncpus = get_n_cpu()
-    ntopart = 10
-
-    #prepare to fire multiple processes
-    pool = Pool(ncpus)
-
-    n_confs = len(reader.idxs)
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
-    print(n_chunks)
-
-    reference_coords = ref_conf.positions
-    av1 = np.mean(reference_coords, axis=0)
-    reference_coords = reference_coords - av1
-
-    compute_func = partial(compute, top, traj,reference_coords, av1, ntopart)
-
-    results = [pool.apply_async(compute_func,(i,))
-                            for i in range(n_chunks)]
-
-    #print(
-    #    results[0].get()
-    #)
-    sum_array = np.zeros((3, reader.top_info.bases, 3))
-
-
-    for r in results:
-         sum_array += r.get()
-    #pos, a1s, a3s=  np.sum([r.get() for r in results],axis=0)/n_confs
-    sum_array = sum_array/n_confs
-    pos = sum_array[0]
-    a1s = sum_array[1]
-    a3s = sum_array[2]
-    base_array(
-        ref_conf.time,ref_conf.box,ref_conf.energy, pos, a1s,a3s
-    ).write_new("/home/erik/Simulations/hinge_all/hinge1/mean.dat")
-
-    print("--- %s seconds ---" % (time.time() - start_time))
-=======
 def write_conf(path,conf):
     out = []
     out.append('t = {}'.format(int(conf.time)))
@@ -289,4 +232,3 @@ a3s = np.array([v/np.linalg.norm(v) for v in a3s])
 
 write_conf("./mean_m.dat",BaseArray(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
 print("--- %s seconds ---" % (time.time() - start_time))
->>>>>>> Stashed changes
