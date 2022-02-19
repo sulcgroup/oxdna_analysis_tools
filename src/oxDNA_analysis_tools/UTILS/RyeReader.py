@@ -121,8 +121,8 @@ def parse_conf(top_info,lines):
         low level function parsing a block of strings into a conf 
     """
     lines = lines.split('\n')
-    parameters =  np.array([np.fromstring(line, dtype="f4", sep=" ",count=9) for line in lines[3:3+top_info.nbases]])#,dtype=float)
-    
+    parameters =  np.array([np.fromstring(line, dtype="f4", sep=" ",count=9) 
+                                          for line in lines[3:3+top_info.nbases]])
     return Configuration(
         float(lines[0][lines[0].index("=")+1:]),
         np.array(lines[1].split("=")[1].split(), dtype=float),
