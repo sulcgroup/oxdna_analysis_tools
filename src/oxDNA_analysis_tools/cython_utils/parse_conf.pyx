@@ -2,7 +2,8 @@ import cython
 import numpy as np
 cimport numpy as numpy
 from cpython.mem cimport PyMem_Malloc, PyMem_Realloc, PyMem_Free
-from libc.string cimport strtok
+from libc.string cimport strtok, strcpy
+from libc.stdlib cimport atoi, atof, malloc, free
 from oxDNA_analysis_tools.UTILS.RyeReader import Configuration
 
 @cython.wraparound(False)
@@ -17,38 +18,47 @@ def parse_conf(bytes lines, int nbases):
     cdef numpy.ndarray[numpy.float32_t, ndim=2] a1s = np.zeros((nbases, THREE), dtype=np.float32, order='C')
     cdef numpy.ndarray[numpy.float32_t, ndim=2] a3s = np.zeros((nbases, THREE), dtype=np.float32, order='C')
     
-    cdef char * text
-    text = <char *> PyMem_Malloc(len(lines) * sizeof(char))
-    if not text:
-        raise MemoryError("Could not allocate memory for configuration")
-    cdef char * sub = strtok(&text, '\n')
-    print(sub)
-    #cdef char * sub2 = strtok(sub, '=')
-    #print(sub2)
-    #sub2 = strtok(NULL, '=')
-    #time = int(sub2)
-    split = lines.split(b'\n')
-    cdef int i = 0
     cdef int j = 0
-    time = int(split[i].split(b'=')[1].strip().decode('UTF-8'))
-    i += 1
-    for j in range(THREE):
-        box[j] = float(split[i].split(b'=')[1].strip().split(b' ')[j].decode('UTF-8'))
-    i += 1
-    for j in range(THREE):
-        energy[j] = float(split[i].split(b'=')[1].strip().split(b' ')[j].decode('UTF-8'))
-    i += 1
 
-    cdef bytes line = split[i]
-    while i < nbases+THREE:
+    # Create a pointer to the start of the string containing the configuration
+    cdef char * ctext
+    ctext = <char *> malloc(len(lines)+1 * sizeof(char))
+    if not ctext:
+        raise MemoryError("Could not allocate memory for configuration")
+    strcpy(ctext, lines)
+
+    # Get the time
+    cdef char * sub = strtok(ctext, '= ')
+    time = atoi(sub)
+
+    # Get the box and energy
+    sub = strtok(NULL, '\nb = ')
+    for j in range(THREE):
+        box[j] = atof(sub)
+        sub = strtok(NULL, ' \n')
+    
+    #sub = strtok(NULL, 'E = ')
+    #for j in range(THREE):
+    #    energy[j] = atof(sub)
+    #    sub = strtok(NULL, ' \n') #this is overshooting and skipping the first column of the position
+    sub = strtok(NULL, '\n')
+    sub = strtok(NULL, '\n')
+    #print(sub)
+    cdef int i = 0
+    for i in range(nbases-1):
         for j in range(THREE):
-            poses[i-THREE, j] = float(line.split(b' ')[j].decode('UTF-8'))
-            a1s[i-THREE, j] = float(line.split(b' ')[THREE+j].decode('UTF-8'))
-            a3s[i-THREE, j] = float(line.split(b' ')[THREE+THREE+j].decode('UTF-8'))
-            
-        i += 1
-        line = split[i]
+            sub = strtok(NULL, ' ')
+            print(sub)
+            poses[i,j] = atof(sub)
+        for j in range(THREE):
+            sub = strtok(NULL, ' ')
+            a1s[i,j] = atof(sub)
+        for j in range(THREE):
+            sub = strtok(NULL, ' ')
+            a3s[i,j] = atof(sub)
+        strtok(NULL, '\n')
+        
 
     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
-
+    free(ctext)
     return out
