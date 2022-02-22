@@ -40,8 +40,8 @@ def compute(ctx,ptr):
     sub_mean = np.sum(aligned_coords, axis=0)
     return sub_mean
 
-
-top, traj = r"/mnt/g/hinge1/hinge_correct_seq.top",r"/mnt/g/hinge1/aligned.dat"
+top, traj = r"/mnt/c/Users/mmatthi3/test2/hinge_correct_seq.top", r"/mnt/c/Users/mmatthi3/test2/aligned.dat"
+#top, traj = r"/mnt/g/hinge1/hinge_correct_seq.top",r"/mnt/g/hinge1/aligned.dat"
 top_info, traj_info = describe(top, traj)
 
 
@@ -91,5 +91,5 @@ a1s = np.array([v/np.linalg.norm(v) for v in a1s])
 a3s = np.array([v/np.linalg.norm(v) for v in a3s])
 
 
-write_conf("/mnt/g/hinge1/mean_m.dat",Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
+write_conf(r"/mnt/c/Users/mmatthi3/test2/mean_m.dat",Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
 print("--- %s seconds ---" % (time.time() - start_time))
