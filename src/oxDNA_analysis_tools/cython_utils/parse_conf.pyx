@@ -19,6 +19,7 @@ def parse_conf(bytes lines, int nbases):
     cdef numpy.ndarray[numpy.float32_t, ndim=2] a3s = np.zeros((nbases, THREE), dtype=np.float32, order='C')
     
     cdef int j = 0
+    cdef int i = 0
 
     # Create a pointer to the start of the string containing the configuration
     cdef char * ctext
@@ -33,22 +34,23 @@ def parse_conf(bytes lines, int nbases):
 
     # Get the box and energy
     sub = strtok(NULL, '\nb = ')
+    #print(sub)
     for j in range(THREE):
         box[j] = atof(sub)
-        sub = strtok(NULL, ' \n')
+        sub = strtok(NULL, ' ')
+    sub = strtok(NULL, ' \n')
+    
     
     #sub = strtok(NULL, 'E = ')
     #for j in range(THREE):
     #    energy[j] = atof(sub)
-    #    sub = strtok(NULL, ' \n') #this is overshooting and skipping the first column of the position
+    #    sub = strtok(NULL, ' ') #this is overshooting and skipping the first column of the position
     sub = strtok(NULL, '\n')
-    sub = strtok(NULL, '\n')
-    #print(sub)
-    cdef int i = 0
-    for i in range(nbases-1):
+
+
+    for i in range(nbases):
         for j in range(THREE):
             sub = strtok(NULL, ' ')
-            print(sub)
             poses[i,j] = atof(sub)
         for j in range(THREE):
             sub = strtok(NULL, ' ')
@@ -57,8 +59,10 @@ def parse_conf(bytes lines, int nbases):
             sub = strtok(NULL, ' ')
             a3s[i,j] = atof(sub)
         strtok(NULL, '\n')
-        
+     
 
+
+        
     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
     free(ctext)
     return out

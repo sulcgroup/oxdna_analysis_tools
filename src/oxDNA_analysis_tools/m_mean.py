@@ -12,8 +12,8 @@ start_time = time.time()
 
 
 
-top, traj = "./hinge_correct_seq.top","./100confs.dat"
-
+#top, traj = "./hinge_correct_seq.top","./100confs.dat"
+top, traj = r"/mnt/g/hinge1/hinge_correct_seq.top",r"/mnt/g/hinge1/aligned.dat"
 
 
 #figure out how many chunks we are working on 
@@ -82,8 +82,12 @@ def compute(traj,nbases, idxs, centered_ref_coords, cms_ref_cords, ntopart, ptr)
     # convert to numpy repr
     aligned_coords = np.asarray([[align_conf.positions, align_conf.a1s, align_conf.a3s] 
                                                                   for align_conf in confs])
-    aligned_coords = [align(centered_ref_coords,cms_ref_cords, c) for c in aligned_coords]
-    sub_mean = np.sum(aligned_coords, axis=0)
+    sub_mean = np.zeros(shape=[3,len(confs[0].positions),3])
+    for c in aligned_coords:
+        sub_mean += align(centered_ref_coords,cms_ref_cords, c)
+    #aligned_coords = [align(centered_ref_coords,cms_ref_cords, c) for c in aligned_coords]
+    #sub_mean = np.sum(aligned_coords, axis=0)
+
     return sub_mean
 
 
@@ -177,7 +181,8 @@ else:
     with open(traj+".pyidx","rb") as file:
         idxs = loads(file.read())
 
-
+#TODO working only on 10
+#idxs = idxs[:10] #first 10
 
 with open(top) as f:
     my_top_info = f.readline().split(' ')
@@ -230,5 +235,5 @@ a1s = np.array([v/np.linalg.norm(v) for v in a1s])
 a3s = np.array([v/np.linalg.norm(v) for v in a3s])
 
 
-write_conf("./mean_m.dat",BaseArray(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
+write_conf(r"/mnt/g/hinge1/mean_m.dat",BaseArray(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
 print("--- %s seconds ---" % (time.time() - start_time))

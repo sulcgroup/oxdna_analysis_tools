@@ -30,18 +30,22 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "centered_ref_coords",
                                               "cms_ref_coords",
                                               "ntopart"])
-def compute(ctx,ptr):
+def compute(ctx:ComputeContext,ptr):
     confs = get_confs(ctx.traj_info, ptr*ctx.ntopart,ctx.ntopart)
     confs = (inbox(parse_conf(ctx.top_info, c)) for c in confs)
     # convert to numpy repr
     aligned_coords = np.asarray([[align_conf.positions, align_conf.a1s, align_conf.a3s] 
                                                                   for align_conf in confs])
-    aligned_coords = [align(ctx.centered_ref_coords,ctx.cms_ref_coords, c) for c in aligned_coords]
-    sub_mean = np.sum(aligned_coords, axis=0)
+    
+    sub_mean = np.zeros(shape=[3,ctx.top_info.nbases,3])
+    for c in aligned_coords:
+        sub_mean += align(ctx.centered_ref_coords,ctx.cms_ref_coords, c)
+    
+
     return sub_mean
 
-top, traj = r"/mnt/c/Users/mmatthi3/test2/hinge_correct_seq.top", r"/mnt/c/Users/mmatthi3/test2/aligned.dat"
-#top, traj = r"/mnt/g/hinge1/hinge_correct_seq.top",r"/mnt/g/hinge1/aligned.dat"
+#top, traj = r"/mnt/c/Users/mmatthi3/test2/hinge_correct_seq.top", r"/mnt/c/Users/mmatthi3/test2/aligned.dat"
+top, traj = r"/mnt/g/hinge1/hinge_correct_seq.top",r"/mnt/g/hinge1/aligned.dat"
 top_info, traj_info = describe(top, traj)
 
 
@@ -91,5 +95,5 @@ a1s = np.array([v/np.linalg.norm(v) for v in a1s])
 a3s = np.array([v/np.linalg.norm(v) for v in a3s])
 
 
-write_conf(r"/mnt/c/Users/mmatthi3/test2/mean_m.dat",Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
+write_conf(r"/mnt/g/hinge1/mean_m.dat",Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
 print("--- %s seconds ---" % (time.time() - start_time))
