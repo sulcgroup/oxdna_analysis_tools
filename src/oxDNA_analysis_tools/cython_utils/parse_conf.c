@@ -2081,7 +2081,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
   __pyx_t_7 = ((PyArrayObject *)__pyx_t_4);
   {
     __Pyx_BufFmt_StackElem __pyx_stack[1];
-    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_energy.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES, 1, 0, __pyx_stack) == -1)) {
+    if (unlikely(__Pyx_GetBufferAndValidate(&__pyx_pybuffernd_energy.rcbuffer->pybuffer, (PyObject*)__pyx_t_7, &__Pyx_TypeInfo_nn___pyx_t_5numpy_float32_t, PyBUF_FORMAT| PyBUF_STRIDES| PyBUF_WRITABLE, 1, 0, __pyx_stack) == -1)) {
       __pyx_v_energy = ((PyArrayObject *)Py_None); __Pyx_INCREF(Py_None); __pyx_pybuffernd_energy.rcbuffer->pybuffer.buf = NULL;
       __PYX_ERR(0, 16, __pyx_L1_error)
     } else {__pyx_pybuffernd_energy.diminfo[0].strides = __pyx_pybuffernd_energy.rcbuffer->pybuffer.strides[0]; __pyx_pybuffernd_energy.diminfo[0].shape = __pyx_pybuffernd_energy.rcbuffer->pybuffer.shape[0];
@@ -2357,22 +2357,22 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
  *     cdef char * sub = strtok(ctext, '= ')
  *     time = atoi(sub)             # <<<<<<<<<<<<<<
  * 
- *     # Get the box and energy
+ * 
  */
   __pyx_v_time = atoi(__pyx_v_sub);
 
-  /* "parse_conf.pyx":36
+  /* "parse_conf.pyx":37
  * 
  *     # Get the box and energy
- *     sub = strtok(NULL, '\nb = ')             # <<<<<<<<<<<<<<
- *     #print(sub)
+ *     sub = strtok(NULL, '= ')             # <<<<<<<<<<<<<<
+ * 
  *     for j in range(THREE):
  */
-  __pyx_v_sub = strtok(NULL, ((char const *)"\nb = "));
+  __pyx_v_sub = strtok(NULL, ((char const *)"= "));
 
-  /* "parse_conf.pyx":38
- *     sub = strtok(NULL, '\nb = ')
- *     #print(sub)
+  /* "parse_conf.pyx":39
+ *     sub = strtok(NULL, '= ')
+ * 
  *     for j in range(THREE):             # <<<<<<<<<<<<<<
  *         box[j] = atof(sub)
  *         sub = strtok(NULL, ' ')
@@ -2382,8 +2382,8 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
   for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_15; __pyx_t_16+=1) {
     __pyx_v_j = __pyx_t_16;
 
-    /* "parse_conf.pyx":39
- *     #print(sub)
+    /* "parse_conf.pyx":40
+ * 
  *     for j in range(THREE):
  *         box[j] = atof(sub)             # <<<<<<<<<<<<<<
  *         sub = strtok(NULL, ' ')
@@ -2392,7 +2392,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
     __pyx_t_17 = __pyx_v_j;
     *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float32_t *, __pyx_pybuffernd_box.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_box.diminfo[0].strides) = atof(__pyx_v_sub);
 
-    /* "parse_conf.pyx":40
+    /* "parse_conf.pyx":41
  *     for j in range(THREE):
  *         box[j] = atof(sub)
  *         sub = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -2402,26 +2402,65 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
     __pyx_v_sub = strtok(NULL, ((char const *)" "));
   }
 
-  /* "parse_conf.pyx":41
+  /* "parse_conf.pyx":42
  *         box[j] = atof(sub)
  *         sub = strtok(NULL, ' ')
  *     sub = strtok(NULL, ' \n')             # <<<<<<<<<<<<<<
  * 
+ *     energy[0] = atof(sub)
+ */
+  __pyx_v_sub = strtok(NULL, ((char const *)" \n"));
+
+  /* "parse_conf.pyx":44
+ *     sub = strtok(NULL, ' \n')
+ * 
+ *     energy[0] = atof(sub)             # <<<<<<<<<<<<<<
+ *     sub = strtok(NULL, ' ')
+ *     energy[1] = atof(sub)
+ */
+  __pyx_t_17 = 0;
+  *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float32_t *, __pyx_pybuffernd_energy.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_energy.diminfo[0].strides) = atof(__pyx_v_sub);
+
+  /* "parse_conf.pyx":45
+ * 
+ *     energy[0] = atof(sub)
+ *     sub = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
+ *     energy[1] = atof(sub)
+ *     sub = strtok(NULL, ' \n')
+ */
+  __pyx_v_sub = strtok(NULL, ((char const *)" "));
+
+  /* "parse_conf.pyx":46
+ *     energy[0] = atof(sub)
+ *     sub = strtok(NULL, ' ')
+ *     energy[1] = atof(sub)             # <<<<<<<<<<<<<<
+ *     sub = strtok(NULL, ' \n')
+ *     energy[2] = atof(sub)
+ */
+  __pyx_t_17 = 1;
+  *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float32_t *, __pyx_pybuffernd_energy.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_energy.diminfo[0].strides) = atof(__pyx_v_sub);
+
+  /* "parse_conf.pyx":47
+ *     sub = strtok(NULL, ' ')
+ *     energy[1] = atof(sub)
+ *     sub = strtok(NULL, ' \n')             # <<<<<<<<<<<<<<
+ *     energy[2] = atof(sub)
  * 
  */
   __pyx_v_sub = strtok(NULL, ((char const *)" \n"));
 
   /* "parse_conf.pyx":48
- *     #    energy[j] = atof(sub)
- *     #    sub = strtok(NULL, ' ') #this is overshooting and skipping the first column of the position
- *     sub = strtok(NULL, '\n')             # <<<<<<<<<<<<<<
+ *     energy[1] = atof(sub)
+ *     sub = strtok(NULL, ' \n')
+ *     energy[2] = atof(sub)             # <<<<<<<<<<<<<<
  * 
- * 
+ *     for i in range(nbases):
  */
-  __pyx_v_sub = strtok(NULL, ((char const *)"\n"));
+  __pyx_t_17 = 2;
+  *__Pyx_BufPtrStrided1d(__pyx_t_5numpy_float32_t *, __pyx_pybuffernd_energy.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_energy.diminfo[0].strides) = atof(__pyx_v_sub);
 
-  /* "parse_conf.pyx":51
- * 
+  /* "parse_conf.pyx":50
+ *     energy[2] = atof(sub)
  * 
  *     for i in range(nbases):             # <<<<<<<<<<<<<<
  *         for j in range(THREE):
@@ -2432,7 +2471,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
   for (__pyx_t_16 = 0; __pyx_t_16 < __pyx_t_15; __pyx_t_16+=1) {
     __pyx_v_i = __pyx_t_16;
 
-    /* "parse_conf.pyx":52
+    /* "parse_conf.pyx":51
  * 
  *     for i in range(nbases):
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -2444,7 +2483,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
     for (__pyx_t_20 = 0; __pyx_t_20 < __pyx_t_19; __pyx_t_20+=1) {
       __pyx_v_j = __pyx_t_20;
 
-      /* "parse_conf.pyx":53
+      /* "parse_conf.pyx":52
  *     for i in range(nbases):
  *         for j in range(THREE):
  *             sub = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -2453,7 +2492,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
  */
       __pyx_v_sub = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":54
+      /* "parse_conf.pyx":53
  *         for j in range(THREE):
  *             sub = strtok(NULL, ' ')
  *             poses[i,j] = atof(sub)             # <<<<<<<<<<<<<<
@@ -2465,7 +2504,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
       *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float32_t *, __pyx_pybuffernd_poses.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_poses.diminfo[0].strides, __pyx_t_21, __pyx_pybuffernd_poses.diminfo[1].strides) = atof(__pyx_v_sub);
     }
 
-    /* "parse_conf.pyx":55
+    /* "parse_conf.pyx":54
  *             sub = strtok(NULL, ' ')
  *             poses[i,j] = atof(sub)
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -2477,7 +2516,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
     for (__pyx_t_20 = 0; __pyx_t_20 < __pyx_t_19; __pyx_t_20+=1) {
       __pyx_v_j = __pyx_t_20;
 
-      /* "parse_conf.pyx":56
+      /* "parse_conf.pyx":55
  *             poses[i,j] = atof(sub)
  *         for j in range(THREE):
  *             sub = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -2486,7 +2525,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
  */
       __pyx_v_sub = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":57
+      /* "parse_conf.pyx":56
  *         for j in range(THREE):
  *             sub = strtok(NULL, ' ')
  *             a1s[i,j] = atof(sub)             # <<<<<<<<<<<<<<
@@ -2498,7 +2537,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
       *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float32_t *, __pyx_pybuffernd_a1s.rcbuffer->pybuffer.buf, __pyx_t_21, __pyx_pybuffernd_a1s.diminfo[0].strides, __pyx_t_17, __pyx_pybuffernd_a1s.diminfo[1].strides) = atof(__pyx_v_sub);
     }
 
-    /* "parse_conf.pyx":58
+    /* "parse_conf.pyx":57
  *             sub = strtok(NULL, ' ')
  *             a1s[i,j] = atof(sub)
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -2510,7 +2549,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
     for (__pyx_t_20 = 0; __pyx_t_20 < __pyx_t_19; __pyx_t_20+=1) {
       __pyx_v_j = __pyx_t_20;
 
-      /* "parse_conf.pyx":59
+      /* "parse_conf.pyx":58
  *             a1s[i,j] = atof(sub)
  *         for j in range(THREE):
  *             sub = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -2519,7 +2558,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
  */
       __pyx_v_sub = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":60
+      /* "parse_conf.pyx":59
  *         for j in range(THREE):
  *             sub = strtok(NULL, ' ')
  *             a3s[i,j] = atof(sub)             # <<<<<<<<<<<<<<
@@ -2531,26 +2570,26 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
       *__Pyx_BufPtrStrided2d(__pyx_t_5numpy_float32_t *, __pyx_pybuffernd_a3s.rcbuffer->pybuffer.buf, __pyx_t_17, __pyx_pybuffernd_a3s.diminfo[0].strides, __pyx_t_21, __pyx_pybuffernd_a3s.diminfo[1].strides) = atof(__pyx_v_sub);
     }
 
-    /* "parse_conf.pyx":61
+    /* "parse_conf.pyx":60
  *             sub = strtok(NULL, ' ')
  *             a3s[i,j] = atof(sub)
  *         strtok(NULL, '\n')             # <<<<<<<<<<<<<<
  * 
- * 
+ *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
  */
     (void)(strtok(NULL, ((char const *)"\n")));
   }
 
-  /* "parse_conf.pyx":66
- * 
+  /* "parse_conf.pyx":62
+ *         strtok(NULL, '\n')
  * 
  *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)             # <<<<<<<<<<<<<<
  *     free(ctext)
  *     return out
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Configuration); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_1, __pyx_n_s_Configuration); if (unlikely(!__pyx_t_1)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_1);
-  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 66, __pyx_L1_error)
+  __pyx_t_3 = __Pyx_PyInt_From_int(__pyx_v_time); if (unlikely(!__pyx_t_3)) __PYX_ERR(0, 62, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_3);
   __pyx_t_5 = NULL;
   __pyx_t_14 = 0;
@@ -2567,7 +2606,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_1)) {
     PyObject *__pyx_temp[7] = {__pyx_t_5, __pyx_t_3, ((PyObject *)__pyx_v_box), ((PyObject *)__pyx_v_energy), ((PyObject *)__pyx_v_poses), ((PyObject *)__pyx_v_a1s), ((PyObject *)__pyx_v_a3s)};
-    __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_14, 6+__pyx_t_14); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_14, 6+__pyx_t_14); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
@@ -2576,14 +2615,14 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_1)) {
     PyObject *__pyx_temp[7] = {__pyx_t_5, __pyx_t_3, ((PyObject *)__pyx_v_box), ((PyObject *)__pyx_v_energy), ((PyObject *)__pyx_v_poses), ((PyObject *)__pyx_v_a1s), ((PyObject *)__pyx_v_a3s)};
-    __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_14, 6+__pyx_t_14); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyCFunction_FastCall(__pyx_t_1, __pyx_temp+1-__pyx_t_14, 6+__pyx_t_14); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_3); __pyx_t_3 = 0;
   } else
   #endif
   {
-    __pyx_t_4 = PyTuple_New(6+__pyx_t_14); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_4 = PyTuple_New(6+__pyx_t_14); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     if (__pyx_t_5) {
       __Pyx_GIVEREF(__pyx_t_5); PyTuple_SET_ITEM(__pyx_t_4, 0, __pyx_t_5); __pyx_t_5 = NULL;
@@ -2606,7 +2645,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
     __Pyx_GIVEREF(((PyObject *)__pyx_v_a3s));
     PyTuple_SET_ITEM(__pyx_t_4, 5+__pyx_t_14, ((PyObject *)__pyx_v_a3s));
     __pyx_t_3 = 0;
-    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 66, __pyx_L1_error)
+    __pyx_t_2 = __Pyx_PyObject_Call(__pyx_t_1, __pyx_t_4, NULL); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 62, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_2);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   }
@@ -2614,7 +2653,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
   __pyx_v_out = __pyx_t_2;
   __pyx_t_2 = 0;
 
-  /* "parse_conf.pyx":67
+  /* "parse_conf.pyx":63
  * 
  *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
  *     free(ctext)             # <<<<<<<<<<<<<<
@@ -2622,7 +2661,7 @@ static PyObject *__pyx_pf_10parse_conf_parse_conf(CYTHON_UNUSED PyObject *__pyx_
  */
   free(__pyx_v_ctext);
 
-  /* "parse_conf.pyx":68
+  /* "parse_conf.pyx":64
  *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
  *     free(ctext)
  *     return out             # <<<<<<<<<<<<<<
@@ -3781,7 +3820,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 28, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 39, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 945, __pyx_L1_error)
   return 0;
   __pyx_L1_error:;

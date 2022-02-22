@@ -33,20 +33,18 @@ def parse_conf(bytes lines, int nbases):
     time = atoi(sub)
 
     # Get the box and energy
-    sub = strtok(NULL, '\nb = ')
-    #print(sub)
+    sub = strtok(NULL, '= ')
+
     for j in range(THREE):
         box[j] = atof(sub)
         sub = strtok(NULL, ' ')
     sub = strtok(NULL, ' \n')
     
-    
-    #sub = strtok(NULL, 'E = ')
-    #for j in range(THREE):
-    #    energy[j] = atof(sub)
-    #    sub = strtok(NULL, ' ') #this is overshooting and skipping the first column of the position
-    sub = strtok(NULL, '\n')
-
+    energy[0] = atof(sub)
+    sub = strtok(NULL, ' ')
+    energy[1] = atof(sub)
+    sub = strtok(NULL, ' \n')
+    energy[2] = atof(sub)
 
     for i in range(nbases):
         for j in range(THREE):
@@ -59,9 +57,6 @@ def parse_conf(bytes lines, int nbases):
             sub = strtok(NULL, ' ')
             a3s[i,j] = atof(sub)
         strtok(NULL, '\n')
-     
-
-
         
     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
     free(ctext)
