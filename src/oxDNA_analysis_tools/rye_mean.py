@@ -1,8 +1,9 @@
 from collections import namedtuple
-from UTILS.RyeReader import Configuration, describe, get_confs, parse_conf, inbox, get_n_cpu, write_conf
+from UTILS.RyeReader import Configuration, describe, inbox, get_n_cpu, write_conf
 from multiprocessing import Pool
 import numpy as np
 import time
+from parse_conf import get_confs
 start_time = time.time()
 
 def align(centered_ref_coords, cms_ref_cords ,coords):
@@ -31,8 +32,8 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "cms_ref_coords",
                                               "ntopart"])
 def compute(ctx:ComputeContext,ptr):
-    confs = get_confs(ctx.traj_info, ptr*ctx.ntopart,ctx.ntopart)
-    confs = (inbox(parse_conf(ctx.top_info, c)) for c in confs)
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, ptr*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+    confs = (inbox(c) for c in confs)
     # convert to numpy repr
     aligned_coords = np.asarray([[align_conf.positions, align_conf.a1s, align_conf.a3s] 
                                                                   for align_conf in confs])
@@ -45,12 +46,12 @@ def compute(ctx:ComputeContext,ptr):
     return sub_mean
 
 #top, traj = r"/mnt/c/Users/mmatthi3/test2/hinge_correct_seq.top", r"/mnt/c/Users/mmatthi3/test2/aligned.dat"
-top, traj = r"/mnt/g/hinge1/hinge_correct_seq.top",r"/mnt/g/hinge1/aligned.dat"
+top, traj = "./hinge_correct_seq.top","./100confs.dat"
 top_info, traj_info = describe(top, traj)
 
 
-# fetch refference conf
-ref_conf = parse_conf(top_info, get_confs(traj_info,0,1)[0])
+# fetch reference conf
+ref_conf = get_confs(traj_info.idxs, traj, 0, 1, top_info.nbases)[0]
 ref_conf = inbox(ref_conf)
 
 # figure out how much resorces we have
@@ -95,5 +96,5 @@ a1s = np.array([v/np.linalg.norm(v) for v in a1s])
 a3s = np.array([v/np.linalg.norm(v) for v in a3s])
 
 
-write_conf(r"/mnt/g/hinge1/mean_m.dat",Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
+write_conf("./mean_r.dat",Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
 print("--- %s seconds ---" % (time.time() - start_time))
