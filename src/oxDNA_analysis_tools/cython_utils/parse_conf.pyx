@@ -41,7 +41,6 @@ def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
 
     # Parse the chunk into Configurations
     cdef list confs = [None]*nconfs
-    cdef c
     for i in range(nconfs):
         c = parse_conf(chunk, conf_starts[i], sizes[i], nbases)
         confs[i] = c
