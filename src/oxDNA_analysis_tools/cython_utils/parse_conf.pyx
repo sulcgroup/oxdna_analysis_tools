@@ -3,7 +3,7 @@ import numpy as np
 cimport numpy as numpy
 from cpython.bytes cimport PyBytes_Size 
 from libc.stdio cimport fopen, fclose, fread, fseek, FILE
-from libc.string cimport strtok, strcpy, memcpy
+from libc.string cimport strtok, strcpy
 from libc.stdlib cimport atoi, atof, malloc, free
 from oxDNA_analysis_tools.UTILS.RyeReader import Configuration
 
@@ -111,8 +111,6 @@ cdef parse_conf(char *chunk, int start_byte, int size, int nbases):
     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
     a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)
     a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)
-
-    print(box.flags)
         
     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
 

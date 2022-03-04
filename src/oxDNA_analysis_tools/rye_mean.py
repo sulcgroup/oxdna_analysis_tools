@@ -46,7 +46,7 @@ def compute(ctx:ComputeContext,chunk_id):
     return sub_mean
 
 #top, traj = r"/mnt/c/Users/mmatthi3/test2/hinge_correct_seq.top", r"/mnt/c/Users/mmatthi3/test2/aligned.dat"
-top, traj = "./hinge_correct_seq.top","./aligned.dat"
+top, traj = "./hinge_correct_seq.top","./100confs.dat"
 top_info, traj_info = describe(top, traj)
 
 
@@ -55,9 +55,9 @@ ref_conf = get_confs(traj_info.idxs, traj, 0, 1, top_info.nbases)[0]
 ref_conf = inbox(ref_conf)
 
 # figure out how much resorces we have
-ncpus = 4#get_n_cpu()
+ncpus = 5#get_n_cpu()
 # how many confs we want to distribute between the processes
-ntopart = 10
+ntopart = 20
 #prepare to fire multiple processes 
 pool = Pool(ncpus)
 

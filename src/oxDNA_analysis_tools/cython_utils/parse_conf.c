@@ -2338,7 +2338,6 @@ static const char __pyx_k_struct[] = "struct";
 static const char __pyx_k_unpack[] = "unpack";
 static const char __pyx_k_update[] = "update";
 static const char __pyx_k_asarray[] = "asarray";
-static const char __pyx_k_cnconfs[] = "cnconfs";
 static const char __pyx_k_fortran[] = "fortran";
 static const char __pyx_k_memview[] = "memview";
 static const char __pyx_k_reshape[] = "reshape";
@@ -2450,7 +2449,6 @@ static PyObject *__pyx_n_s_chunk;
 static PyObject *__pyx_n_s_chunk_size;
 static PyObject *__pyx_n_s_class;
 static PyObject *__pyx_n_s_cline_in_traceback;
-static PyObject *__pyx_n_s_cnconfs;
 static PyObject *__pyx_n_s_conf_count;
 static PyObject *__pyx_n_s_conf_starts;
 static PyObject *__pyx_n_s_confs;
@@ -2729,7 +2727,6 @@ static PyObject *__pyx_pw_10parse_conf_1get_confs(PyObject *__pyx_self, PyObject
 
 static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_idxs, PyObject *__pyx_v_traj_path, int __pyx_v_start, int __pyx_v_nconfs, int __pyx_v_nbases) {
   int __pyx_v_conf_count;
-  int __pyx_v_cnconfs;
   int *__pyx_v_sizes;
   int *__pyx_v_conf_starts;
   int __pyx_v_chunk_size;
@@ -2763,8 +2760,8 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  * def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
  *     # Number of configurations to read
  *     cdef int conf_count = len(idxs)             # <<<<<<<<<<<<<<
- *     cdef int cnconfs = nconfs
  *     if (start+nconfs >= conf_count):
+ *         nconfs = conf_count - start
  */
   if (unlikely(__pyx_v_idxs == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
@@ -2776,15 +2773,6 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   /* "parse_conf.pyx":16
  *     # Number of configurations to read
  *     cdef int conf_count = len(idxs)
- *     cdef int cnconfs = nconfs             # <<<<<<<<<<<<<<
- *     if (start+nconfs >= conf_count):
- *         nconfs = conf_count - start
- */
-  __pyx_v_cnconfs = __pyx_v_nconfs;
-
-  /* "parse_conf.pyx":17
- *     cdef int conf_count = len(idxs)
- *     cdef int cnconfs = nconfs
  *     if (start+nconfs >= conf_count):             # <<<<<<<<<<<<<<
  *         nconfs = conf_count - start
  * 
@@ -2792,8 +2780,8 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_2 = (((__pyx_v_start + __pyx_v_nconfs) >= __pyx_v_conf_count) != 0);
   if (__pyx_t_2) {
 
-    /* "parse_conf.pyx":18
- *     cdef int cnconfs = nconfs
+    /* "parse_conf.pyx":17
+ *     cdef int conf_count = len(idxs)
  *     if (start+nconfs >= conf_count):
  *         nconfs = conf_count - start             # <<<<<<<<<<<<<<
  * 
@@ -2801,16 +2789,16 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
     __pyx_v_nconfs = (__pyx_v_conf_count - __pyx_v_start);
 
-    /* "parse_conf.pyx":17
+    /* "parse_conf.pyx":16
+ *     # Number of configurations to read
  *     cdef int conf_count = len(idxs)
- *     cdef int cnconfs = nconfs
  *     if (start+nconfs >= conf_count):             # <<<<<<<<<<<<<<
  *         nconfs = conf_count - start
  * 
  */
   }
 
-  /* "parse_conf.pyx":21
+  /* "parse_conf.pyx":20
  * 
  *     # Configuration start/size markers within the chunk
  *     cdef int *sizes = <int *> malloc(nconfs * sizeof(int))             # <<<<<<<<<<<<<<
@@ -2819,7 +2807,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_sizes = ((int *)malloc((__pyx_v_nconfs * (sizeof(int)))));
 
-  /* "parse_conf.pyx":22
+  /* "parse_conf.pyx":21
  *     # Configuration start/size markers within the chunk
  *     cdef int *sizes = <int *> malloc(nconfs * sizeof(int))
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))             # <<<<<<<<<<<<<<
@@ -2828,7 +2816,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_conf_starts = ((int *)malloc((__pyx_v_nconfs * (sizeof(int)))));
 
-  /* "parse_conf.pyx":23
+  /* "parse_conf.pyx":22
  *     cdef int *sizes = <int *> malloc(nconfs * sizeof(int))
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
  *     if not sizes or not conf_starts:             # <<<<<<<<<<<<<<
@@ -2846,20 +2834,20 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_L5_bool_binop_done:;
   if (unlikely(__pyx_t_2)) {
 
-    /* "parse_conf.pyx":24
+    /* "parse_conf.pyx":23
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
  *     if not sizes or not conf_starts:
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")             # <<<<<<<<<<<<<<
  *     cdef int chunk_size = 0
  *     for i in range(nconfs):
  */
-    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 24, __pyx_L1_error)
+    __pyx_t_4 = __Pyx_PyObject_Call(__pyx_builtin_MemoryError, __pyx_tuple_, NULL); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 23, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_Raise(__pyx_t_4, 0, 0, 0);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
-    __PYX_ERR(0, 24, __pyx_L1_error)
+    __PYX_ERR(0, 23, __pyx_L1_error)
 
-    /* "parse_conf.pyx":23
+    /* "parse_conf.pyx":22
  *     cdef int *sizes = <int *> malloc(nconfs * sizeof(int))
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
  *     if not sizes or not conf_starts:             # <<<<<<<<<<<<<<
@@ -2868,7 +2856,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   }
 
-  /* "parse_conf.pyx":25
+  /* "parse_conf.pyx":24
  *     if not sizes or not conf_starts:
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")
  *     cdef int chunk_size = 0             # <<<<<<<<<<<<<<
@@ -2877,25 +2865,25 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_chunk_size = 0;
 
-  /* "parse_conf.pyx":26
+  /* "parse_conf.pyx":25
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")
  *     cdef int chunk_size = 0
  *     for i in range(nconfs):             # <<<<<<<<<<<<<<
  *         sizes[i] = idxs[start+i].size
  *         chunk_size += sizes[i]
  */
-  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_nconfs); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyInt_From_int(__pyx_v_nconfs); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 26, __pyx_L1_error)
+  __pyx_t_5 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_4); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 25, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_5);
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   if (likely(PyList_CheckExact(__pyx_t_5)) || PyTuple_CheckExact(__pyx_t_5)) {
     __pyx_t_4 = __pyx_t_5; __Pyx_INCREF(__pyx_t_4); __pyx_t_1 = 0;
     __pyx_t_6 = NULL;
   } else {
-    __pyx_t_1 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 26, __pyx_L1_error)
+    __pyx_t_1 = -1; __pyx_t_4 = PyObject_GetIter(__pyx_t_5); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 25, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 26, __pyx_L1_error)
+    __pyx_t_6 = Py_TYPE(__pyx_t_4)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 25, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
   for (;;) {
@@ -2903,17 +2891,17 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
       if (likely(PyList_CheckExact(__pyx_t_4))) {
         if (__pyx_t_1 >= PyList_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_1); __Pyx_INCREF(__pyx_t_5); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 26, __pyx_L1_error)
+        __pyx_t_5 = PyList_GET_ITEM(__pyx_t_4, __pyx_t_1); __Pyx_INCREF(__pyx_t_5); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 25, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 26, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 25, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       } else {
         if (__pyx_t_1 >= PyTuple_GET_SIZE(__pyx_t_4)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_1); __Pyx_INCREF(__pyx_t_5); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 26, __pyx_L1_error)
+        __pyx_t_5 = PyTuple_GET_ITEM(__pyx_t_4, __pyx_t_1); __Pyx_INCREF(__pyx_t_5); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 25, __pyx_L1_error)
         #else
-        __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 26, __pyx_L1_error)
+        __pyx_t_5 = PySequence_ITEM(__pyx_t_4, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 25, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_5);
         #endif
       }
@@ -2923,7 +2911,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 26, __pyx_L1_error)
+          else __PYX_ERR(0, 25, __pyx_L1_error)
         }
         break;
       }
@@ -2932,7 +2920,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "parse_conf.pyx":27
+    /* "parse_conf.pyx":26
  *     cdef int chunk_size = 0
  *     for i in range(nconfs):
  *         sizes[i] = idxs[start+i].size             # <<<<<<<<<<<<<<
@@ -2941,35 +2929,35 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
     if (unlikely(__pyx_v_idxs == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 27, __pyx_L1_error)
+      __PYX_ERR(0, 26, __pyx_L1_error)
     }
-    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_start); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 27, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyInt_From_int(__pyx_v_start); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 26, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
-    __pyx_t_7 = PyNumber_Add(__pyx_t_5, __pyx_v_i); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 27, __pyx_L1_error)
+    __pyx_t_7 = PyNumber_Add(__pyx_t_5, __pyx_v_i); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 26, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_v_idxs, __pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 27, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetItem(__pyx_v_idxs, __pyx_t_7); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 26, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 27, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(__pyx_t_5, __pyx_n_s_size); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 26, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_7); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L1_error)
     (__pyx_v_sizes[__pyx_t_9]) = __pyx_t_8;
 
-    /* "parse_conf.pyx":28
+    /* "parse_conf.pyx":27
  *     for i in range(nconfs):
  *         sizes[i] = idxs[start+i].size
  *         chunk_size += sizes[i]             # <<<<<<<<<<<<<<
  *         conf_starts[i] = idxs[start+i].offset - idxs[start].offset
  * 
  */
-    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L1_error)
     __pyx_v_chunk_size = (__pyx_v_chunk_size + (__pyx_v_sizes[__pyx_t_9]));
 
-    /* "parse_conf.pyx":29
+    /* "parse_conf.pyx":28
  *         sizes[i] = idxs[start+i].size
  *         chunk_size += sizes[i]
  *         conf_starts[i] = idxs[start+i].offset - idxs[start].offset             # <<<<<<<<<<<<<<
@@ -2978,35 +2966,35 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
     if (unlikely(__pyx_v_idxs == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 29, __pyx_L1_error)
+      __PYX_ERR(0, 28, __pyx_L1_error)
     }
-    __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_start); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyInt_From_int(__pyx_v_start); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_5 = PyNumber_Add(__pyx_t_7, __pyx_v_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_5 = PyNumber_Add(__pyx_t_7, __pyx_v_i); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_v_idxs, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetItem(__pyx_v_idxs, __pyx_t_5); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
-    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_offset); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_5 = __Pyx_PyObject_GetAttrStr(__pyx_t_7, __pyx_n_s_offset); if (unlikely(!__pyx_t_5)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_5);
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
     if (unlikely(__pyx_v_idxs == Py_None)) {
       PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-      __PYX_ERR(0, 29, __pyx_L1_error)
+      __PYX_ERR(0, 28, __pyx_L1_error)
     }
-    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(PyList_GET_ITEM(__pyx_v_idxs, __pyx_v_start), __pyx_n_s_offset); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_GetAttrStr(PyList_GET_ITEM(__pyx_v_idxs, __pyx_v_start), __pyx_n_s_offset); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
-    __pyx_t_10 = PyNumber_Subtract(__pyx_t_5, __pyx_t_7); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_10 = PyNumber_Subtract(__pyx_t_5, __pyx_t_7); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_DECREF(__pyx_t_5); __pyx_t_5 = 0;
     __Pyx_DECREF(__pyx_t_7); __pyx_t_7 = 0;
-    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_10); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_8 = __Pyx_PyInt_As_int(__pyx_t_10); if (unlikely((__pyx_t_8 == (int)-1) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L1_error)
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
-    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 29, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L1_error)
     (__pyx_v_conf_starts[__pyx_t_9]) = __pyx_t_8;
 
-    /* "parse_conf.pyx":26
+    /* "parse_conf.pyx":25
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")
  *     cdef int chunk_size = 0
  *     for i in range(nconfs):             # <<<<<<<<<<<<<<
@@ -3016,7 +3004,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "parse_conf.pyx":33
+  /* "parse_conf.pyx":32
  * 
  *     # Convert the path to something C can open
  *     cdef char *traj_path_c = <char *>malloc(len(traj_path)+1)             # <<<<<<<<<<<<<<
@@ -3025,12 +3013,12 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   if (unlikely(__pyx_v_traj_path == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 33, __pyx_L1_error)
+    __PYX_ERR(0, 32, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_traj_path); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 33, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_traj_path); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 32, __pyx_L1_error)
   __pyx_v_traj_path_c = ((char *)malloc((__pyx_t_1 + 1)));
 
-  /* "parse_conf.pyx":34
+  /* "parse_conf.pyx":33
  *     # Convert the path to something C can open
  *     cdef char *traj_path_c = <char *>malloc(len(traj_path)+1)
  *     strcpy(traj_path_c, traj_path.encode('utf-8'))             # <<<<<<<<<<<<<<
@@ -3039,15 +3027,15 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   if (unlikely(__pyx_v_traj_path == Py_None)) {
     PyErr_Format(PyExc_AttributeError, "'NoneType' object has no attribute '%.30s'", "encode");
-    __PYX_ERR(0, 34, __pyx_L1_error)
+    __PYX_ERR(0, 33, __pyx_L1_error)
   }
-  __pyx_t_4 = PyUnicode_AsUTF8String(__pyx_v_traj_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_4 = PyUnicode_AsUTF8String(__pyx_v_traj_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 33, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
-  __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_t_4); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 34, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyBytes_AsString(__pyx_t_4); if (unlikely((!__pyx_t_11) && PyErr_Occurred())) __PYX_ERR(0, 33, __pyx_L1_error)
   (void)(strcpy(__pyx_v_traj_path_c, __pyx_t_11));
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "parse_conf.pyx":35
+  /* "parse_conf.pyx":34
  *     cdef char *traj_path_c = <char *>malloc(len(traj_path)+1)
  *     strcpy(traj_path_c, traj_path.encode('utf-8'))
  *     traj_path_c[len(traj_path)] = b'\0'             # <<<<<<<<<<<<<<
@@ -3056,12 +3044,12 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   if (unlikely(__pyx_v_traj_path == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "object of type 'NoneType' has no len()");
-    __PYX_ERR(0, 35, __pyx_L1_error)
+    __PYX_ERR(0, 34, __pyx_L1_error)
   }
-  __pyx_t_1 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_traj_path); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 35, __pyx_L1_error)
+  __pyx_t_1 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_traj_path); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 34, __pyx_L1_error)
   (__pyx_v_traj_path_c[__pyx_t_1]) = '\x00';
 
-  /* "parse_conf.pyx":36
+  /* "parse_conf.pyx":35
  *     strcpy(traj_path_c, traj_path.encode('utf-8'))
  *     traj_path_c[len(traj_path)] = b'\0'
  *     cdef FILE *traj_file = fopen(traj_path_c, "rb")             # <<<<<<<<<<<<<<
@@ -3070,7 +3058,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_traj_file = fopen(__pyx_v_traj_path_c, ((char const *)"rb"));
 
-  /* "parse_conf.pyx":37
+  /* "parse_conf.pyx":36
  *     traj_path_c[len(traj_path)] = b'\0'
  *     cdef FILE *traj_file = fopen(traj_path_c, "rb")
  *     if traj_file == NULL:             # <<<<<<<<<<<<<<
@@ -3080,21 +3068,21 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_2 = ((__pyx_v_traj_file == NULL) != 0);
   if (__pyx_t_2) {
 
-    /* "parse_conf.pyx":38
+    /* "parse_conf.pyx":37
  *     cdef FILE *traj_file = fopen(traj_path_c, "rb")
  *     if traj_file == NULL:
  *         print("Could not open trajectory file %s" % traj_path)             # <<<<<<<<<<<<<<
  *         return
  *     fseek(traj_file, idxs[start].offset, 1)
  */
-    __pyx_t_4 = PyUnicode_Format(__pyx_kp_u_Could_not_open_trajectory_file_s, __pyx_v_traj_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_4 = PyUnicode_Format(__pyx_kp_u_Could_not_open_trajectory_file_s, __pyx_v_traj_path); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 37, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
-    __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 38, __pyx_L1_error)
+    __pyx_t_10 = __Pyx_PyObject_CallOneArg(__pyx_builtin_print, __pyx_t_4); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 37, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-    /* "parse_conf.pyx":39
+    /* "parse_conf.pyx":38
  *     if traj_file == NULL:
  *         print("Could not open trajectory file %s" % traj_path)
  *         return             # <<<<<<<<<<<<<<
@@ -3105,7 +3093,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "parse_conf.pyx":37
+    /* "parse_conf.pyx":36
  *     traj_path_c[len(traj_path)] = b'\0'
  *     cdef FILE *traj_file = fopen(traj_path_c, "rb")
  *     if traj_file == NULL:             # <<<<<<<<<<<<<<
@@ -3114,7 +3102,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   }
 
-  /* "parse_conf.pyx":40
+  /* "parse_conf.pyx":39
  *         print("Could not open trajectory file %s" % traj_path)
  *         return
  *     fseek(traj_file, idxs[start].offset, 1)             # <<<<<<<<<<<<<<
@@ -3123,15 +3111,15 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   if (unlikely(__pyx_v_idxs == Py_None)) {
     PyErr_SetString(PyExc_TypeError, "'NoneType' object is not subscriptable");
-    __PYX_ERR(0, 40, __pyx_L1_error)
+    __PYX_ERR(0, 39, __pyx_L1_error)
   }
-  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(PyList_GET_ITEM(__pyx_v_idxs, __pyx_v_start), __pyx_n_s_offset); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyObject_GetAttrStr(PyList_GET_ITEM(__pyx_v_idxs, __pyx_v_start), __pyx_n_s_offset); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_12 = __Pyx_PyInt_As_long(__pyx_t_10); if (unlikely((__pyx_t_12 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 40, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyInt_As_long(__pyx_t_10); if (unlikely((__pyx_t_12 == (long)-1) && PyErr_Occurred())) __PYX_ERR(0, 39, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   (void)(fseek(__pyx_v_traj_file, __pyx_t_12, 1));
 
-  /* "parse_conf.pyx":43
+  /* "parse_conf.pyx":42
  * 
  *     # Read in the current chunk
  *     cdef const char *chunk = <char *>malloc(chunk_size)             # <<<<<<<<<<<<<<
@@ -3140,7 +3128,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_chunk = ((char *)malloc(__pyx_v_chunk_size));
 
-  /* "parse_conf.pyx":44
+  /* "parse_conf.pyx":43
  *     # Read in the current chunk
  *     cdef const char *chunk = <char *>malloc(chunk_size)
  *     fread(chunk, chunk_size, 1, traj_file)             # <<<<<<<<<<<<<<
@@ -3149,14 +3137,14 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   (void)(fread(__pyx_v_chunk, __pyx_v_chunk_size, 1, __pyx_v_traj_file));
 
-  /* "parse_conf.pyx":47
+  /* "parse_conf.pyx":46
  * 
  *     # Parse the chunk into Configurations
  *     cdef list confs = [None]*nconfs             # <<<<<<<<<<<<<<
- *     for i in range(cnconfs):
+ *     for i in range(nconfs):
  *         c = parse_conf(chunk, conf_starts[i], sizes[i], nbases)
  */
-  __pyx_t_10 = PyList_New(1 * ((__pyx_v_nconfs<0) ? 0:__pyx_v_nconfs)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 47, __pyx_L1_error)
+  __pyx_t_10 = PyList_New(1 * ((__pyx_v_nconfs<0) ? 0:__pyx_v_nconfs)); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 46, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   { Py_ssize_t __pyx_temp;
     for (__pyx_temp=0; __pyx_temp < __pyx_v_nconfs; __pyx_temp++) {
@@ -3168,25 +3156,25 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_v_confs = ((PyObject*)__pyx_t_10);
   __pyx_t_10 = 0;
 
-  /* "parse_conf.pyx":48
+  /* "parse_conf.pyx":47
  *     # Parse the chunk into Configurations
  *     cdef list confs = [None]*nconfs
- *     for i in range(cnconfs):             # <<<<<<<<<<<<<<
+ *     for i in range(nconfs):             # <<<<<<<<<<<<<<
  *         c = parse_conf(chunk, conf_starts[i], sizes[i], nbases)
  *         confs[i] = c
  */
-  __pyx_t_10 = __Pyx_PyInt_From_int(__pyx_v_cnconfs); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 48, __pyx_L1_error)
+  __pyx_t_10 = __Pyx_PyInt_From_int(__pyx_v_nconfs); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
-  __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_10); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 48, __pyx_L1_error)
+  __pyx_t_4 = __Pyx_PyObject_CallOneArg(__pyx_builtin_range, __pyx_t_10); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_4);
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   if (likely(PyList_CheckExact(__pyx_t_4)) || PyTuple_CheckExact(__pyx_t_4)) {
     __pyx_t_10 = __pyx_t_4; __Pyx_INCREF(__pyx_t_10); __pyx_t_1 = 0;
     __pyx_t_6 = NULL;
   } else {
-    __pyx_t_1 = -1; __pyx_t_10 = PyObject_GetIter(__pyx_t_4); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_t_1 = -1; __pyx_t_10 = PyObject_GetIter(__pyx_t_4); if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 47, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_10);
-    __pyx_t_6 = Py_TYPE(__pyx_t_10)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_t_6 = Py_TYPE(__pyx_t_10)->tp_iternext; if (unlikely(!__pyx_t_6)) __PYX_ERR(0, 47, __pyx_L1_error)
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
   for (;;) {
@@ -3194,17 +3182,17 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
       if (likely(PyList_CheckExact(__pyx_t_10))) {
         if (__pyx_t_1 >= PyList_GET_SIZE(__pyx_t_10)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_10, __pyx_t_1); __Pyx_INCREF(__pyx_t_4); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 48, __pyx_L1_error)
+        __pyx_t_4 = PyList_GET_ITEM(__pyx_t_10, __pyx_t_1); __Pyx_INCREF(__pyx_t_4); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 47, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_10, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 48, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_10, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       } else {
         if (__pyx_t_1 >= PyTuple_GET_SIZE(__pyx_t_10)) break;
         #if CYTHON_ASSUME_SAFE_MACROS && !CYTHON_AVOID_BORROWED_REFS
-        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_10, __pyx_t_1); __Pyx_INCREF(__pyx_t_4); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 48, __pyx_L1_error)
+        __pyx_t_4 = PyTuple_GET_ITEM(__pyx_t_10, __pyx_t_1); __Pyx_INCREF(__pyx_t_4); __pyx_t_1++; if (unlikely(0 < 0)) __PYX_ERR(0, 47, __pyx_L1_error)
         #else
-        __pyx_t_4 = PySequence_ITEM(__pyx_t_10, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 48, __pyx_L1_error)
+        __pyx_t_4 = PySequence_ITEM(__pyx_t_10, __pyx_t_1); __pyx_t_1++; if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 47, __pyx_L1_error)
         __Pyx_GOTREF(__pyx_t_4);
         #endif
       }
@@ -3214,7 +3202,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
         PyObject* exc_type = PyErr_Occurred();
         if (exc_type) {
           if (likely(__Pyx_PyErr_GivenExceptionMatches(exc_type, PyExc_StopIteration))) PyErr_Clear();
-          else __PYX_ERR(0, 48, __pyx_L1_error)
+          else __PYX_ERR(0, 47, __pyx_L1_error)
         }
         break;
       }
@@ -3223,40 +3211,40 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "parse_conf.pyx":49
+    /* "parse_conf.pyx":48
  *     cdef list confs = [None]*nconfs
- *     for i in range(cnconfs):
+ *     for i in range(nconfs):
  *         c = parse_conf(chunk, conf_starts[i], sizes[i], nbases)             # <<<<<<<<<<<<<<
  *         confs[i] = c
  * 
  */
-    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 49, __pyx_L1_error)
-    __pyx_t_13 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_13 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 49, __pyx_L1_error)
-    __pyx_t_4 = __pyx_f_10parse_conf_parse_conf(__pyx_v_chunk, (__pyx_v_conf_starts[__pyx_t_9]), (__pyx_v_sizes[__pyx_t_13]), __pyx_v_nbases); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 49, __pyx_L1_error)
+    __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_t_13 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_13 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_t_4 = __pyx_f_10parse_conf_parse_conf(__pyx_v_chunk, (__pyx_v_conf_starts[__pyx_t_9]), (__pyx_v_sizes[__pyx_t_13]), __pyx_v_nbases); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 48, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_XDECREF_SET(__pyx_v_c, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "parse_conf.pyx":50
- *     for i in range(cnconfs):
+    /* "parse_conf.pyx":49
+ *     for i in range(nconfs):
  *         c = parse_conf(chunk, conf_starts[i], sizes[i], nbases)
  *         confs[i] = c             # <<<<<<<<<<<<<<
  * 
  *     fclose(traj_file)
  */
-    if (unlikely(PyObject_SetItem(__pyx_v_confs, __pyx_v_i, __pyx_v_c) < 0)) __PYX_ERR(0, 50, __pyx_L1_error)
+    if (unlikely(PyObject_SetItem(__pyx_v_confs, __pyx_v_i, __pyx_v_c) < 0)) __PYX_ERR(0, 49, __pyx_L1_error)
 
-    /* "parse_conf.pyx":48
+    /* "parse_conf.pyx":47
  *     # Parse the chunk into Configurations
  *     cdef list confs = [None]*nconfs
- *     for i in range(cnconfs):             # <<<<<<<<<<<<<<
+ *     for i in range(nconfs):             # <<<<<<<<<<<<<<
  *         c = parse_conf(chunk, conf_starts[i], sizes[i], nbases)
  *         confs[i] = c
  */
   }
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-  /* "parse_conf.pyx":52
+  /* "parse_conf.pyx":51
  *         confs[i] = c
  * 
  *     fclose(traj_file)             # <<<<<<<<<<<<<<
@@ -3265,7 +3253,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   (void)(fclose(__pyx_v_traj_file));
 
-  /* "parse_conf.pyx":53
+  /* "parse_conf.pyx":52
  * 
  *     fclose(traj_file)
  *     free(chunk)             # <<<<<<<<<<<<<<
@@ -3274,7 +3262,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   free(__pyx_v_chunk);
 
-  /* "parse_conf.pyx":54
+  /* "parse_conf.pyx":53
  *     fclose(traj_file)
  *     free(chunk)
  *     free(traj_path_c)             # <<<<<<<<<<<<<<
@@ -3283,7 +3271,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   free(__pyx_v_traj_path_c);
 
-  /* "parse_conf.pyx":55
+  /* "parse_conf.pyx":54
  *     free(chunk)
  *     free(traj_path_c)
  *     free(sizes)             # <<<<<<<<<<<<<<
@@ -3292,7 +3280,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   free(__pyx_v_sizes);
 
-  /* "parse_conf.pyx":56
+  /* "parse_conf.pyx":55
  *     free(traj_path_c)
  *     free(sizes)
  *     free(conf_starts)             # <<<<<<<<<<<<<<
@@ -3301,7 +3289,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   free(__pyx_v_conf_starts);
 
-  /* "parse_conf.pyx":58
+  /* "parse_conf.pyx":57
  *     free(conf_starts)
  * 
  *     return confs             # <<<<<<<<<<<<<<
@@ -3338,7 +3326,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   return __pyx_r;
 }
 
-/* "parse_conf.pyx":60
+/* "parse_conf.pyx":59
  *     return confs
  * 
  * cdef parse_conf(char *chunk, int start_byte, int size, int nbases):             # <<<<<<<<<<<<<<
@@ -3383,7 +3371,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("parse_conf", 0);
 
-  /* "parse_conf.pyx":61
+  /* "parse_conf.pyx":60
  * 
  * cdef parse_conf(char *chunk, int start_byte, int size, int nbases):
  *     cdef int THREE = 3             # <<<<<<<<<<<<<<
@@ -3392,7 +3380,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_THREE = 3;
 
-  /* "parse_conf.pyx":65
+  /* "parse_conf.pyx":64
  * 
  *     #allocate some memory for our configuration
  *     cdef double *cbox = <double *> malloc(THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3401,7 +3389,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_cbox = ((double *)malloc((__pyx_v_THREE * (sizeof(double)))));
 
-  /* "parse_conf.pyx":66
+  /* "parse_conf.pyx":65
  *     #allocate some memory for our configuration
  *     cdef double *cbox = <double *> malloc(THREE * sizeof(double))
  *     cdef double *cenergy = <double *> malloc(THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3410,7 +3398,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_cenergy = ((double *)malloc((__pyx_v_THREE * (sizeof(double)))));
 
-  /* "parse_conf.pyx":67
+  /* "parse_conf.pyx":66
  *     cdef double *cbox = <double *> malloc(THREE * sizeof(double))
  *     cdef double *cenergy = <double *> malloc(THREE * sizeof(double))
  *     cdef double *cposes = <double *> malloc(nbases * THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3419,7 +3407,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_cposes = ((double *)malloc(((__pyx_v_nbases * __pyx_v_THREE) * (sizeof(double)))));
 
-  /* "parse_conf.pyx":68
+  /* "parse_conf.pyx":67
  *     cdef double *cenergy = <double *> malloc(THREE * sizeof(double))
  *     cdef double *cposes = <double *> malloc(nbases * THREE * sizeof(double))
  *     cdef double *ca1s = <double *> malloc(nbases * THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3428,7 +3416,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ca1s = ((double *)malloc(((__pyx_v_nbases * __pyx_v_THREE) * (sizeof(double)))));
 
-  /* "parse_conf.pyx":69
+  /* "parse_conf.pyx":68
  *     cdef double *cposes = <double *> malloc(nbases * THREE * sizeof(double))
  *     cdef double *ca1s = <double *> malloc(nbases * THREE * sizeof(double))
  *     cdef double *ca3s = <double *> malloc(nbases * THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3437,7 +3425,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ca3s = ((double *)malloc(((__pyx_v_nbases * __pyx_v_THREE) * (sizeof(double)))));
 
-  /* "parse_conf.pyx":71
+  /* "parse_conf.pyx":70
  *     cdef double *ca3s = <double *> malloc(nbases * THREE * sizeof(double))
  * 
  *     cdef int j = 0             # <<<<<<<<<<<<<<
@@ -3446,7 +3434,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_j = 0;
 
-  /* "parse_conf.pyx":72
+  /* "parse_conf.pyx":71
  * 
  *     cdef int j = 0
  *     cdef int i = 0             # <<<<<<<<<<<<<<
@@ -3455,7 +3443,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_i = 0;
 
-  /* "parse_conf.pyx":75
+  /* "parse_conf.pyx":74
  * 
  *     # Get a pointer to the start of the configuration
  *     cdef const char *ptr = chunk + start_byte             # <<<<<<<<<<<<<<
@@ -3464,7 +3452,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = (__pyx_v_chunk + __pyx_v_start_byte);
 
-  /* "parse_conf.pyx":78
+  /* "parse_conf.pyx":77
  * 
  *     # Get the time
  *     ptr = strtok(ptr, 't = ')             # <<<<<<<<<<<<<<
@@ -3473,7 +3461,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(__pyx_v_ptr, ((char const *)"t = "));
 
-  /* "parse_conf.pyx":79
+  /* "parse_conf.pyx":78
  *     # Get the time
  *     ptr = strtok(ptr, 't = ')
  *     time = atoi(ptr)             # <<<<<<<<<<<<<<
@@ -3482,7 +3470,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_time = atoi(__pyx_v_ptr);
 
-  /* "parse_conf.pyx":83
+  /* "parse_conf.pyx":82
  *     # Get the box and energy
  *     # The energy can't be in a loop because of the format change between it and the conf lines.
  *     ptr = strtok(NULL, '= ')             # <<<<<<<<<<<<<<
@@ -3491,7 +3479,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(NULL, ((char const *)"= "));
 
-  /* "parse_conf.pyx":85
+  /* "parse_conf.pyx":84
  *     ptr = strtok(NULL, '= ')
  * 
  *     for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -3503,7 +3491,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_j = __pyx_t_3;
 
-    /* "parse_conf.pyx":86
+    /* "parse_conf.pyx":85
  * 
  *     for j in range(THREE):
  *         cbox[j] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3512,7 +3500,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
     (__pyx_v_cbox[__pyx_v_j]) = atof(__pyx_v_ptr);
 
-    /* "parse_conf.pyx":87
+    /* "parse_conf.pyx":86
  *     for j in range(THREE):
  *         cbox[j] = atof(ptr)
  *         ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3522,7 +3510,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     __pyx_v_ptr = strtok(NULL, ((char const *)" "));
   }
 
-  /* "parse_conf.pyx":88
+  /* "parse_conf.pyx":87
  *         cbox[j] = atof(ptr)
  *         ptr = strtok(NULL, ' ')
  *     ptr = strtok(NULL, ' \n')             # <<<<<<<<<<<<<<
@@ -3531,7 +3519,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(NULL, ((char const *)" \n"));
 
-  /* "parse_conf.pyx":90
+  /* "parse_conf.pyx":89
  *     ptr = strtok(NULL, ' \n')
  * 
  *     cenergy[0] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3540,7 +3528,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   (__pyx_v_cenergy[0]) = atof(__pyx_v_ptr);
 
-  /* "parse_conf.pyx":91
+  /* "parse_conf.pyx":90
  * 
  *     cenergy[0] = atof(ptr)
  *     ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3549,7 +3537,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(NULL, ((char const *)" "));
 
-  /* "parse_conf.pyx":92
+  /* "parse_conf.pyx":91
  *     cenergy[0] = atof(ptr)
  *     ptr = strtok(NULL, ' ')
  *     cenergy[1] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3558,7 +3546,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   (__pyx_v_cenergy[1]) = atof(__pyx_v_ptr);
 
-  /* "parse_conf.pyx":93
+  /* "parse_conf.pyx":92
  *     ptr = strtok(NULL, ' ')
  *     cenergy[1] = atof(ptr)
  *     ptr = strtok(NULL, ' \n')             # <<<<<<<<<<<<<<
@@ -3567,7 +3555,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(NULL, ((char const *)" \n"));
 
-  /* "parse_conf.pyx":94
+  /* "parse_conf.pyx":93
  *     cenergy[1] = atof(ptr)
  *     ptr = strtok(NULL, ' \n')
  *     cenergy[2] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3576,7 +3564,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   (__pyx_v_cenergy[2]) = atof(__pyx_v_ptr);
 
-  /* "parse_conf.pyx":97
+  /* "parse_conf.pyx":96
  * 
  *     # Parse the configuration itself
  *     for i in range(nbases):             # <<<<<<<<<<<<<<
@@ -3588,7 +3576,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "parse_conf.pyx":98
+    /* "parse_conf.pyx":97
  *     # Parse the configuration itself
  *     for i in range(nbases):
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -3600,7 +3588,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "parse_conf.pyx":99
+      /* "parse_conf.pyx":98
  *     for i in range(nbases):
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3609,7 +3597,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
       __pyx_v_ptr = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":100
+      /* "parse_conf.pyx":99
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')
  *             cposes[i*THREE+j] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3619,7 +3607,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
       (__pyx_v_cposes[((__pyx_v_i * __pyx_v_THREE) + __pyx_v_j)]) = atof(__pyx_v_ptr);
     }
 
-    /* "parse_conf.pyx":101
+    /* "parse_conf.pyx":100
  *             ptr = strtok(NULL, ' ')
  *             cposes[i*THREE+j] = atof(ptr)
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -3631,7 +3619,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "parse_conf.pyx":102
+      /* "parse_conf.pyx":101
  *             cposes[i*THREE+j] = atof(ptr)
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3640,7 +3628,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
       __pyx_v_ptr = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":103
+      /* "parse_conf.pyx":102
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')
  *             ca1s[i*THREE+j] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3650,7 +3638,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
       (__pyx_v_ca1s[((__pyx_v_i * __pyx_v_THREE) + __pyx_v_j)]) = atof(__pyx_v_ptr);
     }
 
-    /* "parse_conf.pyx":104
+    /* "parse_conf.pyx":103
  *             ptr = strtok(NULL, ' ')
  *             ca1s[i*THREE+j] = atof(ptr)
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -3662,7 +3650,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "parse_conf.pyx":105
+      /* "parse_conf.pyx":104
  *             ca1s[i*THREE+j] = atof(ptr)
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3671,7 +3659,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
       __pyx_v_ptr = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":106
+      /* "parse_conf.pyx":105
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')
  *             ca3s[i*THREE+j] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3681,7 +3669,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
       (__pyx_v_ca3s[((__pyx_v_i * __pyx_v_THREE) + __pyx_v_j)]) = atof(__pyx_v_ptr);
     }
 
-    /* "parse_conf.pyx":107
+    /* "parse_conf.pyx":106
  *             ptr = strtok(NULL, ' ')
  *             ca3s[i*THREE+j] = atof(ptr)
  *         ptr = strtok(NULL, '\n')             # <<<<<<<<<<<<<<
@@ -3691,28 +3679,28 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     __pyx_v_ptr = strtok(NULL, ((char const *)"\n"));
   }
 
-  /* "parse_conf.pyx":110
+  /* "parse_conf.pyx":109
  * 
  *     # Convert the configuration information into numpy arrays and store in a Configuration
  *     box = np.asarray(<double[:3]>cbox)             # <<<<<<<<<<<<<<
  *     energy = np.asarray(<double[:3]>cenergy)
  *     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 109, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_asarray); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_asarray); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 109, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   if (!__pyx_v_cbox) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 110, __pyx_L1_error)
+    __PYX_ERR(0, 109, __pyx_L1_error)
   }
-  __pyx_t_11 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __pyx_t_11 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 109, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_8 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 110, __pyx_L1_error)
+  __pyx_t_8 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3)); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 109, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __pyx_t_10 = __pyx_array_new(__pyx_t_8, sizeof(double), PyBytes_AS_STRING(__pyx_t_11), (char *) "c", (char *) __pyx_v_cbox);
-  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 110, __pyx_L1_error)
+  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 109, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
@@ -3729,34 +3717,34 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_t_7 = (__pyx_t_11) ? __Pyx_PyObject_Call2Args(__pyx_t_9, __pyx_t_11, ((PyObject *)__pyx_t_10)) : __Pyx_PyObject_CallOneArg(__pyx_t_9, ((PyObject *)__pyx_t_10));
   __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_10)); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 110, __pyx_L1_error)
+  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 109, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __pyx_v_box = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":111
+  /* "parse_conf.pyx":110
  *     # Convert the configuration information into numpy arrays and store in a Configuration
  *     box = np.asarray(<double[:3]>cbox)
  *     energy = np.asarray(<double[:3]>cenergy)             # <<<<<<<<<<<<<<
  *     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
  *     a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_np); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_9, __pyx_n_s_np); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_asarray); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_asarray); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   if (!__pyx_v_cenergy) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 111, __pyx_L1_error)
+    __PYX_ERR(0, 110, __pyx_L1_error)
   }
-  __pyx_t_8 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_8 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_9 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 111, __pyx_L1_error)
+  __pyx_t_9 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)3)); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_10 = __pyx_array_new(__pyx_t_9, sizeof(double), PyBytes_AS_STRING(__pyx_t_8), (char *) "c", (char *) __pyx_v_cenergy);
-  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 111, __pyx_L1_error)
+  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
@@ -3773,34 +3761,34 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_t_7 = (__pyx_t_8) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_8, ((PyObject *)__pyx_t_10)) : __Pyx_PyObject_CallOneArg(__pyx_t_11, ((PyObject *)__pyx_t_10));
   __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_10)); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 111, __pyx_L1_error)
+  if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 110, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_7);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
   __pyx_v_energy = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":112
+  /* "parse_conf.pyx":111
  *     box = np.asarray(<double[:3]>cbox)
  *     energy = np.asarray(<double[:3]>cenergy)
  *     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)             # <<<<<<<<<<<<<<
  *     a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)
  *     a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_asarray); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_asarray); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   if (!__pyx_v_cposes) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 112, __pyx_L1_error)
+    __PYX_ERR(0, 111, __pyx_L1_error)
   }
-  __pyx_t_12 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_12 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  __pyx_t_8 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)(__pyx_v_nbases * 3))); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_8 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)(__pyx_v_nbases * 3))); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __pyx_t_10 = __pyx_array_new(__pyx_t_8, sizeof(double), PyBytes_AS_STRING(__pyx_t_12), (char *) "c", (char *) __pyx_v_cposes);
-  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 112, __pyx_L1_error)
+  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
@@ -3817,15 +3805,15 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_t_11 = (__pyx_t_12) ? __Pyx_PyObject_Call2Args(__pyx_t_9, __pyx_t_12, ((PyObject *)__pyx_t_10)) : __Pyx_PyObject_CallOneArg(__pyx_t_9, ((PyObject *)__pyx_t_10));
   __Pyx_XDECREF(__pyx_t_12); __pyx_t_12 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_10)); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 112, __pyx_L1_error)
+  if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_reshape); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyObject_GetAttrStr(__pyx_t_11, __pyx_n_s_reshape); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_nbases); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_nbases); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_12 = __Pyx_PyInt_From_int(__pyx_v_THREE); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 112, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyInt_From_int(__pyx_v_THREE); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 111, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __pyx_t_8 = NULL;
   __pyx_t_1 = 0;
@@ -3842,7 +3830,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_9)) {
     PyObject *__pyx_temp[3] = {__pyx_t_8, __pyx_t_11, __pyx_t_12};
-    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 111, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
@@ -3852,7 +3840,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_9)) {
     PyObject *__pyx_temp[3] = {__pyx_t_8, __pyx_t_11, __pyx_t_12};
-    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_9, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 111, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
@@ -3860,7 +3848,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   } else
   #endif
   {
-    __pyx_t_13 = PyTuple_New(2+__pyx_t_1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_13 = PyTuple_New(2+__pyx_t_1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 111, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
     if (__pyx_t_8) {
       __Pyx_GIVEREF(__pyx_t_8); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_8); __pyx_t_8 = NULL;
@@ -3871,7 +3859,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_1, __pyx_t_12);
     __pyx_t_11 = 0;
     __pyx_t_12 = 0;
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_13, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_9, __pyx_t_13, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 111, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   }
@@ -3879,28 +3867,28 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_poses = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":113
+  /* "parse_conf.pyx":112
  *     energy = np.asarray(<double[:3]>cenergy)
  *     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
  *     a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)             # <<<<<<<<<<<<<<
  *     a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)
  * 
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_np); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_13, __pyx_n_s_np); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
-  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_asarray); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_13, __pyx_n_s_asarray); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   if (!__pyx_v_ca1s) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 113, __pyx_L1_error)
+    __PYX_ERR(0, 112, __pyx_L1_error)
   }
-  __pyx_t_11 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __pyx_t_11 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_13 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)(__pyx_v_nbases * 3))); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __pyx_t_13 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)(__pyx_v_nbases * 3))); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __pyx_t_10 = __pyx_array_new(__pyx_t_13, sizeof(double), PyBytes_AS_STRING(__pyx_t_11), (char *) "c", (char *) __pyx_v_ca1s);
-  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 113, __pyx_L1_error)
+  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
@@ -3917,15 +3905,15 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_t_9 = (__pyx_t_11) ? __Pyx_PyObject_Call2Args(__pyx_t_12, __pyx_t_11, ((PyObject *)__pyx_t_10)) : __Pyx_PyObject_CallOneArg(__pyx_t_12, ((PyObject *)__pyx_t_10));
   __Pyx_XDECREF(__pyx_t_11); __pyx_t_11 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_10)); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 113, __pyx_L1_error)
+  if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_reshape); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyObject_GetAttrStr(__pyx_t_9, __pyx_n_s_reshape); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
-  __pyx_t_9 = __Pyx_PyInt_From_int(__pyx_v_nbases); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_From_int(__pyx_v_nbases); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_THREE); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 113, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyInt_From_int(__pyx_v_THREE); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 112, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __pyx_t_13 = NULL;
   __pyx_t_1 = 0;
@@ -3942,7 +3930,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_12)) {
     PyObject *__pyx_temp[3] = {__pyx_t_13, __pyx_t_9, __pyx_t_11};
-    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_12, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_12, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -3952,7 +3940,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_12)) {
     PyObject *__pyx_temp[3] = {__pyx_t_13, __pyx_t_9, __pyx_t_11};
-    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_12, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_12, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_13); __pyx_t_13 = 0;
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -3960,7 +3948,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   } else
   #endif
   {
-    __pyx_t_8 = PyTuple_New(2+__pyx_t_1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_8 = PyTuple_New(2+__pyx_t_1); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 112, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_8);
     if (__pyx_t_13) {
       __Pyx_GIVEREF(__pyx_t_13); PyTuple_SET_ITEM(__pyx_t_8, 0, __pyx_t_13); __pyx_t_13 = NULL;
@@ -3971,7 +3959,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     PyTuple_SET_ITEM(__pyx_t_8, 1+__pyx_t_1, __pyx_t_11);
     __pyx_t_9 = 0;
     __pyx_t_11 = 0;
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_8, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_12, __pyx_t_8, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 112, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   }
@@ -3979,28 +3967,28 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_a1s = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":114
+  /* "parse_conf.pyx":113
  *     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
  *     a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)
  *     a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)             # <<<<<<<<<<<<<<
  * 
  *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_8, __pyx_n_s_np); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_asarray); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_8, __pyx_n_s_asarray); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   if (!__pyx_v_ca3s) {
     PyErr_SetString(PyExc_ValueError,"Cannot create cython.array from NULL pointer");
-    __PYX_ERR(0, 114, __pyx_L1_error)
+    __PYX_ERR(0, 113, __pyx_L1_error)
   }
-  __pyx_t_9 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_9 = __pyx_format_from_typeinfo(&__Pyx_TypeInfo_double); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
-  __pyx_t_8 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)(__pyx_v_nbases * 3))); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_8 = Py_BuildValue((char*) "("  __PYX_BUILD_PY_SSIZE_T  ")", ((Py_ssize_t)(__pyx_v_nbases * 3))); if (unlikely(!__pyx_t_8)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_8);
   __pyx_t_10 = __pyx_array_new(__pyx_t_8, sizeof(double), PyBytes_AS_STRING(__pyx_t_9), (char *) "c", (char *) __pyx_v_ca3s);
-  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 114, __pyx_L1_error)
+  if (unlikely(!__pyx_t_10)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_10);
   __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
   __Pyx_DECREF(__pyx_t_9); __pyx_t_9 = 0;
@@ -4017,15 +4005,15 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_t_12 = (__pyx_t_9) ? __Pyx_PyObject_Call2Args(__pyx_t_11, __pyx_t_9, ((PyObject *)__pyx_t_10)) : __Pyx_PyObject_CallOneArg(__pyx_t_11, ((PyObject *)__pyx_t_10));
   __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
   __Pyx_DECREF(((PyObject *)__pyx_t_10)); __pyx_t_10 = 0;
-  if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 114, __pyx_L1_error)
+  if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
   __Pyx_DECREF(__pyx_t_11); __pyx_t_11 = 0;
-  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_reshape); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_11 = __Pyx_PyObject_GetAttrStr(__pyx_t_12, __pyx_n_s_reshape); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
   __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
-  __pyx_t_12 = __Pyx_PyInt_From_int(__pyx_v_nbases); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_12 = __Pyx_PyInt_From_int(__pyx_v_nbases); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_12);
-  __pyx_t_9 = __Pyx_PyInt_From_int(__pyx_v_THREE); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 114, __pyx_L1_error)
+  __pyx_t_9 = __Pyx_PyInt_From_int(__pyx_v_THREE); if (unlikely(!__pyx_t_9)) __PYX_ERR(0, 113, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_9);
   __pyx_t_8 = NULL;
   __pyx_t_1 = 0;
@@ -4042,7 +4030,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_11)) {
     PyObject *__pyx_temp[3] = {__pyx_t_8, __pyx_t_12, __pyx_t_9};
-    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 114, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
@@ -4052,7 +4040,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_11)) {
     PyObject *__pyx_temp[3] = {__pyx_t_8, __pyx_t_12, __pyx_t_9};
-    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 114, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_1, 2+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_8); __pyx_t_8 = 0;
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
@@ -4060,7 +4048,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   } else
   #endif
   {
-    __pyx_t_13 = PyTuple_New(2+__pyx_t_1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 114, __pyx_L1_error)
+    __pyx_t_13 = PyTuple_New(2+__pyx_t_1); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_13);
     if (__pyx_t_8) {
       __Pyx_GIVEREF(__pyx_t_8); PyTuple_SET_ITEM(__pyx_t_13, 0, __pyx_t_8); __pyx_t_8 = NULL;
@@ -4071,7 +4059,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     PyTuple_SET_ITEM(__pyx_t_13, 1+__pyx_t_1, __pyx_t_9);
     __pyx_t_12 = 0;
     __pyx_t_9 = 0;
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_13, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 114, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_13, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 113, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   }
@@ -4079,16 +4067,16 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_a3s = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":116
+  /* "parse_conf.pyx":115
  *     a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)
  * 
  *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)             # <<<<<<<<<<<<<<
  * 
  *     return out
  */
-  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_Configuration); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __Pyx_GetModuleGlobalName(__pyx_t_11, __pyx_n_s_Configuration); if (unlikely(!__pyx_t_11)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_11);
-  __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_time); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 116, __pyx_L1_error)
+  __pyx_t_13 = __Pyx_PyInt_From_int(__pyx_v_time); if (unlikely(!__pyx_t_13)) __PYX_ERR(0, 115, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_13);
   __pyx_t_9 = NULL;
   __pyx_t_1 = 0;
@@ -4105,7 +4093,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   #if CYTHON_FAST_PYCALL
   if (PyFunction_Check(__pyx_t_11)) {
     PyObject *__pyx_temp[7] = {__pyx_t_9, __pyx_t_13, __pyx_v_box, __pyx_v_energy, __pyx_v_poses, __pyx_v_a1s, __pyx_v_a3s};
-    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_1, 6+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 116, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_1, 6+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
@@ -4114,14 +4102,14 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   #if CYTHON_FAST_PYCCALL
   if (__Pyx_PyFastCFunction_Check(__pyx_t_11)) {
     PyObject *__pyx_temp[7] = {__pyx_t_9, __pyx_t_13, __pyx_v_box, __pyx_v_energy, __pyx_v_poses, __pyx_v_a1s, __pyx_v_a3s};
-    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_1, 6+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 116, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyCFunction_FastCall(__pyx_t_11, __pyx_temp+1-__pyx_t_1, 6+__pyx_t_1); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_XDECREF(__pyx_t_9); __pyx_t_9 = 0;
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_13); __pyx_t_13 = 0;
   } else
   #endif
   {
-    __pyx_t_12 = PyTuple_New(6+__pyx_t_1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 116, __pyx_L1_error)
+    __pyx_t_12 = PyTuple_New(6+__pyx_t_1); if (unlikely(!__pyx_t_12)) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_12);
     if (__pyx_t_9) {
       __Pyx_GIVEREF(__pyx_t_9); PyTuple_SET_ITEM(__pyx_t_12, 0, __pyx_t_9); __pyx_t_9 = NULL;
@@ -4144,7 +4132,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     __Pyx_GIVEREF(__pyx_v_a3s);
     PyTuple_SET_ITEM(__pyx_t_12, 5+__pyx_t_1, __pyx_v_a3s);
     __pyx_t_13 = 0;
-    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_12, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 116, __pyx_L1_error)
+    __pyx_t_7 = __Pyx_PyObject_Call(__pyx_t_11, __pyx_t_12, NULL); if (unlikely(!__pyx_t_7)) __PYX_ERR(0, 115, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_7);
     __Pyx_DECREF(__pyx_t_12); __pyx_t_12 = 0;
   }
@@ -4152,7 +4140,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_out = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":118
+  /* "parse_conf.pyx":117
  *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
  * 
  *     return out             # <<<<<<<<<<<<<<
@@ -4162,7 +4150,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_r = __pyx_v_out;
   goto __pyx_L0;
 
-  /* "parse_conf.pyx":60
+  /* "parse_conf.pyx":59
  *     return confs
  * 
  * cdef parse_conf(char *chunk, int start_byte, int size, int nbases):             # <<<<<<<<<<<<<<
@@ -19398,7 +19386,6 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_chunk_size, __pyx_k_chunk_size, sizeof(__pyx_k_chunk_size), 0, 0, 1, 1},
   {&__pyx_n_s_class, __pyx_k_class, sizeof(__pyx_k_class), 0, 0, 1, 1},
   {&__pyx_n_s_cline_in_traceback, __pyx_k_cline_in_traceback, sizeof(__pyx_k_cline_in_traceback), 0, 0, 1, 1},
-  {&__pyx_n_s_cnconfs, __pyx_k_cnconfs, sizeof(__pyx_k_cnconfs), 0, 0, 1, 1},
   {&__pyx_n_s_conf_count, __pyx_k_conf_count, sizeof(__pyx_k_conf_count), 0, 0, 1, 1},
   {&__pyx_n_s_conf_starts, __pyx_k_conf_starts, sizeof(__pyx_k_conf_starts), 0, 0, 1, 1},
   {&__pyx_n_s_confs, __pyx_k_confs, sizeof(__pyx_k_confs), 0, 0, 1, 1},
@@ -19483,9 +19470,9 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {0, 0, 0, 0, 0, 0, 0}
 };
 static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
-  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 24, __pyx_L1_error)
-  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 26, __pyx_L1_error)
-  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 38, __pyx_L1_error)
+  __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 23, __pyx_L1_error)
+  __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 25, __pyx_L1_error)
+  __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 37, __pyx_L1_error)
   __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 947, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 133, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(2, 151, __pyx_L1_error)
@@ -19502,14 +19489,14 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "parse_conf.pyx":24
+  /* "parse_conf.pyx":23
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
  *     if not sizes or not conf_starts:
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")             # <<<<<<<<<<<<<<
  *     cdef int chunk_size = 0
  *     for i in range(nconfs):
  */
-  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Could_not_allocate_memory_for_th); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 24, __pyx_L1_error)
+  __pyx_tuple_ = PyTuple_Pack(1, __pyx_kp_u_Could_not_allocate_memory_for_th); if (unlikely(!__pyx_tuple_)) __PYX_ERR(0, 23, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
@@ -19734,10 +19721,10 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
  *     # Number of configurations to read
  *     cdef int conf_count = len(idxs)
  */
-  __pyx_tuple__27 = PyTuple_Pack(16, __pyx_n_s_idxs, __pyx_n_s_traj_path, __pyx_n_s_start, __pyx_n_s_nconfs, __pyx_n_s_nbases, __pyx_n_s_conf_count, __pyx_n_s_cnconfs, __pyx_n_s_sizes, __pyx_n_s_conf_starts, __pyx_n_s_chunk_size, __pyx_n_s_i, __pyx_n_s_traj_path_c, __pyx_n_s_traj_file, __pyx_n_s_chunk, __pyx_n_s_confs, __pyx_n_s_c); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_tuple__27 = PyTuple_Pack(15, __pyx_n_s_idxs, __pyx_n_s_traj_path, __pyx_n_s_start, __pyx_n_s_nconfs, __pyx_n_s_nbases, __pyx_n_s_conf_count, __pyx_n_s_sizes, __pyx_n_s_conf_starts, __pyx_n_s_chunk_size, __pyx_n_s_i, __pyx_n_s_traj_path_c, __pyx_n_s_traj_file, __pyx_n_s_chunk, __pyx_n_s_confs, __pyx_n_s_c); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(5, 0, 16, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_parse_conf_pyx, __pyx_n_s_get_confs, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(5, 0, 15, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_parse_conf_pyx, __pyx_n_s_get_confs, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 13, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -20213,7 +20200,7 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
   /* "parse_conf.pyx":8
- * from libc.string cimport strtok, strcpy, memcpy
+ * from libc.string cimport strtok, strcpy
  * from libc.stdlib cimport atoi, atof, malloc, free
  * from oxDNA_analysis_tools.UTILS.RyeReader import Configuration             # <<<<<<<<<<<<<<
  * 
