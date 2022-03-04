@@ -1,3 +1,4 @@
+from tracemalloc import start
 import numpy as np
 from os import getenv, path
 from multiprocessing import cpu_count, Pool
@@ -6,14 +7,15 @@ from io import StringIO
 from pickle import loads, dumps
 from os.path import exists
 import os
+from parse_conf import get_confs
 
 import time
 start_time = time.time()
 
 
 
-#top, traj = "./hinge_correct_seq.top","./100confs.dat"
-top, traj = r"/mnt/g/hinge1/hinge_correct_seq.top",r"/mnt/g/hinge1/aligned.dat"
+top, traj = "./hinge_correct_seq.top","./100confs.dat"
+#top, traj = r"/mnt/g/hinge1/hinge_correct_seq.top",r"/mnt/g/hinge1/aligned.dat"
 
 
 #figure out how many chunks we are working on 
@@ -46,39 +48,29 @@ def align(centered_ref_coords, cms_ref_cords ,coords):
 
 
 BaseArray = namedtuple("BaseArray", ["time","box", "energy", "positions", "a1s", "a3s"])
-#def parse_conf(lines,nbases):
-#    lines = lines.split('\n')
-#    parameters =  np.array([line.split(maxsplit=9)[0:9] for line in lines[3:3+nbases]],dtype=float)
-#    conf = BaseArray(
-#        float(lines[0][lines[0].index("=")+1:]),
-#        np.array(lines[1].split("=")[1].split(), dtype=float),
-#        np.array(lines[2].split("=")[1].split(), dtype=float),
-#        parameters[:,0:3],
-#        parameters[:,3:6],
-#        parameters[:,6:9],
-#    )
-#    return conf
-from parse_conf import parse_conf
 
-def get_confs(idxs,traj_path, start, nconfs):
-    conf_count = len(idxs)
-    if(start+nconfs >= conf_count): # make sure we stay in bounds 
-        nconfs = conf_count - start
-    # go to start position 
-    with open(traj_path, 'rb') as traj_file:
-        traj_file.seek(idxs[start].offset)
-        # figure out how big of a chunk we want to read 
-        size = sum([idxs[i].size for i in range(start,start+nconfs)])
-        # read chunk and prepare to split
-        chunk = traj_file.read(size)
-        return chunk.split(b't')
+#def get_confs(idxs,traj_path, start, nconfs):
+#    conf_count = len(idxs)
+#    if(start+nconfs >= conf_count): # make sure we stay in bounds 
+#        nconfs = conf_count - start
+#    # go to start position 
+#    with open(traj_path, 'rb') as traj_file:
+#        traj_file.seek(idxs[start].offset)
+#        # figure out how big of a chunk we want to read 
+#        sizes = [idxs[i].size for i in range(start,start+nconfs)]
+#        chunk_size = sum(sizes)
+#        # read chunk and prepare to split
+#        chunk = traj_file.read(chunk_size)
+#        conf_starts = [idxs[i].offset - idxs[start].offset for i in range (start, start+nconfs)]
+#        confs = [parse_conf(chunk, start, size, nbases) for start, size in zip(conf_starts, sizes)]
+#        return confs#.split(b't')
 
 
 def compute(traj,nbases, idxs, centered_ref_coords, cms_ref_cords, ntopart, ptr):
     #reader = MichaReader(top,traj)
-    confs = get_confs(idxs,traj, ptr*ntopart,ntopart)
+    confs = get_confs(idxs, traj, ptr*ntopart, ntopart, nbases)
     #TODO: NEEDS INBOX
-    confs = [inbox(parse_conf(c,nbases)) for c in confs[1:]]
+    confs = [inbox(c) for c in confs[1:]]
     # convert to numpy repr
     aligned_coords = np.asarray([[align_conf.positions, align_conf.a1s, align_conf.a3s] 
                                                                   for align_conf in confs])
@@ -192,10 +184,7 @@ with open(top) as f:
         nbases, nstrands, ndna, nres, ndnastrands = my_top_info
     nbases = int(nbases)
 
-ref_conf = parse_conf(
-    get_confs(idxs, traj, 0, 1)[1],
-    nbases
-)
+ref_conf = get_confs(idxs, traj, 0, 1, nbases)[0]
 #TODO: NEEDS INBOX
 ref_conf = inbox(ref_conf)
 
@@ -235,5 +224,5 @@ a1s = np.array([v/np.linalg.norm(v) for v in a1s])
 a3s = np.array([v/np.linalg.norm(v) for v in a3s])
 
 
-write_conf(r"/mnt/g/hinge1/mean_m.dat",BaseArray(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
+write_conf("./mean_m.dat",BaseArray(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
 print("--- %s seconds ---" % (time.time() - start_time))

@@ -31,8 +31,8 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "centered_ref_coords",
                                               "cms_ref_coords",
                                               "ntopart"])
-def compute(ctx:ComputeContext,ptr):
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, ptr*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+def compute(ctx:ComputeContext,chunk_id):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
     confs = (inbox(c) for c in confs)
     # convert to numpy repr
     aligned_coords = np.asarray([[align_conf.positions, align_conf.a1s, align_conf.a3s] 
@@ -46,7 +46,7 @@ def compute(ctx:ComputeContext,ptr):
     return sub_mean
 
 #top, traj = r"/mnt/c/Users/mmatthi3/test2/hinge_correct_seq.top", r"/mnt/c/Users/mmatthi3/test2/aligned.dat"
-top, traj = "./hinge_correct_seq.top","./100confs.dat"
+top, traj = "./hinge_correct_seq.top","./aligned.dat"
 top_info, traj_info = describe(top, traj)
 
 
@@ -55,7 +55,7 @@ ref_conf = get_confs(traj_info.idxs, traj, 0, 1, top_info.nbases)[0]
 ref_conf = inbox(ref_conf)
 
 # figure out how much resorces we have
-ncpus = get_n_cpu()
+ncpus = 4#get_n_cpu()
 # how many confs we want to distribute between the processes
 ntopart = 10
 #prepare to fire multiple processes 
@@ -75,10 +75,9 @@ reference_coords = reference_coords - ref_cms
 ctx = ComputeContext(
     traj_info, top_info, reference_coords, ref_cms, ntopart
 )
-print("starting up processes")
-results = [pool.apply_async(compute,(ctx,i)) 
-                        for i in range(n_chunks)]
-print("all spawned")
+print(f"Starting up {ncpus} processes for {n_chunks} chunks")
+results = [pool.apply_async(compute,(ctx,i)) for i in range(n_chunks)]
+print("All spawned")
 
 
 # get the results
@@ -86,6 +85,9 @@ acc = np.zeros([3, top_info.nbases, 3])
 for i,r in enumerate(results):
     print(f"finished {i+1}/{n_chunks}",end="\r")
     acc += r.get()
+pool.close()
+pool.join()
+
 print()
 # compute the mean 
 acc /= n_confs

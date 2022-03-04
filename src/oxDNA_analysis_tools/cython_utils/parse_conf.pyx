@@ -17,13 +17,16 @@ def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
         nconfs = conf_count - start
 
     # Configuration start/size markers within the chunk
-    cdef numpy.ndarray[numpy.int32_t, ndim=1] sizes = np.zeros(nconfs, dtype=np.int32)
-    cdef numpy.ndarray[numpy.int32_t, ndim=1] conf_starts = np.zeros(nconfs, dtype=np.int32)
+    cdef int *sizes = <int *> malloc(nconfs * sizeof(int))
+    cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
+    if not sizes or not conf_starts:
+        raise MemoryError("Could not allocate memory for the configuration sizes and starts")
     cdef int chunk_size = 0
-    for i in range(start,start+nconfs):
-        sizes[i] = idxs[i].size
+    for i in range(nconfs):
+        sizes[i] = idxs[start+i].size
         chunk_size += sizes[i]
-        conf_starts[i] = idxs[i].offset - idxs[start].offset
+        conf_starts[i] = idxs[start+i].offset - idxs[start].offset
+
 
     # Convert the path to something C can open
     cdef char *traj_path_c = <char *>malloc(len(traj_path)+1)
@@ -48,18 +51,22 @@ def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
     fclose(traj_file)
     free(chunk)
     free(traj_path_c)
+    free(sizes)
+    free(conf_starts)
 
     return confs
 
-def parse_conf(char *chunk, int start_byte, int size, int nbases):
+cdef parse_conf(char *chunk, int start_byte, int size, int nbases):
     cdef int THREE = 3
     cdef int time
-    cdef numpy.ndarray[numpy.float32_t, ndim=1] box = np.zeros(THREE, dtype=np.float32, order='C')
-    cdef numpy.ndarray[numpy.float32_t, ndim=1] energy = np.zeros(THREE, dtype=np.float32, order='C')
-    cdef numpy.ndarray[numpy.float32_t, ndim=2] poses = np.zeros((nbases, THREE), dtype=np.float32, order='C')
-    cdef numpy.ndarray[numpy.float32_t, ndim=2] a1s = np.zeros((nbases, THREE), dtype=np.float32, order='C')
-    cdef numpy.ndarray[numpy.float32_t, ndim=2] a3s = np.zeros((nbases, THREE), dtype=np.float32, order='C')
     
+    #allocate some memory for our configuration
+    cdef double *cbox = <double *> malloc(THREE * sizeof(double))
+    cdef double *cenergy = <double *> malloc(THREE * sizeof(double))
+    cdef double *cposes = <double *> malloc(nbases * THREE * sizeof(double))
+    cdef double *ca1s = <double *> malloc(nbases * THREE * sizeof(double))
+    cdef double *ca3s = <double *> malloc(nbases * THREE * sizeof(double))
+
     cdef int j = 0
     cdef int i = 0
 
@@ -75,28 +82,38 @@ def parse_conf(char *chunk, int start_byte, int size, int nbases):
     ptr = strtok(NULL, '= ')
 
     for j in range(THREE):
-        box[j] = atof(ptr)
+        cbox[j] = atof(ptr)
         ptr = strtok(NULL, ' ')
     ptr = strtok(NULL, ' \n')
     
-    energy[0] = atof(ptr)
+    cenergy[0] = atof(ptr)
     ptr = strtok(NULL, ' ')
-    energy[1] = atof(ptr)
+    cenergy[1] = atof(ptr)
     ptr = strtok(NULL, ' \n')
-    energy[2] = atof(ptr)
+    cenergy[2] = atof(ptr)
 
     # Parse the configuration itself
     for i in range(nbases):
         for j in range(THREE):
             ptr = strtok(NULL, ' ')
-            poses[i,j] = atof(ptr)
+            cposes[i*THREE+j] = atof(ptr)
         for j in range(THREE):
             ptr = strtok(NULL, ' ')
-            a1s[i,j] = atof(ptr)
+            ca1s[i*THREE+j] = atof(ptr)
         for j in range(THREE):
             ptr = strtok(NULL, ' ')
-            a3s[i,j] = atof(ptr)
+            ca3s[i*THREE+j] = atof(ptr)
         ptr = strtok(NULL, '\n')
+
+    # Convert the configuration information into numpy arrays and store in a Configuration
+    box = np.asarray(<double[:3]>cbox)
+    energy = np.asarray(<double[:3]>cenergy)
+    poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
+    a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)
+    a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)
+
+    print(box.flags)
         
     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
+
     return out
