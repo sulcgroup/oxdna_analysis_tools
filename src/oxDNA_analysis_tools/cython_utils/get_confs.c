@@ -4,12 +4,12 @@
 {
     "distutils": {
         "depends": [],
-        "name": "parse_conf",
+        "name": "oxDNA_analysis_tools.UTILS.get_confs",
         "sources": [
-            "parse_conf.pyx"
+            "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx"
         ]
     },
-    "module_name": "parse_conf"
+    "module_name": "oxDNA_analysis_tools.UTILS.get_confs"
 }
 END: Cython Metadata */
 
@@ -692,8 +692,8 @@ static CYTHON_INLINE float __PYX_NAN() {
   #endif
 #endif
 
-#define __PYX_HAVE__parse_conf
-#define __PYX_HAVE_API__parse_conf
+#define __PYX_HAVE__oxDNA_analysis_tools__UTILS__get_confs
+#define __PYX_HAVE_API__oxDNA_analysis_tools__UTILS__get_confs
 /* Early includes */
 #include <string.h>
 #include <stdio.h>
@@ -939,7 +939,7 @@ static const char *__pyx_filename;
 
 
 static const char *__pyx_f[] = {
-  "parse_conf.pyx",
+  "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx",
   "__init__.pxd",
   "stringsource",
   "type.pxd",
@@ -1053,7 +1053,7 @@ typedef struct {
 #define __Pyx_MemoryView_Len(m)  (m.shape[0])
 
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":690
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":690
  * # in Cython to enable them only on the right systems.
  * 
  * ctypedef npy_int8       int8_t             # <<<<<<<<<<<<<<
@@ -1062,7 +1062,7 @@ typedef struct {
  */
 typedef npy_int8 __pyx_t_5numpy_int8_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":691
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":691
  * 
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t             # <<<<<<<<<<<<<<
@@ -1071,7 +1071,7 @@ typedef npy_int8 __pyx_t_5numpy_int8_t;
  */
 typedef npy_int16 __pyx_t_5numpy_int16_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":692
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":692
  * ctypedef npy_int8       int8_t
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t             # <<<<<<<<<<<<<<
@@ -1080,7 +1080,7 @@ typedef npy_int16 __pyx_t_5numpy_int16_t;
  */
 typedef npy_int32 __pyx_t_5numpy_int32_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":693
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":693
  * ctypedef npy_int16      int16_t
  * ctypedef npy_int32      int32_t
  * ctypedef npy_int64      int64_t             # <<<<<<<<<<<<<<
@@ -1089,7 +1089,7 @@ typedef npy_int32 __pyx_t_5numpy_int32_t;
  */
 typedef npy_int64 __pyx_t_5numpy_int64_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":697
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":697
  * #ctypedef npy_int128     int128_t
  * 
  * ctypedef npy_uint8      uint8_t             # <<<<<<<<<<<<<<
@@ -1098,7 +1098,7 @@ typedef npy_int64 __pyx_t_5numpy_int64_t;
  */
 typedef npy_uint8 __pyx_t_5numpy_uint8_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":698
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":698
  * 
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t             # <<<<<<<<<<<<<<
@@ -1107,7 +1107,7 @@ typedef npy_uint8 __pyx_t_5numpy_uint8_t;
  */
 typedef npy_uint16 __pyx_t_5numpy_uint16_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":699
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":699
  * ctypedef npy_uint8      uint8_t
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t             # <<<<<<<<<<<<<<
@@ -1116,7 +1116,7 @@ typedef npy_uint16 __pyx_t_5numpy_uint16_t;
  */
 typedef npy_uint32 __pyx_t_5numpy_uint32_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":700
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":700
  * ctypedef npy_uint16     uint16_t
  * ctypedef npy_uint32     uint32_t
  * ctypedef npy_uint64     uint64_t             # <<<<<<<<<<<<<<
@@ -1125,7 +1125,7 @@ typedef npy_uint32 __pyx_t_5numpy_uint32_t;
  */
 typedef npy_uint64 __pyx_t_5numpy_uint64_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":704
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":704
  * #ctypedef npy_uint128    uint128_t
  * 
  * ctypedef npy_float32    float32_t             # <<<<<<<<<<<<<<
@@ -1134,7 +1134,7 @@ typedef npy_uint64 __pyx_t_5numpy_uint64_t;
  */
 typedef npy_float32 __pyx_t_5numpy_float32_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":705
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":705
  * 
  * ctypedef npy_float32    float32_t
  * ctypedef npy_float64    float64_t             # <<<<<<<<<<<<<<
@@ -1143,7 +1143,7 @@ typedef npy_float32 __pyx_t_5numpy_float32_t;
  */
 typedef npy_float64 __pyx_t_5numpy_float64_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":714
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":714
  * # The int types are mapped a bit surprising --
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t             # <<<<<<<<<<<<<<
@@ -1152,7 +1152,7 @@ typedef npy_float64 __pyx_t_5numpy_float64_t;
  */
 typedef npy_long __pyx_t_5numpy_int_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":715
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":715
  * # numpy.int corresponds to 'l' and numpy.long to 'q'
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   long_t             # <<<<<<<<<<<<<<
@@ -1161,7 +1161,7 @@ typedef npy_long __pyx_t_5numpy_int_t;
  */
 typedef npy_longlong __pyx_t_5numpy_long_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":716
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":716
  * ctypedef npy_long       int_t
  * ctypedef npy_longlong   long_t
  * ctypedef npy_longlong   longlong_t             # <<<<<<<<<<<<<<
@@ -1170,7 +1170,7 @@ typedef npy_longlong __pyx_t_5numpy_long_t;
  */
 typedef npy_longlong __pyx_t_5numpy_longlong_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":718
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":718
  * ctypedef npy_longlong   longlong_t
  * 
  * ctypedef npy_ulong      uint_t             # <<<<<<<<<<<<<<
@@ -1179,7 +1179,7 @@ typedef npy_longlong __pyx_t_5numpy_longlong_t;
  */
 typedef npy_ulong __pyx_t_5numpy_uint_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":719
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":719
  * 
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulong_t             # <<<<<<<<<<<<<<
@@ -1188,7 +1188,7 @@ typedef npy_ulong __pyx_t_5numpy_uint_t;
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulong_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":720
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":720
  * ctypedef npy_ulong      uint_t
  * ctypedef npy_ulonglong  ulong_t
  * ctypedef npy_ulonglong  ulonglong_t             # <<<<<<<<<<<<<<
@@ -1197,7 +1197,7 @@ typedef npy_ulonglong __pyx_t_5numpy_ulong_t;
  */
 typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":722
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":722
  * ctypedef npy_ulonglong  ulonglong_t
  * 
  * ctypedef npy_intp       intp_t             # <<<<<<<<<<<<<<
@@ -1206,7 +1206,7 @@ typedef npy_ulonglong __pyx_t_5numpy_ulonglong_t;
  */
 typedef npy_intp __pyx_t_5numpy_intp_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":723
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":723
  * 
  * ctypedef npy_intp       intp_t
  * ctypedef npy_uintp      uintp_t             # <<<<<<<<<<<<<<
@@ -1215,7 +1215,7 @@ typedef npy_intp __pyx_t_5numpy_intp_t;
  */
 typedef npy_uintp __pyx_t_5numpy_uintp_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":725
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":725
  * ctypedef npy_uintp      uintp_t
  * 
  * ctypedef npy_double     float_t             # <<<<<<<<<<<<<<
@@ -1224,7 +1224,7 @@ typedef npy_uintp __pyx_t_5numpy_uintp_t;
  */
 typedef npy_double __pyx_t_5numpy_float_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":726
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":726
  * 
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t             # <<<<<<<<<<<<<<
@@ -1233,7 +1233,7 @@ typedef npy_double __pyx_t_5numpy_float_t;
  */
 typedef npy_double __pyx_t_5numpy_double_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":727
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":727
  * ctypedef npy_double     float_t
  * ctypedef npy_double     double_t
  * ctypedef npy_longdouble longdouble_t             # <<<<<<<<<<<<<<
@@ -1272,7 +1272,7 @@ struct __pyx_MemviewEnum_obj;
 struct __pyx_memoryview_obj;
 struct __pyx_memoryviewslice_obj;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":729
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":729
  * ctypedef npy_longdouble longdouble_t
  * 
  * ctypedef npy_cfloat      cfloat_t             # <<<<<<<<<<<<<<
@@ -1281,7 +1281,7 @@ struct __pyx_memoryviewslice_obj;
  */
 typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":730
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":730
  * 
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t             # <<<<<<<<<<<<<<
@@ -1290,7 +1290,7 @@ typedef npy_cfloat __pyx_t_5numpy_cfloat_t;
  */
 typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":731
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":731
  * ctypedef npy_cfloat      cfloat_t
  * ctypedef npy_cdouble     cdouble_t
  * ctypedef npy_clongdouble clongdouble_t             # <<<<<<<<<<<<<<
@@ -1299,7 +1299,7 @@ typedef npy_cdouble __pyx_t_5numpy_cdouble_t;
  */
 typedef npy_clongdouble __pyx_t_5numpy_clongdouble_t;
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":733
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":733
  * ctypedef npy_clongdouble clongdouble_t
  * 
  * ctypedef npy_cdouble     complex_t             # <<<<<<<<<<<<<<
@@ -2223,7 +2223,7 @@ static PyTypeObject *__pyx_ptype_5numpy_ufunc = 0;
 
 /* Module declarations from 'libc.stdlib' */
 
-/* Module declarations from 'parse_conf' */
+/* Module declarations from 'oxDNA_analysis_tools.UTILS.get_confs' */
 static PyTypeObject *__pyx_array_type = 0;
 static PyTypeObject *__pyx_MemviewEnum_type = 0;
 static PyTypeObject *__pyx_memoryview_type = 0;
@@ -2235,7 +2235,7 @@ static PyObject *contiguous = 0;
 static PyObject *indirect_contiguous = 0;
 static int __pyx_memoryview_thread_locks_used;
 static PyThread_type_lock __pyx_memoryview_thread_locks[8];
-static PyObject *__pyx_f_10parse_conf_parse_conf(char *, int, int, int); /*proto*/
+static PyObject *__pyx_f_20oxDNA_analysis_tools_5UTILS_9get_confs_parse_conf(char *, int, int, int); /*proto*/
 static struct __pyx_array_obj *__pyx_array_new(PyObject *, Py_ssize_t, char *, char *, char *); /*proto*/
 static void *__pyx_align_pointer(void *, size_t); /*proto*/
 static PyObject *__pyx_memoryview_new(PyObject *, int, int, __Pyx_TypeInfo *); /*proto*/
@@ -2271,11 +2271,11 @@ static void __pyx_memoryview__slice_assign_scalar(char *, Py_ssize_t *, Py_ssize
 static PyObject *__pyx_unpickle_Enum__set_state(struct __pyx_MemviewEnum_obj *, PyObject *); /*proto*/
 static PyObject *__pyx_format_from_typeinfo(__Pyx_TypeInfo *); /*proto*/
 static __Pyx_TypeInfo __Pyx_TypeInfo_double = { "double", NULL, sizeof(double), { 0 }, 0, 'R', 0, 0 };
-#define __Pyx_MODULE_NAME "parse_conf"
-extern int __pyx_module_is_main_parse_conf;
-int __pyx_module_is_main_parse_conf = 0;
+#define __Pyx_MODULE_NAME "oxDNA_analysis_tools.UTILS.get_confs"
+extern int __pyx_module_is_main_oxDNA_analysis_tools__UTILS__get_confs;
+int __pyx_module_is_main_oxDNA_analysis_tools__UTILS__get_confs = 0;
 
-/* Implementation of 'parse_conf' */
+/* Implementation of 'oxDNA_analysis_tools.UTILS.get_confs' */
 static PyObject *__pyx_builtin_MemoryError;
 static PyObject *__pyx_builtin_range;
 static PyObject *__pyx_builtin_print;
@@ -2357,7 +2357,6 @@ static const char __pyx_k_IndexError[] = "IndexError";
 static const char __pyx_k_ValueError[] = "ValueError";
 static const char __pyx_k_chunk_size[] = "chunk_size";
 static const char __pyx_k_conf_count[] = "conf_count";
-static const char __pyx_k_parse_conf[] = "parse_conf";
 static const char __pyx_k_pyx_result[] = "__pyx_result";
 static const char __pyx_k_pyx_vtable[] = "__pyx_vtable__";
 static const char __pyx_k_ImportError[] = "ImportError";
@@ -2370,7 +2369,6 @@ static const char __pyx_k_stringsource[] = "stringsource";
 static const char __pyx_k_Configuration[] = "Configuration";
 static const char __pyx_k_pyx_getbuffer[] = "__pyx_getbuffer";
 static const char __pyx_k_reduce_cython[] = "__reduce_cython__";
-static const char __pyx_k_parse_conf_pyx[] = "parse_conf.pyx";
 static const char __pyx_k_View_MemoryView[] = "View.MemoryView";
 static const char __pyx_k_allocate_buffer[] = "allocate_buffer";
 static const char __pyx_k_dtype_is_object[] = "dtype_is_object";
@@ -2390,6 +2388,7 @@ static const char __pyx_k_itemsize_0_for_cython_array[] = "itemsize <= 0 for cyt
 static const char __pyx_k_unable_to_allocate_array_data[] = "unable to allocate array data.";
 static const char __pyx_k_strided_and_direct_or_indirect[] = "<strided and direct or indirect>";
 static const char __pyx_k_numpy_core_multiarray_failed_to[] = "numpy.core.multiarray failed to import";
+static const char __pyx_k_src_oxDNA_analysis_tools_cython[] = "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx";
 static const char __pyx_k_Buffer_view_does_not_expose_stri[] = "Buffer view does not expose strides";
 static const char __pyx_k_Can_only_create_a_buffer_that_is[] = "Can only create a buffer that is contiguous in memory.";
 static const char __pyx_k_Cannot_assign_to_read_only_memor[] = "Cannot assign to read-only memoryview";
@@ -2406,6 +2405,7 @@ static const char __pyx_k_got_differing_extents_in_dimensi[] = "got differing ex
 static const char __pyx_k_no_default___reduce___due_to_non[] = "no default __reduce__ due to non-trivial __cinit__";
 static const char __pyx_k_numpy_core_umath_failed_to_impor[] = "numpy.core.umath failed to import";
 static const char __pyx_k_oxDNA_analysis_tools_UTILS_RyeRe[] = "oxDNA_analysis_tools.UTILS.RyeReader";
+static const char __pyx_k_oxDNA_analysis_tools_UTILS_get_c[] = "oxDNA_analysis_tools.UTILS.get_confs";
 static const char __pyx_k_unable_to_allocate_shape_and_str[] = "unable to allocate shape and strides.";
 static PyObject *__pyx_n_s_ASCII;
 static PyObject *__pyx_kp_s_Buffer_view_does_not_expose_stri;
@@ -2490,9 +2490,8 @@ static PyObject *__pyx_kp_u_numpy_core_umath_failed_to_impor;
 static PyObject *__pyx_n_s_obj;
 static PyObject *__pyx_n_s_offset;
 static PyObject *__pyx_n_s_oxDNA_analysis_tools_UTILS_RyeRe;
+static PyObject *__pyx_n_s_oxDNA_analysis_tools_UTILS_get_c;
 static PyObject *__pyx_n_s_pack;
-static PyObject *__pyx_n_s_parse_conf;
-static PyObject *__pyx_kp_s_parse_conf_pyx;
 static PyObject *__pyx_n_s_pickle;
 static PyObject *__pyx_n_s_print;
 static PyObject *__pyx_n_s_pyx_PickleError;
@@ -2514,6 +2513,7 @@ static PyObject *__pyx_n_s_setstate_cython;
 static PyObject *__pyx_n_s_shape;
 static PyObject *__pyx_n_s_size;
 static PyObject *__pyx_n_s_sizes;
+static PyObject *__pyx_kp_s_src_oxDNA_analysis_tools_cython;
 static PyObject *__pyx_n_s_start;
 static PyObject *__pyx_n_s_step;
 static PyObject *__pyx_n_s_stop;
@@ -2530,7 +2530,7 @@ static PyObject *__pyx_kp_s_unable_to_allocate_array_data;
 static PyObject *__pyx_kp_s_unable_to_allocate_shape_and_str;
 static PyObject *__pyx_n_s_unpack;
 static PyObject *__pyx_n_s_update;
-static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_idxs, PyObject *__pyx_v_traj_path, int __pyx_v_start, int __pyx_v_nconfs, int __pyx_v_nbases); /* proto */
+static PyObject *__pyx_pf_20oxDNA_analysis_tools_5UTILS_9get_confs_get_confs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_idxs, PyObject *__pyx_v_traj_path, int __pyx_v_start, int __pyx_v_nconfs, int __pyx_v_nbases); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array___cinit__(struct __pyx_array_obj *__pyx_v_self, PyObject *__pyx_v_shape, Py_ssize_t __pyx_v_itemsize, PyObject *__pyx_v_format, PyObject *__pyx_v_mode, int __pyx_v_allocate_buffer); /* proto */
 static int __pyx_array___pyx_pf_15View_dot_MemoryView_5array_2__getbuffer__(struct __pyx_array_obj *__pyx_v_self, Py_buffer *__pyx_v_info, int __pyx_v_flags); /* proto */
 static void __pyx_array___pyx_pf_15View_dot_MemoryView_5array_4__dealloc__(struct __pyx_array_obj *__pyx_v_self); /* proto */
@@ -2613,7 +2613,7 @@ static PyObject *__pyx_codeobj__28;
 static PyObject *__pyx_codeobj__35;
 /* Late includes */
 
-/* "parse_conf.pyx":13
+/* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":13
  * @cython.boundscheck(False)
  * 
  * def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):             # <<<<<<<<<<<<<<
@@ -2622,9 +2622,9 @@ static PyObject *__pyx_codeobj__35;
  */
 
 /* Python wrapper */
-static PyObject *__pyx_pw_10parse_conf_1get_confs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
-static PyMethodDef __pyx_mdef_10parse_conf_1get_confs = {"get_confs", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_10parse_conf_1get_confs, METH_VARARGS|METH_KEYWORDS, 0};
-static PyObject *__pyx_pw_10parse_conf_1get_confs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
+static PyObject *__pyx_pw_20oxDNA_analysis_tools_5UTILS_9get_confs_1get_confs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds); /*proto*/
+static PyMethodDef __pyx_mdef_20oxDNA_analysis_tools_5UTILS_9get_confs_1get_confs = {"get_confs", (PyCFunction)(void*)(PyCFunctionWithKeywords)__pyx_pw_20oxDNA_analysis_tools_5UTILS_9get_confs_1get_confs, METH_VARARGS|METH_KEYWORDS, 0};
+static PyObject *__pyx_pw_20oxDNA_analysis_tools_5UTILS_9get_confs_1get_confs(PyObject *__pyx_self, PyObject *__pyx_args, PyObject *__pyx_kwds) {
   PyObject *__pyx_v_idxs = 0;
   PyObject *__pyx_v_traj_path = 0;
   int __pyx_v_start;
@@ -2708,13 +2708,13 @@ static PyObject *__pyx_pw_10parse_conf_1get_confs(PyObject *__pyx_self, PyObject
   __pyx_L5_argtuple_error:;
   __Pyx_RaiseArgtupleInvalid("get_confs", 1, 5, 5, PyTuple_GET_SIZE(__pyx_args)); __PYX_ERR(0, 13, __pyx_L3_error)
   __pyx_L3_error:;
-  __Pyx_AddTraceback("parse_conf.get_confs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("oxDNA_analysis_tools.UTILS.get_confs.get_confs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __Pyx_RefNannyFinishContext();
   return NULL;
   __pyx_L4_argument_unpacking_done:;
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_idxs), (&PyList_Type), 1, "idxs", 1))) __PYX_ERR(0, 13, __pyx_L1_error)
   if (unlikely(!__Pyx_ArgTypeTest(((PyObject *)__pyx_v_traj_path), (&PyUnicode_Type), 1, "traj_path", 1))) __PYX_ERR(0, 13, __pyx_L1_error)
-  __pyx_r = __pyx_pf_10parse_conf_get_confs(__pyx_self, __pyx_v_idxs, __pyx_v_traj_path, __pyx_v_start, __pyx_v_nconfs, __pyx_v_nbases);
+  __pyx_r = __pyx_pf_20oxDNA_analysis_tools_5UTILS_9get_confs_get_confs(__pyx_self, __pyx_v_idxs, __pyx_v_traj_path, __pyx_v_start, __pyx_v_nconfs, __pyx_v_nbases);
 
   /* function exit code */
   goto __pyx_L0;
@@ -2725,7 +2725,7 @@ static PyObject *__pyx_pw_10parse_conf_1get_confs(PyObject *__pyx_self, PyObject
   return __pyx_r;
 }
 
-static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_idxs, PyObject *__pyx_v_traj_path, int __pyx_v_start, int __pyx_v_nconfs, int __pyx_v_nbases) {
+static PyObject *__pyx_pf_20oxDNA_analysis_tools_5UTILS_9get_confs_get_confs(CYTHON_UNUSED PyObject *__pyx_self, PyObject *__pyx_v_idxs, PyObject *__pyx_v_traj_path, int __pyx_v_start, int __pyx_v_nconfs, int __pyx_v_nbases) {
   int __pyx_v_conf_count;
   int *__pyx_v_sizes;
   int *__pyx_v_conf_starts;
@@ -2756,7 +2756,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("get_confs", 0);
 
-  /* "parse_conf.pyx":15
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":15
  * def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
  *     # Number of configurations to read
  *     cdef int conf_count = len(idxs)             # <<<<<<<<<<<<<<
@@ -2770,7 +2770,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_1 = PyList_GET_SIZE(__pyx_v_idxs); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 15, __pyx_L1_error)
   __pyx_v_conf_count = __pyx_t_1;
 
-  /* "parse_conf.pyx":16
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":16
  *     # Number of configurations to read
  *     cdef int conf_count = len(idxs)
  *     if (start+nconfs >= conf_count):             # <<<<<<<<<<<<<<
@@ -2780,7 +2780,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_2 = (((__pyx_v_start + __pyx_v_nconfs) >= __pyx_v_conf_count) != 0);
   if (__pyx_t_2) {
 
-    /* "parse_conf.pyx":17
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":17
  *     cdef int conf_count = len(idxs)
  *     if (start+nconfs >= conf_count):
  *         nconfs = conf_count - start             # <<<<<<<<<<<<<<
@@ -2789,7 +2789,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
     __pyx_v_nconfs = (__pyx_v_conf_count - __pyx_v_start);
 
-    /* "parse_conf.pyx":16
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":16
  *     # Number of configurations to read
  *     cdef int conf_count = len(idxs)
  *     if (start+nconfs >= conf_count):             # <<<<<<<<<<<<<<
@@ -2798,7 +2798,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   }
 
-  /* "parse_conf.pyx":20
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":20
  * 
  *     # Configuration start/size markers within the chunk
  *     cdef int *sizes = <int *> malloc(nconfs * sizeof(int))             # <<<<<<<<<<<<<<
@@ -2807,7 +2807,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_sizes = ((int *)malloc((__pyx_v_nconfs * (sizeof(int)))));
 
-  /* "parse_conf.pyx":21
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":21
  *     # Configuration start/size markers within the chunk
  *     cdef int *sizes = <int *> malloc(nconfs * sizeof(int))
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))             # <<<<<<<<<<<<<<
@@ -2816,7 +2816,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_conf_starts = ((int *)malloc((__pyx_v_nconfs * (sizeof(int)))));
 
-  /* "parse_conf.pyx":22
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":22
  *     cdef int *sizes = <int *> malloc(nconfs * sizeof(int))
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
  *     if not sizes or not conf_starts:             # <<<<<<<<<<<<<<
@@ -2834,7 +2834,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_L5_bool_binop_done:;
   if (unlikely(__pyx_t_2)) {
 
-    /* "parse_conf.pyx":23
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":23
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
  *     if not sizes or not conf_starts:
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")             # <<<<<<<<<<<<<<
@@ -2847,7 +2847,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __PYX_ERR(0, 23, __pyx_L1_error)
 
-    /* "parse_conf.pyx":22
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":22
  *     cdef int *sizes = <int *> malloc(nconfs * sizeof(int))
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
  *     if not sizes or not conf_starts:             # <<<<<<<<<<<<<<
@@ -2856,7 +2856,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   }
 
-  /* "parse_conf.pyx":24
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":24
  *     if not sizes or not conf_starts:
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")
  *     cdef int chunk_size = 0             # <<<<<<<<<<<<<<
@@ -2865,7 +2865,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_chunk_size = 0;
 
-  /* "parse_conf.pyx":25
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":25
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")
  *     cdef int chunk_size = 0
  *     for i in range(nconfs):             # <<<<<<<<<<<<<<
@@ -2920,7 +2920,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_5);
     __pyx_t_5 = 0;
 
-    /* "parse_conf.pyx":26
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":26
  *     cdef int chunk_size = 0
  *     for i in range(nconfs):
  *         sizes[i] = idxs[start+i].size             # <<<<<<<<<<<<<<
@@ -2947,7 +2947,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 26, __pyx_L1_error)
     (__pyx_v_sizes[__pyx_t_9]) = __pyx_t_8;
 
-    /* "parse_conf.pyx":27
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":27
  *     for i in range(nconfs):
  *         sizes[i] = idxs[start+i].size
  *         chunk_size += sizes[i]             # <<<<<<<<<<<<<<
@@ -2957,7 +2957,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 27, __pyx_L1_error)
     __pyx_v_chunk_size = (__pyx_v_chunk_size + (__pyx_v_sizes[__pyx_t_9]));
 
-    /* "parse_conf.pyx":28
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":28
  *         sizes[i] = idxs[start+i].size
  *         chunk_size += sizes[i]
  *         conf_starts[i] = idxs[start+i].offset - idxs[start].offset             # <<<<<<<<<<<<<<
@@ -2994,7 +2994,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 28, __pyx_L1_error)
     (__pyx_v_conf_starts[__pyx_t_9]) = __pyx_t_8;
 
-    /* "parse_conf.pyx":25
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":25
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")
  *     cdef int chunk_size = 0
  *     for i in range(nconfs):             # <<<<<<<<<<<<<<
@@ -3004,7 +3004,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   }
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "parse_conf.pyx":32
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":32
  * 
  *     # Convert the path to something C can open
  *     cdef char *traj_path_c = <char *>malloc(len(traj_path)+1)             # <<<<<<<<<<<<<<
@@ -3018,7 +3018,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_1 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_traj_path); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 32, __pyx_L1_error)
   __pyx_v_traj_path_c = ((char *)malloc((__pyx_t_1 + 1)));
 
-  /* "parse_conf.pyx":33
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":33
  *     # Convert the path to something C can open
  *     cdef char *traj_path_c = <char *>malloc(len(traj_path)+1)
  *     strcpy(traj_path_c, traj_path.encode('utf-8'))             # <<<<<<<<<<<<<<
@@ -3035,7 +3035,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   (void)(strcpy(__pyx_v_traj_path_c, __pyx_t_11));
   __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
 
-  /* "parse_conf.pyx":34
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":34
  *     cdef char *traj_path_c = <char *>malloc(len(traj_path)+1)
  *     strcpy(traj_path_c, traj_path.encode('utf-8'))
  *     traj_path_c[len(traj_path)] = b'\0'             # <<<<<<<<<<<<<<
@@ -3049,7 +3049,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_1 = __Pyx_PyUnicode_GET_LENGTH(__pyx_v_traj_path); if (unlikely(__pyx_t_1 == ((Py_ssize_t)-1))) __PYX_ERR(0, 34, __pyx_L1_error)
   (__pyx_v_traj_path_c[__pyx_t_1]) = '\x00';
 
-  /* "parse_conf.pyx":35
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":35
  *     strcpy(traj_path_c, traj_path.encode('utf-8'))
  *     traj_path_c[len(traj_path)] = b'\0'
  *     cdef FILE *traj_file = fopen(traj_path_c, "rb")             # <<<<<<<<<<<<<<
@@ -3058,7 +3058,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_traj_file = fopen(__pyx_v_traj_path_c, ((char const *)"rb"));
 
-  /* "parse_conf.pyx":36
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":36
  *     traj_path_c[len(traj_path)] = b'\0'
  *     cdef FILE *traj_file = fopen(traj_path_c, "rb")
  *     if traj_file == NULL:             # <<<<<<<<<<<<<<
@@ -3068,7 +3068,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_t_2 = ((__pyx_v_traj_file == NULL) != 0);
   if (__pyx_t_2) {
 
-    /* "parse_conf.pyx":37
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":37
  *     cdef FILE *traj_file = fopen(traj_path_c, "rb")
  *     if traj_file == NULL:
  *         print("Could not open trajectory file %s" % traj_path)             # <<<<<<<<<<<<<<
@@ -3082,7 +3082,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __Pyx_DECREF(__pyx_t_4); __pyx_t_4 = 0;
     __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-    /* "parse_conf.pyx":38
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":38
  *     if traj_file == NULL:
  *         print("Could not open trajectory file %s" % traj_path)
  *         return             # <<<<<<<<<<<<<<
@@ -3093,7 +3093,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "parse_conf.pyx":36
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":36
  *     traj_path_c[len(traj_path)] = b'\0'
  *     cdef FILE *traj_file = fopen(traj_path_c, "rb")
  *     if traj_file == NULL:             # <<<<<<<<<<<<<<
@@ -3102,7 +3102,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   }
 
-  /* "parse_conf.pyx":39
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":39
  *         print("Could not open trajectory file %s" % traj_path)
  *         return
  *     fseek(traj_file, idxs[start].offset, 1)             # <<<<<<<<<<<<<<
@@ -3119,7 +3119,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
   (void)(fseek(__pyx_v_traj_file, __pyx_t_12, 1));
 
-  /* "parse_conf.pyx":42
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":42
  * 
  *     # Read in the current chunk
  *     cdef const char *chunk = <char *>malloc(chunk_size)             # <<<<<<<<<<<<<<
@@ -3128,7 +3128,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   __pyx_v_chunk = ((char *)malloc(__pyx_v_chunk_size));
 
-  /* "parse_conf.pyx":43
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":43
  *     # Read in the current chunk
  *     cdef const char *chunk = <char *>malloc(chunk_size)
  *     fread(chunk, chunk_size, 1, traj_file)             # <<<<<<<<<<<<<<
@@ -3137,7 +3137,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   (void)(fread(__pyx_v_chunk, __pyx_v_chunk_size, 1, __pyx_v_traj_file));
 
-  /* "parse_conf.pyx":46
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":46
  * 
  *     # Parse the chunk into Configurations
  *     cdef list confs = [None]*nconfs             # <<<<<<<<<<<<<<
@@ -3156,7 +3156,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_v_confs = ((PyObject*)__pyx_t_10);
   __pyx_t_10 = 0;
 
-  /* "parse_conf.pyx":47
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":47
  *     # Parse the chunk into Configurations
  *     cdef list confs = [None]*nconfs
  *     for i in range(nconfs):             # <<<<<<<<<<<<<<
@@ -3211,7 +3211,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
     __Pyx_XDECREF_SET(__pyx_v_i, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "parse_conf.pyx":48
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":48
  *     cdef list confs = [None]*nconfs
  *     for i in range(nconfs):
  *         c = parse_conf(chunk, conf_starts[i], sizes[i], nbases)             # <<<<<<<<<<<<<<
@@ -3220,12 +3220,12 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
     __pyx_t_9 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_9 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L1_error)
     __pyx_t_13 = __Pyx_PyIndex_AsSsize_t(__pyx_v_i); if (unlikely((__pyx_t_13 == (Py_ssize_t)-1) && PyErr_Occurred())) __PYX_ERR(0, 48, __pyx_L1_error)
-    __pyx_t_4 = __pyx_f_10parse_conf_parse_conf(__pyx_v_chunk, (__pyx_v_conf_starts[__pyx_t_9]), (__pyx_v_sizes[__pyx_t_13]), __pyx_v_nbases); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 48, __pyx_L1_error)
+    __pyx_t_4 = __pyx_f_20oxDNA_analysis_tools_5UTILS_9get_confs_parse_conf(__pyx_v_chunk, (__pyx_v_conf_starts[__pyx_t_9]), (__pyx_v_sizes[__pyx_t_13]), __pyx_v_nbases); if (unlikely(!__pyx_t_4)) __PYX_ERR(0, 48, __pyx_L1_error)
     __Pyx_GOTREF(__pyx_t_4);
     __Pyx_XDECREF_SET(__pyx_v_c, __pyx_t_4);
     __pyx_t_4 = 0;
 
-    /* "parse_conf.pyx":49
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":49
  *     for i in range(nconfs):
  *         c = parse_conf(chunk, conf_starts[i], sizes[i], nbases)
  *         confs[i] = c             # <<<<<<<<<<<<<<
@@ -3234,7 +3234,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
     if (unlikely(PyObject_SetItem(__pyx_v_confs, __pyx_v_i, __pyx_v_c) < 0)) __PYX_ERR(0, 49, __pyx_L1_error)
 
-    /* "parse_conf.pyx":47
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":47
  *     # Parse the chunk into Configurations
  *     cdef list confs = [None]*nconfs
  *     for i in range(nconfs):             # <<<<<<<<<<<<<<
@@ -3244,7 +3244,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   }
   __Pyx_DECREF(__pyx_t_10); __pyx_t_10 = 0;
 
-  /* "parse_conf.pyx":51
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":51
  *         confs[i] = c
  * 
  *     fclose(traj_file)             # <<<<<<<<<<<<<<
@@ -3253,7 +3253,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   (void)(fclose(__pyx_v_traj_file));
 
-  /* "parse_conf.pyx":52
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":52
  * 
  *     fclose(traj_file)
  *     free(chunk)             # <<<<<<<<<<<<<<
@@ -3262,7 +3262,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   free(__pyx_v_chunk);
 
-  /* "parse_conf.pyx":53
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":53
  *     fclose(traj_file)
  *     free(chunk)
  *     free(traj_path_c)             # <<<<<<<<<<<<<<
@@ -3271,7 +3271,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   free(__pyx_v_traj_path_c);
 
-  /* "parse_conf.pyx":54
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":54
  *     free(chunk)
  *     free(traj_path_c)
  *     free(sizes)             # <<<<<<<<<<<<<<
@@ -3280,7 +3280,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   free(__pyx_v_sizes);
 
-  /* "parse_conf.pyx":55
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":55
  *     free(traj_path_c)
  *     free(sizes)
  *     free(conf_starts)             # <<<<<<<<<<<<<<
@@ -3289,7 +3289,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  */
   free(__pyx_v_conf_starts);
 
-  /* "parse_conf.pyx":57
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":57
  *     free(conf_starts)
  * 
  *     return confs             # <<<<<<<<<<<<<<
@@ -3301,7 +3301,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __pyx_r = __pyx_v_confs;
   goto __pyx_L0;
 
-  /* "parse_conf.pyx":13
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":13
  * @cython.boundscheck(False)
  * 
  * def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):             # <<<<<<<<<<<<<<
@@ -3315,7 +3315,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   __Pyx_XDECREF(__pyx_t_5);
   __Pyx_XDECREF(__pyx_t_7);
   __Pyx_XDECREF(__pyx_t_10);
-  __Pyx_AddTraceback("parse_conf.get_confs", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("oxDNA_analysis_tools.UTILS.get_confs.get_confs", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = NULL;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_i);
@@ -3326,7 +3326,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
   return __pyx_r;
 }
 
-/* "parse_conf.pyx":59
+/* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":59
  *     return confs
  * 
  * cdef parse_conf(char *chunk, int start_byte, int size, int nbases):             # <<<<<<<<<<<<<<
@@ -3334,7 +3334,7 @@ static PyObject *__pyx_pf_10parse_conf_get_confs(CYTHON_UNUSED PyObject *__pyx_s
  *     cdef int time
  */
 
-static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_v_start_byte, CYTHON_UNUSED int __pyx_v_size, int __pyx_v_nbases) {
+static PyObject *__pyx_f_20oxDNA_analysis_tools_5UTILS_9get_confs_parse_conf(char *__pyx_v_chunk, int __pyx_v_start_byte, CYTHON_UNUSED int __pyx_v_size, int __pyx_v_nbases) {
   int __pyx_v_THREE;
   int __pyx_v_time;
   double *__pyx_v_cbox;
@@ -3371,7 +3371,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("parse_conf", 0);
 
-  /* "parse_conf.pyx":60
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":60
  * 
  * cdef parse_conf(char *chunk, int start_byte, int size, int nbases):
  *     cdef int THREE = 3             # <<<<<<<<<<<<<<
@@ -3380,7 +3380,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_THREE = 3;
 
-  /* "parse_conf.pyx":64
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":64
  * 
  *     #allocate some memory for our configuration
  *     cdef double *cbox = <double *> malloc(THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3389,7 +3389,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_cbox = ((double *)malloc((__pyx_v_THREE * (sizeof(double)))));
 
-  /* "parse_conf.pyx":65
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":65
  *     #allocate some memory for our configuration
  *     cdef double *cbox = <double *> malloc(THREE * sizeof(double))
  *     cdef double *cenergy = <double *> malloc(THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3398,7 +3398,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_cenergy = ((double *)malloc((__pyx_v_THREE * (sizeof(double)))));
 
-  /* "parse_conf.pyx":66
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":66
  *     cdef double *cbox = <double *> malloc(THREE * sizeof(double))
  *     cdef double *cenergy = <double *> malloc(THREE * sizeof(double))
  *     cdef double *cposes = <double *> malloc(nbases * THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3407,7 +3407,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_cposes = ((double *)malloc(((__pyx_v_nbases * __pyx_v_THREE) * (sizeof(double)))));
 
-  /* "parse_conf.pyx":67
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":67
  *     cdef double *cenergy = <double *> malloc(THREE * sizeof(double))
  *     cdef double *cposes = <double *> malloc(nbases * THREE * sizeof(double))
  *     cdef double *ca1s = <double *> malloc(nbases * THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3416,7 +3416,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ca1s = ((double *)malloc(((__pyx_v_nbases * __pyx_v_THREE) * (sizeof(double)))));
 
-  /* "parse_conf.pyx":68
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":68
  *     cdef double *cposes = <double *> malloc(nbases * THREE * sizeof(double))
  *     cdef double *ca1s = <double *> malloc(nbases * THREE * sizeof(double))
  *     cdef double *ca3s = <double *> malloc(nbases * THREE * sizeof(double))             # <<<<<<<<<<<<<<
@@ -3425,7 +3425,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ca3s = ((double *)malloc(((__pyx_v_nbases * __pyx_v_THREE) * (sizeof(double)))));
 
-  /* "parse_conf.pyx":70
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":70
  *     cdef double *ca3s = <double *> malloc(nbases * THREE * sizeof(double))
  * 
  *     cdef int j = 0             # <<<<<<<<<<<<<<
@@ -3434,7 +3434,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_j = 0;
 
-  /* "parse_conf.pyx":71
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":71
  * 
  *     cdef int j = 0
  *     cdef int i = 0             # <<<<<<<<<<<<<<
@@ -3443,7 +3443,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_i = 0;
 
-  /* "parse_conf.pyx":74
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":74
  * 
  *     # Get a pointer to the start of the configuration
  *     cdef const char *ptr = chunk + start_byte             # <<<<<<<<<<<<<<
@@ -3452,7 +3452,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = (__pyx_v_chunk + __pyx_v_start_byte);
 
-  /* "parse_conf.pyx":77
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":77
  * 
  *     # Get the time
  *     ptr = strtok(ptr, 't = ')             # <<<<<<<<<<<<<<
@@ -3461,7 +3461,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(__pyx_v_ptr, ((char const *)"t = "));
 
-  /* "parse_conf.pyx":78
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":78
  *     # Get the time
  *     ptr = strtok(ptr, 't = ')
  *     time = atoi(ptr)             # <<<<<<<<<<<<<<
@@ -3470,7 +3470,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_time = atoi(__pyx_v_ptr);
 
-  /* "parse_conf.pyx":82
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":82
  *     # Get the box and energy
  *     # The energy can't be in a loop because of the format change between it and the conf lines.
  *     ptr = strtok(NULL, '= ')             # <<<<<<<<<<<<<<
@@ -3479,7 +3479,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(NULL, ((char const *)"= "));
 
-  /* "parse_conf.pyx":84
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":84
  *     ptr = strtok(NULL, '= ')
  * 
  *     for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -3491,7 +3491,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_j = __pyx_t_3;
 
-    /* "parse_conf.pyx":85
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":85
  * 
  *     for j in range(THREE):
  *         cbox[j] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3500,7 +3500,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
     (__pyx_v_cbox[__pyx_v_j]) = atof(__pyx_v_ptr);
 
-    /* "parse_conf.pyx":86
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":86
  *     for j in range(THREE):
  *         cbox[j] = atof(ptr)
  *         ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3510,7 +3510,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     __pyx_v_ptr = strtok(NULL, ((char const *)" "));
   }
 
-  /* "parse_conf.pyx":87
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":87
  *         cbox[j] = atof(ptr)
  *         ptr = strtok(NULL, ' ')
  *     ptr = strtok(NULL, ' \n')             # <<<<<<<<<<<<<<
@@ -3519,7 +3519,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(NULL, ((char const *)" \n"));
 
-  /* "parse_conf.pyx":89
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":89
  *     ptr = strtok(NULL, ' \n')
  * 
  *     cenergy[0] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3528,7 +3528,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   (__pyx_v_cenergy[0]) = atof(__pyx_v_ptr);
 
-  /* "parse_conf.pyx":90
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":90
  * 
  *     cenergy[0] = atof(ptr)
  *     ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3537,7 +3537,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(NULL, ((char const *)" "));
 
-  /* "parse_conf.pyx":91
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":91
  *     cenergy[0] = atof(ptr)
  *     ptr = strtok(NULL, ' ')
  *     cenergy[1] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3546,7 +3546,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   (__pyx_v_cenergy[1]) = atof(__pyx_v_ptr);
 
-  /* "parse_conf.pyx":92
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":92
  *     ptr = strtok(NULL, ' ')
  *     cenergy[1] = atof(ptr)
  *     ptr = strtok(NULL, ' \n')             # <<<<<<<<<<<<<<
@@ -3555,7 +3555,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   __pyx_v_ptr = strtok(NULL, ((char const *)" \n"));
 
-  /* "parse_conf.pyx":93
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":93
  *     cenergy[1] = atof(ptr)
  *     ptr = strtok(NULL, ' \n')
  *     cenergy[2] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3564,7 +3564,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
   (__pyx_v_cenergy[2]) = atof(__pyx_v_ptr);
 
-  /* "parse_conf.pyx":96
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":96
  * 
  *     # Parse the configuration itself
  *     for i in range(nbases):             # <<<<<<<<<<<<<<
@@ -3576,7 +3576,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   for (__pyx_t_3 = 0; __pyx_t_3 < __pyx_t_2; __pyx_t_3+=1) {
     __pyx_v_i = __pyx_t_3;
 
-    /* "parse_conf.pyx":97
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":97
  *     # Parse the configuration itself
  *     for i in range(nbases):
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -3588,7 +3588,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "parse_conf.pyx":98
+      /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":98
  *     for i in range(nbases):
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3597,7 +3597,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
       __pyx_v_ptr = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":99
+      /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":99
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')
  *             cposes[i*THREE+j] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3607,7 +3607,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
       (__pyx_v_cposes[((__pyx_v_i * __pyx_v_THREE) + __pyx_v_j)]) = atof(__pyx_v_ptr);
     }
 
-    /* "parse_conf.pyx":100
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":100
  *             ptr = strtok(NULL, ' ')
  *             cposes[i*THREE+j] = atof(ptr)
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -3619,7 +3619,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "parse_conf.pyx":101
+      /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":101
  *             cposes[i*THREE+j] = atof(ptr)
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3628,7 +3628,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
       __pyx_v_ptr = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":102
+      /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":102
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')
  *             ca1s[i*THREE+j] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3638,7 +3638,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
       (__pyx_v_ca1s[((__pyx_v_i * __pyx_v_THREE) + __pyx_v_j)]) = atof(__pyx_v_ptr);
     }
 
-    /* "parse_conf.pyx":103
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":103
  *             ptr = strtok(NULL, ' ')
  *             ca1s[i*THREE+j] = atof(ptr)
  *         for j in range(THREE):             # <<<<<<<<<<<<<<
@@ -3650,7 +3650,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     for (__pyx_t_6 = 0; __pyx_t_6 < __pyx_t_5; __pyx_t_6+=1) {
       __pyx_v_j = __pyx_t_6;
 
-      /* "parse_conf.pyx":104
+      /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":104
  *             ca1s[i*THREE+j] = atof(ptr)
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')             # <<<<<<<<<<<<<<
@@ -3659,7 +3659,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
  */
       __pyx_v_ptr = strtok(NULL, ((char const *)" "));
 
-      /* "parse_conf.pyx":105
+      /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":105
  *         for j in range(THREE):
  *             ptr = strtok(NULL, ' ')
  *             ca3s[i*THREE+j] = atof(ptr)             # <<<<<<<<<<<<<<
@@ -3669,7 +3669,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
       (__pyx_v_ca3s[((__pyx_v_i * __pyx_v_THREE) + __pyx_v_j)]) = atof(__pyx_v_ptr);
     }
 
-    /* "parse_conf.pyx":106
+    /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":106
  *             ptr = strtok(NULL, ' ')
  *             ca3s[i*THREE+j] = atof(ptr)
  *         ptr = strtok(NULL, '\n')             # <<<<<<<<<<<<<<
@@ -3679,7 +3679,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
     __pyx_v_ptr = strtok(NULL, ((char const *)"\n"));
   }
 
-  /* "parse_conf.pyx":109
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":109
  * 
  *     # Convert the configuration information into numpy arrays and store in a Configuration
  *     box = np.asarray(<double[:3]>cbox)             # <<<<<<<<<<<<<<
@@ -3723,7 +3723,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_box = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":110
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":110
  *     # Convert the configuration information into numpy arrays and store in a Configuration
  *     box = np.asarray(<double[:3]>cbox)
  *     energy = np.asarray(<double[:3]>cenergy)             # <<<<<<<<<<<<<<
@@ -3767,7 +3767,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_energy = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":111
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":111
  *     box = np.asarray(<double[:3]>cbox)
  *     energy = np.asarray(<double[:3]>cenergy)
  *     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)             # <<<<<<<<<<<<<<
@@ -3867,7 +3867,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_poses = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":112
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":112
  *     energy = np.asarray(<double[:3]>cenergy)
  *     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
  *     a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)             # <<<<<<<<<<<<<<
@@ -3967,7 +3967,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_a1s = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":113
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":113
  *     poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
  *     a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)
  *     a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)             # <<<<<<<<<<<<<<
@@ -4067,7 +4067,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_a3s = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":115
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":115
  *     a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)
  * 
  *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)             # <<<<<<<<<<<<<<
@@ -4140,7 +4140,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_v_out = __pyx_t_7;
   __pyx_t_7 = 0;
 
-  /* "parse_conf.pyx":117
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":117
  *     cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
  * 
  *     return out             # <<<<<<<<<<<<<<
@@ -4150,7 +4150,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __pyx_r = __pyx_v_out;
   goto __pyx_L0;
 
-  /* "parse_conf.pyx":59
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":59
  *     return confs
  * 
  * cdef parse_conf(char *chunk, int start_byte, int size, int nbases):             # <<<<<<<<<<<<<<
@@ -4167,7 +4167,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   __Pyx_XDECREF(__pyx_t_11);
   __Pyx_XDECREF(__pyx_t_12);
   __Pyx_XDECREF(__pyx_t_13);
-  __Pyx_AddTraceback("parse_conf.parse_conf", __pyx_clineno, __pyx_lineno, __pyx_filename);
+  __Pyx_AddTraceback("oxDNA_analysis_tools.UTILS.get_confs.parse_conf", __pyx_clineno, __pyx_lineno, __pyx_filename);
   __pyx_r = 0;
   __pyx_L0:;
   __Pyx_XDECREF(__pyx_v_box);
@@ -4181,7 +4181,7 @@ static PyObject *__pyx_f_10parse_conf_parse_conf(char *__pyx_v_chunk, int __pyx_
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":735
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":735
  * ctypedef npy_cdouble     complex_t
  * 
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
@@ -4198,7 +4198,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew1", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":736
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":736
  * 
  * cdef inline object PyArray_MultiIterNew1(a):
  *     return PyArray_MultiIterNew(1, <void*>a)             # <<<<<<<<<<<<<<
@@ -4212,7 +4212,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":735
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":735
  * ctypedef npy_cdouble     complex_t
  * 
  * cdef inline object PyArray_MultiIterNew1(a):             # <<<<<<<<<<<<<<
@@ -4231,7 +4231,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew1(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":738
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":738
  *     return PyArray_MultiIterNew(1, <void*>a)
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
@@ -4248,7 +4248,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew2", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":739
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":739
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)             # <<<<<<<<<<<<<<
@@ -4262,7 +4262,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":738
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":738
  *     return PyArray_MultiIterNew(1, <void*>a)
  * 
  * cdef inline object PyArray_MultiIterNew2(a, b):             # <<<<<<<<<<<<<<
@@ -4281,7 +4281,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew2(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":741
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":741
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
@@ -4298,7 +4298,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew3", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":742
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":742
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)             # <<<<<<<<<<<<<<
@@ -4312,7 +4312,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":741
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":741
  *     return PyArray_MultiIterNew(2, <void*>a, <void*>b)
  * 
  * cdef inline object PyArray_MultiIterNew3(a, b, c):             # <<<<<<<<<<<<<<
@@ -4331,7 +4331,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew3(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":744
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":744
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
@@ -4348,7 +4348,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew4", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":745
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":745
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)             # <<<<<<<<<<<<<<
@@ -4362,7 +4362,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":744
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":744
  *     return PyArray_MultiIterNew(3, <void*>a, <void*>b, <void*> c)
  * 
  * cdef inline object PyArray_MultiIterNew4(a, b, c, d):             # <<<<<<<<<<<<<<
@@ -4381,7 +4381,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew4(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":747
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":747
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
@@ -4398,7 +4398,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("PyArray_MultiIterNew5", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":748
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":748
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)             # <<<<<<<<<<<<<<
@@ -4412,7 +4412,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   __pyx_t_1 = 0;
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":747
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":747
  *     return PyArray_MultiIterNew(4, <void*>a, <void*>b, <void*>c, <void*> d)
  * 
  * cdef inline object PyArray_MultiIterNew5(a, b, c, d, e):             # <<<<<<<<<<<<<<
@@ -4431,7 +4431,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyArray_MultiIterNew5(PyObject *__
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":750
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":750
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
@@ -4445,7 +4445,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("PyDataType_SHAPE", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":751
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":751
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
@@ -4455,7 +4455,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   __pyx_t_1 = (PyDataType_HASSUBARRAY(__pyx_v_d) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":752
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":752
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):
  *         return <tuple>d.subarray.shape             # <<<<<<<<<<<<<<
@@ -4467,7 +4467,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     __pyx_r = ((PyObject*)__pyx_v_d->subarray->shape);
     goto __pyx_L0;
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":751
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":751
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):
  *     if PyDataType_HASSUBARRAY(d):             # <<<<<<<<<<<<<<
@@ -4476,7 +4476,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
  */
   }
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":754
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":754
  *         return <tuple>d.subarray.shape
  *     else:
  *         return ()             # <<<<<<<<<<<<<<
@@ -4490,7 +4490,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
     goto __pyx_L0;
   }
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":750
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":750
  *     return PyArray_MultiIterNew(5, <void*>a, <void*>b, <void*>c, <void*> d, <void*> e)
  * 
  * cdef inline tuple PyDataType_SHAPE(dtype d):             # <<<<<<<<<<<<<<
@@ -4505,7 +4505,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_PyDataType_SHAPE(PyArray_Descr *__
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":931
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":929
  *     int _import_umath() except -1
  * 
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
@@ -4517,7 +4517,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("set_array_base", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":932
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":930
  * 
  * cdef inline void set_array_base(ndarray arr, object base):
  *     Py_INCREF(base) # important to do this before stealing the reference below!             # <<<<<<<<<<<<<<
@@ -4526,7 +4526,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
   Py_INCREF(__pyx_v_base);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":933
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":931
  * cdef inline void set_array_base(ndarray arr, object base):
  *     Py_INCREF(base) # important to do this before stealing the reference below!
  *     PyArray_SetBaseObject(arr, base)             # <<<<<<<<<<<<<<
@@ -4535,7 +4535,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
  */
   (void)(PyArray_SetBaseObject(__pyx_v_arr, __pyx_v_base));
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":931
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":929
  *     int _import_umath() except -1
  * 
  * cdef inline void set_array_base(ndarray arr, object base):             # <<<<<<<<<<<<<<
@@ -4547,7 +4547,7 @@ static CYTHON_INLINE void __pyx_f_5numpy_set_array_base(PyArrayObject *__pyx_v_a
   __Pyx_RefNannyFinishContext();
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":935
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":933
  *     PyArray_SetBaseObject(arr, base)
  * 
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
@@ -4562,7 +4562,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   int __pyx_t_1;
   __Pyx_RefNannySetupContext("get_array_base", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":936
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":934
  * 
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)             # <<<<<<<<<<<<<<
@@ -4571,7 +4571,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  */
   __pyx_v_base = PyArray_BASE(__pyx_v_arr);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":937
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":935
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)
  *     if base is NULL:             # <<<<<<<<<<<<<<
@@ -4581,7 +4581,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __pyx_t_1 = ((__pyx_v_base == NULL) != 0);
   if (__pyx_t_1) {
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":938
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":936
  *     base = PyArray_BASE(arr)
  *     if base is NULL:
  *         return None             # <<<<<<<<<<<<<<
@@ -4592,7 +4592,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
     __pyx_r = Py_None; __Pyx_INCREF(Py_None);
     goto __pyx_L0;
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":937
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":935
  * cdef inline object get_array_base(ndarray arr):
  *     base = PyArray_BASE(arr)
  *     if base is NULL:             # <<<<<<<<<<<<<<
@@ -4601,7 +4601,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
  */
   }
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":939
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":937
  *     if base is NULL:
  *         return None
  *     return <object>base             # <<<<<<<<<<<<<<
@@ -4613,7 +4613,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   __pyx_r = ((PyObject *)__pyx_v_base);
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":935
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":933
  *     PyArray_SetBaseObject(arr, base)
  * 
  * cdef inline object get_array_base(ndarray arr):             # <<<<<<<<<<<<<<
@@ -4628,7 +4628,7 @@ static CYTHON_INLINE PyObject *__pyx_f_5numpy_get_array_base(PyArrayObject *__py
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":943
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":941
  * # Versions of the import_* functions which are more suitable for
  * # Cython code.
  * cdef inline int import_array() except -1:             # <<<<<<<<<<<<<<
@@ -4652,7 +4652,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("import_array", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":944
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":942
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -4668,16 +4668,16 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":945
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":943
  * cdef inline int import_array() except -1:
  *     try:
  *         __pyx_import_array()             # <<<<<<<<<<<<<<
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")
  */
-      __pyx_t_4 = _import_array(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 945, __pyx_L3_error)
+      __pyx_t_4 = _import_array(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 943, __pyx_L3_error)
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":944
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":942
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -4691,7 +4691,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":946
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":944
  *     try:
  *         __pyx_import_array()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -4701,28 +4701,28 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
     if (__pyx_t_4) {
       __Pyx_AddTraceback("numpy.import_array", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(1, 946, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(1, 944, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":947
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":945
  *         __pyx_import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef inline int import_umath() except -1:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 947, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__2, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 945, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __PYX_ERR(1, 947, __pyx_L5_except_error)
+      __PYX_ERR(1, 945, __pyx_L5_except_error)
     }
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":944
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":942
  * # Cython code.
  * cdef inline int import_array() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -4737,7 +4737,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":943
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":941
  * # Versions of the import_* functions which are more suitable for
  * # Cython code.
  * cdef inline int import_array() except -1:             # <<<<<<<<<<<<<<
@@ -4760,7 +4760,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_array(void) {
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":949
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":947
  *         raise ImportError("numpy.core.multiarray failed to import")
  * 
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
@@ -4784,7 +4784,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("import_umath", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":950
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":948
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -4800,16 +4800,16 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":951
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":949
  * cdef inline int import_umath() except -1:
  *     try:
  *         _import_umath()             # <<<<<<<<<<<<<<
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")
  */
-      __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 951, __pyx_L3_error)
+      __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 949, __pyx_L3_error)
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":950
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":948
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -4823,7 +4823,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":952
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":950
  *     try:
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -4833,28 +4833,28 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
     if (__pyx_t_4) {
       __Pyx_AddTraceback("numpy.import_umath", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(1, 952, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(1, 950, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":953
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":951
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef inline int import_ufunc() except -1:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 953, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 951, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __PYX_ERR(1, 953, __pyx_L5_except_error)
+      __PYX_ERR(1, 951, __pyx_L5_except_error)
     }
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":950
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":948
  * 
  * cdef inline int import_umath() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -4869,7 +4869,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":949
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":947
  *         raise ImportError("numpy.core.multiarray failed to import")
  * 
  * cdef inline int import_umath() except -1:             # <<<<<<<<<<<<<<
@@ -4892,7 +4892,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_umath(void) {
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":955
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":953
  *         raise ImportError("numpy.core.umath failed to import")
  * 
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
@@ -4916,7 +4916,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
   int __pyx_clineno = 0;
   __Pyx_RefNannySetupContext("import_ufunc", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":956
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":954
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -4932,16 +4932,16 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __Pyx_XGOTREF(__pyx_t_3);
     /*try:*/ {
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":957
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":955
  * cdef inline int import_ufunc() except -1:
  *     try:
  *         _import_umath()             # <<<<<<<<<<<<<<
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")
  */
-      __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 957, __pyx_L3_error)
+      __pyx_t_4 = _import_umath(); if (unlikely(__pyx_t_4 == ((int)-1))) __PYX_ERR(1, 955, __pyx_L3_error)
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":956
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":954
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -4955,7 +4955,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     goto __pyx_L8_try_end;
     __pyx_L3_error:;
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":958
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":956
  *     try:
  *         _import_umath()
  *     except Exception:             # <<<<<<<<<<<<<<
@@ -4965,28 +4965,28 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __pyx_t_4 = __Pyx_PyErr_ExceptionMatches(((PyObject *)(&((PyTypeObject*)PyExc_Exception)[0])));
     if (__pyx_t_4) {
       __Pyx_AddTraceback("numpy.import_ufunc", __pyx_clineno, __pyx_lineno, __pyx_filename);
-      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(1, 958, __pyx_L5_except_error)
+      if (__Pyx_GetException(&__pyx_t_5, &__pyx_t_6, &__pyx_t_7) < 0) __PYX_ERR(1, 956, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_5);
       __Pyx_GOTREF(__pyx_t_6);
       __Pyx_GOTREF(__pyx_t_7);
 
-      /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":959
+      /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":957
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef extern from *:
  */
-      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 959, __pyx_L5_except_error)
+      __pyx_t_8 = __Pyx_PyObject_Call(__pyx_builtin_ImportError, __pyx_tuple__3, NULL); if (unlikely(!__pyx_t_8)) __PYX_ERR(1, 957, __pyx_L5_except_error)
       __Pyx_GOTREF(__pyx_t_8);
       __Pyx_Raise(__pyx_t_8, 0, 0, 0);
       __Pyx_DECREF(__pyx_t_8); __pyx_t_8 = 0;
-      __PYX_ERR(1, 959, __pyx_L5_except_error)
+      __PYX_ERR(1, 957, __pyx_L5_except_error)
     }
     goto __pyx_L5_except_error;
     __pyx_L5_except_error:;
 
-    /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":956
+    /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":954
  * 
  * cdef inline int import_ufunc() except -1:
  *     try:             # <<<<<<<<<<<<<<
@@ -5001,7 +5001,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
     __pyx_L8_try_end:;
   }
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":955
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":953
  *         raise ImportError("numpy.core.umath failed to import")
  * 
  * cdef inline int import_ufunc() except -1:             # <<<<<<<<<<<<<<
@@ -5024,7 +5024,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_import_ufunc(void) {
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":969
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":967
  * 
  * 
  * cdef inline bint is_timedelta64_object(object obj):             # <<<<<<<<<<<<<<
@@ -5037,7 +5037,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_timedelta64_object(PyObject *__pyx_v_
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("is_timedelta64_object", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":981
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":979
  *     bool
  *     """
  *     return PyObject_TypeCheck(obj, &PyTimedeltaArrType_Type)             # <<<<<<<<<<<<<<
@@ -5047,7 +5047,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_timedelta64_object(PyObject *__pyx_v_
   __pyx_r = PyObject_TypeCheck(__pyx_v_obj, (&PyTimedeltaArrType_Type));
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":969
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":967
  * 
  * 
  * cdef inline bint is_timedelta64_object(object obj):             # <<<<<<<<<<<<<<
@@ -5061,7 +5061,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_timedelta64_object(PyObject *__pyx_v_
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":984
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":982
  * 
  * 
  * cdef inline bint is_datetime64_object(object obj):             # <<<<<<<<<<<<<<
@@ -5074,7 +5074,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_datetime64_object(PyObject *__pyx_v_o
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("is_datetime64_object", 0);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":996
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":994
  *     bool
  *     """
  *     return PyObject_TypeCheck(obj, &PyDatetimeArrType_Type)             # <<<<<<<<<<<<<<
@@ -5084,7 +5084,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_datetime64_object(PyObject *__pyx_v_o
   __pyx_r = PyObject_TypeCheck(__pyx_v_obj, (&PyDatetimeArrType_Type));
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":984
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":982
  * 
  * 
  * cdef inline bint is_datetime64_object(object obj):             # <<<<<<<<<<<<<<
@@ -5098,7 +5098,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_datetime64_object(PyObject *__pyx_v_o
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":999
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":997
  * 
  * 
  * cdef inline npy_datetime get_datetime64_value(object obj) nogil:             # <<<<<<<<<<<<<<
@@ -5109,7 +5109,7 @@ static CYTHON_INLINE int __pyx_f_5numpy_is_datetime64_object(PyObject *__pyx_v_o
 static CYTHON_INLINE npy_datetime __pyx_f_5numpy_get_datetime64_value(PyObject *__pyx_v_obj) {
   npy_datetime __pyx_r;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":1006
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":1004
  *     also needed.  That can be found using `get_datetime64_unit`.
  *     """
  *     return (<PyDatetimeScalarObject*>obj).obval             # <<<<<<<<<<<<<<
@@ -5119,7 +5119,7 @@ static CYTHON_INLINE npy_datetime __pyx_f_5numpy_get_datetime64_value(PyObject *
   __pyx_r = ((PyDatetimeScalarObject *)__pyx_v_obj)->obval;
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":999
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":997
  * 
  * 
  * cdef inline npy_datetime get_datetime64_value(object obj) nogil:             # <<<<<<<<<<<<<<
@@ -5132,7 +5132,7 @@ static CYTHON_INLINE npy_datetime __pyx_f_5numpy_get_datetime64_value(PyObject *
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":1009
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":1007
  * 
  * 
  * cdef inline npy_timedelta get_timedelta64_value(object obj) nogil:             # <<<<<<<<<<<<<<
@@ -5143,7 +5143,7 @@ static CYTHON_INLINE npy_datetime __pyx_f_5numpy_get_datetime64_value(PyObject *
 static CYTHON_INLINE npy_timedelta __pyx_f_5numpy_get_timedelta64_value(PyObject *__pyx_v_obj) {
   npy_timedelta __pyx_r;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":1013
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":1011
  *     returns the int64 value underlying scalar numpy timedelta64 object
  *     """
  *     return (<PyTimedeltaScalarObject*>obj).obval             # <<<<<<<<<<<<<<
@@ -5153,7 +5153,7 @@ static CYTHON_INLINE npy_timedelta __pyx_f_5numpy_get_timedelta64_value(PyObject
   __pyx_r = ((PyTimedeltaScalarObject *)__pyx_v_obj)->obval;
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":1009
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":1007
  * 
  * 
  * cdef inline npy_timedelta get_timedelta64_value(object obj) nogil:             # <<<<<<<<<<<<<<
@@ -5166,7 +5166,7 @@ static CYTHON_INLINE npy_timedelta __pyx_f_5numpy_get_timedelta64_value(PyObject
   return __pyx_r;
 }
 
-/* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":1016
+/* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":1014
  * 
  * 
  * cdef inline NPY_DATETIMEUNIT get_datetime64_unit(object obj) nogil:             # <<<<<<<<<<<<<<
@@ -5177,7 +5177,7 @@ static CYTHON_INLINE npy_timedelta __pyx_f_5numpy_get_timedelta64_value(PyObject
 static CYTHON_INLINE NPY_DATETIMEUNIT __pyx_f_5numpy_get_datetime64_unit(PyObject *__pyx_v_obj) {
   NPY_DATETIMEUNIT __pyx_r;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":1020
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":1018
  *     returns the unit part of the dtype for a numpy datetime64 object.
  *     """
  *     return <NPY_DATETIMEUNIT>(<PyDatetimeScalarObject*>obj).obmeta.base             # <<<<<<<<<<<<<<
@@ -5185,7 +5185,7 @@ static CYTHON_INLINE NPY_DATETIMEUNIT __pyx_f_5numpy_get_datetime64_unit(PyObjec
   __pyx_r = ((NPY_DATETIMEUNIT)((PyDatetimeScalarObject *)__pyx_v_obj)->obmeta.base);
   goto __pyx_L0;
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":1016
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":1014
  * 
  * 
  * cdef inline NPY_DATETIMEUNIT get_datetime64_unit(object obj) nogil:             # <<<<<<<<<<<<<<
@@ -18693,7 +18693,7 @@ static PyBufferProcs __pyx_tp_as_buffer_array = {
 
 static PyTypeObject __pyx_type___pyx_array = {
   PyVarObject_HEAD_INIT(0, 0)
-  "parse_conf.array", /*tp_name*/
+  "oxDNA_analysis_tools.UTILS.get_confs.array", /*tp_name*/
   sizeof(struct __pyx_array_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_array, /*tp_dealloc*/
@@ -18815,7 +18815,7 @@ static PyMethodDef __pyx_methods_Enum[] = {
 
 static PyTypeObject __pyx_type___pyx_MemviewEnum = {
   PyVarObject_HEAD_INIT(0, 0)
-  "parse_conf.Enum", /*tp_name*/
+  "oxDNA_analysis_tools.UTILS.get_confs.Enum", /*tp_name*/
   sizeof(struct __pyx_MemviewEnum_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_Enum, /*tp_dealloc*/
@@ -19079,7 +19079,7 @@ static PyBufferProcs __pyx_tp_as_buffer_memoryview = {
 
 static PyTypeObject __pyx_type___pyx_memoryview = {
   PyVarObject_HEAD_INIT(0, 0)
-  "parse_conf.memoryview", /*tp_name*/
+  "oxDNA_analysis_tools.UTILS.get_confs.memoryview", /*tp_name*/
   sizeof(struct __pyx_memoryview_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc_memoryview, /*tp_dealloc*/
@@ -19220,7 +19220,7 @@ static struct PyGetSetDef __pyx_getsets__memoryviewslice[] = {
 
 static PyTypeObject __pyx_type___pyx_memoryviewslice = {
   PyVarObject_HEAD_INIT(0, 0)
-  "parse_conf._memoryviewslice", /*tp_name*/
+  "oxDNA_analysis_tools.UTILS.get_confs._memoryviewslice", /*tp_name*/
   sizeof(struct __pyx_memoryviewslice_obj), /*tp_basicsize*/
   0, /*tp_itemsize*/
   __pyx_tp_dealloc__memoryviewslice, /*tp_dealloc*/
@@ -19305,17 +19305,17 @@ static PyMethodDef __pyx_methods[] = {
 #if PY_MAJOR_VERSION >= 3
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 static PyObject* __pyx_pymod_create(PyObject *spec, PyModuleDef *def); /*proto*/
-static int __pyx_pymod_exec_parse_conf(PyObject* module); /*proto*/
+static int __pyx_pymod_exec_get_confs(PyObject* module); /*proto*/
 static PyModuleDef_Slot __pyx_moduledef_slots[] = {
   {Py_mod_create, (void*)__pyx_pymod_create},
-  {Py_mod_exec, (void*)__pyx_pymod_exec_parse_conf},
+  {Py_mod_exec, (void*)__pyx_pymod_exec_get_confs},
   {0, NULL}
 };
 #endif
 
 static struct PyModuleDef __pyx_moduledef = {
     PyModuleDef_HEAD_INIT,
-    "parse_conf",
+    "get_confs",
     0, /* m_doc */
   #if CYTHON_PEP489_MULTI_PHASE_INIT
     0, /* m_size */
@@ -19427,9 +19427,8 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_obj, __pyx_k_obj, sizeof(__pyx_k_obj), 0, 0, 1, 1},
   {&__pyx_n_s_offset, __pyx_k_offset, sizeof(__pyx_k_offset), 0, 0, 1, 1},
   {&__pyx_n_s_oxDNA_analysis_tools_UTILS_RyeRe, __pyx_k_oxDNA_analysis_tools_UTILS_RyeRe, sizeof(__pyx_k_oxDNA_analysis_tools_UTILS_RyeRe), 0, 0, 1, 1},
+  {&__pyx_n_s_oxDNA_analysis_tools_UTILS_get_c, __pyx_k_oxDNA_analysis_tools_UTILS_get_c, sizeof(__pyx_k_oxDNA_analysis_tools_UTILS_get_c), 0, 0, 1, 1},
   {&__pyx_n_s_pack, __pyx_k_pack, sizeof(__pyx_k_pack), 0, 0, 1, 1},
-  {&__pyx_n_s_parse_conf, __pyx_k_parse_conf, sizeof(__pyx_k_parse_conf), 0, 0, 1, 1},
-  {&__pyx_kp_s_parse_conf_pyx, __pyx_k_parse_conf_pyx, sizeof(__pyx_k_parse_conf_pyx), 0, 0, 1, 0},
   {&__pyx_n_s_pickle, __pyx_k_pickle, sizeof(__pyx_k_pickle), 0, 0, 1, 1},
   {&__pyx_n_s_print, __pyx_k_print, sizeof(__pyx_k_print), 0, 0, 1, 1},
   {&__pyx_n_s_pyx_PickleError, __pyx_k_pyx_PickleError, sizeof(__pyx_k_pyx_PickleError), 0, 0, 1, 1},
@@ -19451,6 +19450,7 @@ static __Pyx_StringTabEntry __pyx_string_tab[] = {
   {&__pyx_n_s_shape, __pyx_k_shape, sizeof(__pyx_k_shape), 0, 0, 1, 1},
   {&__pyx_n_s_size, __pyx_k_size, sizeof(__pyx_k_size), 0, 0, 1, 1},
   {&__pyx_n_s_sizes, __pyx_k_sizes, sizeof(__pyx_k_sizes), 0, 0, 1, 1},
+  {&__pyx_kp_s_src_oxDNA_analysis_tools_cython, __pyx_k_src_oxDNA_analysis_tools_cython, sizeof(__pyx_k_src_oxDNA_analysis_tools_cython), 0, 0, 1, 0},
   {&__pyx_n_s_start, __pyx_k_start, sizeof(__pyx_k_start), 0, 0, 1, 1},
   {&__pyx_n_s_step, __pyx_k_step, sizeof(__pyx_k_step), 0, 0, 1, 1},
   {&__pyx_n_s_stop, __pyx_k_stop, sizeof(__pyx_k_stop), 0, 0, 1, 1},
@@ -19473,7 +19473,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedBuiltins(void) {
   __pyx_builtin_MemoryError = __Pyx_GetBuiltinName(__pyx_n_s_MemoryError); if (!__pyx_builtin_MemoryError) __PYX_ERR(0, 23, __pyx_L1_error)
   __pyx_builtin_range = __Pyx_GetBuiltinName(__pyx_n_s_range); if (!__pyx_builtin_range) __PYX_ERR(0, 25, __pyx_L1_error)
   __pyx_builtin_print = __Pyx_GetBuiltinName(__pyx_n_s_print); if (!__pyx_builtin_print) __PYX_ERR(0, 37, __pyx_L1_error)
-  __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 947, __pyx_L1_error)
+  __pyx_builtin_ImportError = __Pyx_GetBuiltinName(__pyx_n_s_ImportError); if (!__pyx_builtin_ImportError) __PYX_ERR(1, 945, __pyx_L1_error)
   __pyx_builtin_ValueError = __Pyx_GetBuiltinName(__pyx_n_s_ValueError); if (!__pyx_builtin_ValueError) __PYX_ERR(2, 133, __pyx_L1_error)
   __pyx_builtin_enumerate = __Pyx_GetBuiltinName(__pyx_n_s_enumerate); if (!__pyx_builtin_enumerate) __PYX_ERR(2, 151, __pyx_L1_error)
   __pyx_builtin_TypeError = __Pyx_GetBuiltinName(__pyx_n_s_TypeError); if (!__pyx_builtin_TypeError) __PYX_ERR(2, 2, __pyx_L1_error)
@@ -19489,7 +19489,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_RefNannyDeclarations
   __Pyx_RefNannySetupContext("__Pyx_InitCachedConstants", 0);
 
-  /* "parse_conf.pyx":23
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":23
  *     cdef int *conf_starts = <int *> malloc(nconfs * sizeof(int))
  *     if not sizes or not conf_starts:
  *         raise MemoryError("Could not allocate memory for the configuration sizes and starts")             # <<<<<<<<<<<<<<
@@ -19500,25 +19500,25 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple_);
   __Pyx_GIVEREF(__pyx_tuple_);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":947
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":945
  *         __pyx_import_array()
  *     except Exception:
  *         raise ImportError("numpy.core.multiarray failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef inline int import_umath() except -1:
  */
-  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(1, 947, __pyx_L1_error)
+  __pyx_tuple__2 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_multiarray_failed_to); if (unlikely(!__pyx_tuple__2)) __PYX_ERR(1, 945, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__2);
   __Pyx_GIVEREF(__pyx_tuple__2);
 
-  /* "../../../../../anaconda3/lib/python3.7/site-packages/numpy/__init__.pxd":953
+  /* "../../../../tmp/build-env-2ik60jby/lib/python3.7/site-packages/numpy/__init__.pxd":951
  *         _import_umath()
  *     except Exception:
  *         raise ImportError("numpy.core.umath failed to import")             # <<<<<<<<<<<<<<
  * 
  * cdef inline int import_ufunc() except -1:
  */
-  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(1, 953, __pyx_L1_error)
+  __pyx_tuple__3 = PyTuple_Pack(1, __pyx_kp_u_numpy_core_umath_failed_to_impor); if (unlikely(!__pyx_tuple__3)) __PYX_ERR(1, 951, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__3);
   __Pyx_GIVEREF(__pyx_tuple__3);
 
@@ -19714,7 +19714,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __Pyx_GOTREF(__pyx_tuple__21);
   __Pyx_GIVEREF(__pyx_tuple__21);
 
-  /* "parse_conf.pyx":13
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":13
  * @cython.boundscheck(False)
  * 
  * def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):             # <<<<<<<<<<<<<<
@@ -19724,7 +19724,7 @@ static CYTHON_SMALL_CODE int __Pyx_InitCachedConstants(void) {
   __pyx_tuple__27 = PyTuple_Pack(15, __pyx_n_s_idxs, __pyx_n_s_traj_path, __pyx_n_s_start, __pyx_n_s_nconfs, __pyx_n_s_nbases, __pyx_n_s_conf_count, __pyx_n_s_sizes, __pyx_n_s_conf_starts, __pyx_n_s_chunk_size, __pyx_n_s_i, __pyx_n_s_traj_path_c, __pyx_n_s_traj_file, __pyx_n_s_chunk, __pyx_n_s_confs, __pyx_n_s_c); if (unlikely(!__pyx_tuple__27)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_tuple__27);
   __Pyx_GIVEREF(__pyx_tuple__27);
-  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(5, 0, 15, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_parse_conf_pyx, __pyx_n_s_get_confs, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_codeobj__28 = (PyObject*)__Pyx_PyCode_New(5, 0, 15, 0, CO_OPTIMIZED|CO_NEWLOCALS, __pyx_empty_bytes, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_tuple__27, __pyx_empty_tuple, __pyx_empty_tuple, __pyx_kp_s_src_oxDNA_analysis_tools_cython, __pyx_n_s_get_confs, 13, __pyx_empty_bytes); if (unlikely(!__pyx_codeobj__28)) __PYX_ERR(0, 13, __pyx_L1_error)
 
   /* "View.MemoryView":286
  *         return self.name
@@ -20005,11 +20005,11 @@ static int __Pyx_modinit_function_import_code(void) {
 
 
 #if PY_MAJOR_VERSION < 3
-__Pyx_PyMODINIT_FUNC initparse_conf(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC initparse_conf(void)
+__Pyx_PyMODINIT_FUNC initget_confs(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC initget_confs(void)
 #else
-__Pyx_PyMODINIT_FUNC PyInit_parse_conf(void) CYTHON_SMALL_CODE; /*proto*/
-__Pyx_PyMODINIT_FUNC PyInit_parse_conf(void)
+__Pyx_PyMODINIT_FUNC PyInit_get_confs(void) CYTHON_SMALL_CODE; /*proto*/
+__Pyx_PyMODINIT_FUNC PyInit_get_confs(void)
 #if CYTHON_PEP489_MULTI_PHASE_INIT
 {
   return PyModuleDef_Init(&__pyx_moduledef);
@@ -20076,7 +20076,7 @@ bad:
 }
 
 
-static CYTHON_SMALL_CODE int __pyx_pymod_exec_parse_conf(PyObject *__pyx_pyinit_module)
+static CYTHON_SMALL_CODE int __pyx_pymod_exec_get_confs(PyObject *__pyx_pyinit_module)
 #endif
 #endif
 {
@@ -20090,7 +20090,7 @@ static CYTHON_SMALL_CODE int __pyx_pymod_exec_parse_conf(PyObject *__pyx_pyinit_
   #if CYTHON_PEP489_MULTI_PHASE_INIT
   if (__pyx_m) {
     if (__pyx_m == __pyx_pyinit_module) return 0;
-    PyErr_SetString(PyExc_RuntimeError, "Module 'parse_conf' has already been imported. Re-initialisation is not supported.");
+    PyErr_SetString(PyExc_RuntimeError, "Module 'get_confs' has already been imported. Re-initialisation is not supported.");
     return -1;
   }
   #elif PY_MAJOR_VERSION >= 3
@@ -20105,7 +20105,7 @@ if (!__Pyx_RefNanny) {
       Py_FatalError("failed to import 'refnanny' module");
 }
 #endif
-  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_parse_conf(void)", 0);
+  __Pyx_RefNannySetupContext("__Pyx_PyMODINIT_FUNC PyInit_get_confs(void)", 0);
   if (__Pyx_check_binary_version() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #ifdef __Pxy_PyFrame_Initialize_Offsets
   __Pxy_PyFrame_Initialize_Offsets();
@@ -20142,7 +20142,7 @@ if (!__Pyx_RefNanny) {
   Py_INCREF(__pyx_m);
   #else
   #if PY_MAJOR_VERSION < 3
-  __pyx_m = Py_InitModule4("parse_conf", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
+  __pyx_m = Py_InitModule4("get_confs", __pyx_methods, 0, 0, PYTHON_API_VERSION); Py_XINCREF(__pyx_m);
   #else
   __pyx_m = PyModule_Create(&__pyx_moduledef);
   #endif
@@ -20160,14 +20160,14 @@ if (!__Pyx_RefNanny) {
   #if PY_MAJOR_VERSION < 3 && (__PYX_DEFAULT_STRING_ENCODING_IS_ASCII || __PYX_DEFAULT_STRING_ENCODING_IS_DEFAULT)
   if (__Pyx_init_sys_getdefaultencoding_params() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
-  if (__pyx_module_is_main_parse_conf) {
+  if (__pyx_module_is_main_oxDNA_analysis_tools__UTILS__get_confs) {
     if (PyObject_SetAttr(__pyx_m, __pyx_n_s_name_2, __pyx_n_s_main) < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   }
   #if PY_MAJOR_VERSION >= 3
   {
     PyObject *modules = PyImport_GetModuleDict(); if (unlikely(!modules)) __PYX_ERR(0, 1, __pyx_L1_error)
-    if (!PyDict_GetItemString(modules, "parse_conf")) {
-      if (unlikely(PyDict_SetItemString(modules, "parse_conf", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
+    if (!PyDict_GetItemString(modules, "oxDNA_analysis_tools.UTILS.get_confs")) {
+      if (unlikely(PyDict_SetItemString(modules, "oxDNA_analysis_tools.UTILS.get_confs", __pyx_m) < 0)) __PYX_ERR(0, 1, __pyx_L1_error)
     }
   }
   #endif
@@ -20188,7 +20188,7 @@ if (!__Pyx_RefNanny) {
   if (__Pyx_patch_abc() < 0) __PYX_ERR(0, 1, __pyx_L1_error)
   #endif
 
-  /* "parse_conf.pyx":2
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":2
  * import cython
  * import numpy as np             # <<<<<<<<<<<<<<
  * cimport numpy as numpy
@@ -20199,7 +20199,7 @@ if (!__Pyx_RefNanny) {
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_np, __pyx_t_1) < 0) __PYX_ERR(0, 2, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
 
-  /* "parse_conf.pyx":8
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":8
  * from libc.string cimport strtok, strcpy
  * from libc.stdlib cimport atoi, atof, malloc, free
  * from oxDNA_analysis_tools.UTILS.RyeReader import Configuration             # <<<<<<<<<<<<<<
@@ -20220,19 +20220,19 @@ if (!__Pyx_RefNanny) {
   __Pyx_DECREF(__pyx_t_1); __pyx_t_1 = 0;
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "parse_conf.pyx":13
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":13
  * @cython.boundscheck(False)
  * 
  * def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):             # <<<<<<<<<<<<<<
  *     # Number of configurations to read
  *     cdef int conf_count = len(idxs)
  */
-  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_10parse_conf_1get_confs, NULL, __pyx_n_s_parse_conf); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 13, __pyx_L1_error)
+  __pyx_t_2 = PyCFunction_NewEx(&__pyx_mdef_20oxDNA_analysis_tools_5UTILS_9get_confs_1get_confs, NULL, __pyx_n_s_oxDNA_analysis_tools_UTILS_get_c); if (unlikely(!__pyx_t_2)) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_GOTREF(__pyx_t_2);
   if (PyDict_SetItem(__pyx_d, __pyx_n_s_get_confs, __pyx_t_2) < 0) __PYX_ERR(0, 13, __pyx_L1_error)
   __Pyx_DECREF(__pyx_t_2); __pyx_t_2 = 0;
 
-  /* "parse_conf.pyx":1
+  /* "src/oxDNA_analysis_tools/cython_utils/get_confs.pyx":1
  * import cython             # <<<<<<<<<<<<<<
  * import numpy as np
  * cimport numpy as numpy
@@ -20403,11 +20403,11 @@ if (!__Pyx_RefNanny) {
   __Pyx_XDECREF(__pyx_t_2);
   if (__pyx_m) {
     if (__pyx_d) {
-      __Pyx_AddTraceback("init parse_conf", __pyx_clineno, __pyx_lineno, __pyx_filename);
+      __Pyx_AddTraceback("init oxDNA_analysis_tools.UTILS.get_confs", __pyx_clineno, __pyx_lineno, __pyx_filename);
     }
     Py_CLEAR(__pyx_m);
   } else if (!PyErr_Occurred()) {
-    PyErr_SetString(PyExc_ImportError, "init parse_conf");
+    PyErr_SetString(PyExc_ImportError, "init oxDNA_analysis_tools.UTILS.get_confs");
   }
   __pyx_L0:;
   __Pyx_RefNannyFinishContext();

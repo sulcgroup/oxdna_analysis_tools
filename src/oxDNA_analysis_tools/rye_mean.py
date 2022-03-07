@@ -3,7 +3,7 @@ from UTILS.RyeReader import Configuration, describe, inbox, get_n_cpu, write_con
 from multiprocessing import Pool
 import numpy as np
 import time
-from parse_conf import get_confs
+from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 start_time = time.time()
 
 def align(centered_ref_coords, cms_ref_cords ,coords):
@@ -48,7 +48,6 @@ def compute(ctx:ComputeContext,chunk_id):
 #top, traj = r"/mnt/c/Users/mmatthi3/test2/hinge_correct_seq.top", r"/mnt/c/Users/mmatthi3/test2/aligned.dat"
 top, traj = "./hinge_correct_seq.top","./100confs.dat"
 top_info, traj_info = describe(top, traj)
-
 
 # fetch reference conf
 ref_conf = get_confs(traj_info.idxs, traj, 0, 1, top_info.nbases)[0]
