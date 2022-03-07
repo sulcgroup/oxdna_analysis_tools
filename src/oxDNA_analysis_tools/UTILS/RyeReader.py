@@ -1,32 +1,11 @@
-from gettext import install
-import string
-from turtle import position
 import numpy as np
 from pickle import loads, dumps
 from io import StringIO
-from collections import namedtuple
-from dataclasses import dataclass
 from os.path import exists
 import os
 from os import getenv
 from multiprocessing import cpu_count
-
-def get_n_cpu():
-    try:
-        available_cpus = int(getenv('SLURM_NTASKS'))
-    except:
-        available_cpus = cpu_count()
-    return available_cpus
-
-# chunk file into Chunker of given size
-#Chunk = namedtuple('Chunk', ['block','offset', 'is_last','file_size'])
-
-@dataclass
-class Chunk:
-    block : string
-    offset : int
-    is_last: bool
-    file_size: int
+from oxDNA_analysis_tools.UTILS.data_structures import *
 
 def Chunker(file, fsize, size=1000000):
     current_chunk = 0  
@@ -37,13 +16,6 @@ def Chunker(file, fsize, size=1000000):
         current_chunk+=1
 
 #calculates the length of a trajectory file
-#ConfInfo = namedtuple('ConfInfo', ['offset', 'size','id'])
-@dataclass
-class ConfInfo:
-    offset : int
-    size : int
-    id : int
-    
 def _index(traj_file): 
     def find_all(a_str, sub):
         #https://stackoverflow.com/questions/4664850/how-to-find-all-occurrences-of-a-substring
@@ -69,13 +41,7 @@ def _index(traj_file):
     idxs.append(ConfInfo(conf_starts[-1], fsize - conf_starts[-1], len(conf_starts)-1))
     return idxs
 
-#TrajInfo = namedtuple("TrajInfo", ["path","nconfs","idxs"])
 
-@dataclass
-class TrajInfo:
-    path : str
-    nconfs : int
-    idxs : ConfInfo 
 def get_traj_info(traj):
     #if idxs is None: # handle case when we have no indexes provided
     if not(exists(traj+".pyidx")):
@@ -104,17 +70,6 @@ def get_confs(traj_info, start, nconfs):
         chunk = StringIO(traj_file.read(size)) # work with the string like a file 
         return [chunk.read(traj_info.idxs[i].size)
                             for i in range(start,start+nconfs)] 
-
-#Configuration = namedtuple("Configuration", ["time","box", "energy", "positions", "a1s", "a3s"])
-
-@dataclass
-class Configuration:
-    time:int
-    box: np.array
-    energy: np.array
-    positions: np.array
-    a1s: np.array
-    a3s: np.array
 
 def parse_conf(top_info,lines):
     """
@@ -169,13 +124,7 @@ def write_conf(path,conf):
         out.append('{} {} {} 0.0 0.0 0.0 0.0 0.0 0.0'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
     with open(path,"w") as f:
         f.write("\n".join(out))
-
-#TopInfo = namedtuple("TopInfo",["nbases", "nstrands"])
-
-@dataclass
-class TopInfo:
-    nbases :int
-    nstrands :int 
+ 
 def get_top_info(top):
     """
         bare bones of topology info

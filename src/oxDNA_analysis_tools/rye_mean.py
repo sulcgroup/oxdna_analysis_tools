@@ -1,5 +1,5 @@
 from collections import namedtuple
-from UTILS.RyeReader import Configuration, describe, inbox, get_n_cpu, write_conf
+from UTILS.RyeReader import Configuration, describe, inbox, write_conf
 from multiprocessing import Pool
 import numpy as np
 import time
