@@ -3,8 +3,6 @@ from pickle import loads, dumps
 from io import StringIO
 from os.path import exists
 import os
-from os import getenv
-from multiprocessing import cpu_count
 from oxDNA_analysis_tools.UTILS.data_structures import *
 
 def Chunker(file, fsize, size=1000000):
@@ -70,22 +68,6 @@ def get_confs(traj_info, start, nconfs):
         chunk = StringIO(traj_file.read(size)) # work with the string like a file 
         return [chunk.read(traj_info.idxs[i].size)
                             for i in range(start,start+nconfs)] 
-
-def parse_conf(top_info,lines):
-    """
-        low level function parsing a block of strings into a conf 
-    """
-    lines = lines.split('\n')
-    parameters =  np.array([np.fromstring(line, dtype="f4", sep=" ",count=9) 
-                                          for line in lines[3:3+top_info.nbases]])
-    return Configuration(
-        float(lines[0][lines[0].index("=")+1:]),
-        np.array(lines[1].split("=")[1].split(), dtype=float),
-        np.array(lines[2].split("=")[1].split(), dtype=float),
-        parameters[:,0:3],
-        parameters[:,3:6],
-        parameters[:,6:9],
-    )
 
 def inbox(conf):
     """

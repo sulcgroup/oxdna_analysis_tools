@@ -11,6 +11,9 @@ from oxDNA_analysis_tools.UTILS.RyeReader import Configuration
 @cython.boundscheck(False)
 
 def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
+    """
+    A string!
+    """
     # Number of configurations to read
     cdef int conf_count = len(idxs)
     if (start+nconfs >= conf_count):
