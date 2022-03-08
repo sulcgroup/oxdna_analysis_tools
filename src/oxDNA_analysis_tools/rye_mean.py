@@ -10,13 +10,12 @@ import time
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 start_time = time.time()
 
-def align(centered_ref_coords, cms_ref_cords, coords, indexes):
+def align(centered_ref_coords, coords, indexes):
     """
     Single-value decomposition-based alignment of configurations
 
     Parameters
         centered_ref_coords: reference coordinates, centered on [0, 0, 0]
-        cms_ref_cords: reference coordinates, centered on the center of mass
         coords: coordinates to be aligned
         indexes: indexes of the atoms to be aligned
 
@@ -24,9 +23,9 @@ def align(centered_ref_coords, cms_ref_cords, coords, indexes):
         A tuple of the aligned coordinates (coords, a1s, a3s) for the given chunk
     """
     # center on centroid
-    av1, reference_coords = cms_ref_cords, centered_ref_coords
-    av2 = np.mean(coords[0], axis=0)
-    coords[0][indexes] = coords[0][indexes] - av2
+    av1, reference_coords = np.zeros(3), centered_ref_coords
+    av2 = np.mean(coords[0][indexes], axis=0)
+    coords[0] = coords[0] - av2
     # correlation matrix
     a = np.dot(np.transpose(coords[0][indexes]), reference_coords)
     u, _, vt = np.linalg.svd(a)
@@ -43,20 +42,17 @@ def align(centered_ref_coords, cms_ref_cords, coords, indexes):
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
                                               "centered_ref_coords",
-                                              "cms_ref_coords",
                                               "indexes",
                                               "ntopart"])
 def compute(ctx:ComputeContext,chunk_id:int):
-    print(ctx.centered_ref_coords.shape, ctx.cms_ref_coords)
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
     confs = (inbox(c) for c in confs)
     # convert to numpy repr
     aligned_coords = np.asarray([[align_conf.positions, align_conf.a1s, align_conf.a3s] 
                                                                   for align_conf in confs])
-    
     sub_mean = np.zeros(shape=[3,ctx.top_info.nbases,3])
     for c in aligned_coords:
-        sub_mean += align(ctx.centered_ref_coords,ctx.cms_ref_coords, c, ctx.indexes)
+        sub_mean += align(ctx.centered_ref_coords, c, ctx.indexes)
     
     return sub_mean
 
@@ -120,11 +116,11 @@ def main():
     # alignment requires the ref to be centered at 0
     reference_coords = ref_conf.positions[indexes]
     ref_cms = np.mean(reference_coords, axis=0) # cms prior to centering
-    reference_coords = reference_coords - ref_cms # is this necessary?
+    reference_coords = reference_coords - ref_cms
 
     # Create a ComputeContext which defines the problem to pass to the worker processes 
     ctx = ComputeContext(
-        traj_info, top_info, reference_coords, ref_cms, indexes, ntopart
+        traj_info, top_info, reference_coords, indexes, ntopart
     )
 
     # Distribute jobs to the worker processes
