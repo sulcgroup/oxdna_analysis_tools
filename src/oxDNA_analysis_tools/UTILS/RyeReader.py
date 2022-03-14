@@ -52,24 +52,7 @@ def get_traj_info(traj):
             idxs = loads(file.read())
     return TrajInfo(traj,len(idxs),idxs)
 
-def get_confs(traj_info, start, nconfs):
-    """
-        low level function getting the unparsed configurations
-    """
-    #conf_count = len(traj_info.idxs)
-    if(start+nconfs >= traj_info.nconfs): # make sure we stay in bounds 
-        nconfs = traj_info.nconfs - start
-    # go to start position 
-    with open(traj_info.path) as traj_file:
-        traj_file.seek(traj_info.idxs[start].offset)
-        # figure out how big of a chunk we want to read 
-        size = sum([traj_info.idxs[i].size for i in range(start,start+nconfs)])
-        # read chunk and prepare to split
-        chunk = StringIO(traj_file.read(size)) # work with the string like a file 
-        return [chunk.read(traj_info.idxs[i].size)
-                            for i in range(start,start+nconfs)] 
-
-def inbox(conf):
+def inbox(conf, center=False):
     """
         Modify the positions attribute such that all positions are inside the box.
     """
@@ -85,10 +68,13 @@ def inbox(conf):
         [np.sum(np.cos(angle[:,2])), np.sum(np.sin(angle[:,2]))]]) / len(angle)
         return conf.box / (2 * np.pi) * (np.arctan2(-cm[:,1], -cm[:,0]) + np.pi)
     target = np.array([conf.box[0] / 2, conf.box[1] / 2, conf.box[2] / 2])
-    center = calc_PBC_COM(conf)
-    positions = conf.positions + target - center   
+    cms = calc_PBC_COM(conf)
+    positions = conf.positions + target - cms   
     new_poses = coord_in_box(positions)
     positions += (new_poses - conf.positions)
+    if center:
+        cms = np.mean(positions, axis=0)
+        positions -= cms
     return Configuration(
         conf.time, conf.box, conf.energy,
         positions, conf.a1s, conf.a3s

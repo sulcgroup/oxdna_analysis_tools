@@ -1,12 +1,13 @@
-from collections import namedtuple
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration
-from multiprocessing import Pool
-from random import randrange
-import numpy as np
 import argparse
 import os
 import time
+import numpy as np
+from sys import stderr
+from multiprocessing import Pool
+from collections import namedtuple
+from random import randrange
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 start_time = time.time()
 
@@ -46,10 +47,9 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "ntopart"])
 def compute(ctx:ComputeContext,chunk_id:int):
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
-    confs = (inbox(c) for c in confs)
+    confs = (inbox(c, center=True) for c in confs)
     # convert to numpy repr
-    aligned_coords = np.asarray([[align_conf.positions, align_conf.a1s, align_conf.a3s] 
-                                                                  for align_conf in confs])
+    aligned_coords = np.asarray([[c.positions, c.a1s, c.a3s] for c in confs])
     sub_mean = np.zeros(shape=[3,ctx.top_info.nbases,3])
     for c in aligned_coords:
         sub_mean += align(ctx.centered_ref_coords, c, ctx.indexes)
@@ -105,7 +105,6 @@ def main():
 
     # how many confs we want to distribute between the processes
     ntopart = 20
-    #prepare to fire multiple processes 
     pool = Pool(ncpus)
 
     # deduce how many chunks we have to run in parallel
@@ -146,8 +145,38 @@ def main():
     a1s = np.array([v/np.linalg.norm(v) for v in a1s])
     a3s = np.array([v/np.linalg.norm(v) for v in a3s])
 
-    write_conf("./mean_r.dat",Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
+    #-o names the output file
+    if args.output:
+        outfile = args.output[0]
+    else:
+        outfile = "mean.dat"
+        print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
+
+    write_conf(outfile,Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
     print("--- %s seconds ---" % (time.time() - start_time))
+
+    # -d runs compute_deviations.py
+    if args.deviations:
+        from sys import argv
+        from oxDNA_analysis_tools import rye_deviations
+        dev_file = args.deviations[0]
+        print("INFO: Launching compute_deviations")
+
+        #this is probably horrible practice, but to maintain the ability to call things from the command line, I cannot pass arguments between main() calls.
+        #so instead we're gonna spoof a global variable to make it look like compute_deviations was called explicitally
+        argv.clear()
+        argv.extend(['rye_deviations.py', '-o', dev_file, "-r", dev_file.split('.')[0]+"_rmsd.png", "-d", dev_file.split('.')[0]+"_rmsd_data.json"])
+        if args.index_file:
+            argv.append("-i")
+            argv.append(index_file)
+        if args.parallel:
+            argv.append("-p") 
+            argv.append(str(ncpus))
+        argv.append(outfile)
+        argv.append(traj)
+        argv.append(top)
+
+        rye_deviations.main()
 
 if __name__ == '__main__':
     main()
