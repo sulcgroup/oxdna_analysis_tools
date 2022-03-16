@@ -24,7 +24,7 @@ def align(centered_ref_coords, coords, indexes):
         A tuple of the aligned coordinates (coords, a1s, a3s) for the given chunk
     """
     # center on centroid
-    av1, reference_coords = np.zeros(3), centered_ref_coords
+    av1, reference_coords = np.zeros(3), centered_ref_coords.copy()
     av2 = np.mean(coords[0][indexes], axis=0)
     coords[0] = coords[0] - av2
     # correlation matrix
