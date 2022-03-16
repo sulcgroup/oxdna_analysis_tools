@@ -58,7 +58,7 @@ def compute_centroid(reader, mean_structure, indexes, num_confs, start=None, sto
         cur_conf_a1 = np.einsum('ij, ki -> kj', rot, cur_conf_a1)
         cur_conf_a3 = np.einsum('ij, ki -> kj', rot, cur_conf_a3)
         RMSF = sup.get_rms()
-        print("Frame number:",confid, "RMSF:", RMSF)
+        #print("Frame number:",confid, "RMSF:", RMSF)
         if RMSF < lowest_rmsf:
             centroid_candidate = cur_conf
             centroid_a1 = cur_conf_a1

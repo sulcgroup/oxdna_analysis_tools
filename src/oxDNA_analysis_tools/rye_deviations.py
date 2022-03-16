@@ -9,9 +9,7 @@ from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 from oxDNA_analysis_tools.rye_mean import align
-
 import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
 import time
 start_time = time.time()
 
@@ -29,10 +27,6 @@ def compute(ctx:ComputeContext,chunk_id:int):
     SFs = np.empty((ctx.ntopart, ctx.top_info.nbases))
     for i, c in enumerate(confs):
         aligned_conf = align(ctx.mean_coords.positions[ctx.indexes], c, ctx.indexes)[0]
-        #ax = plt.axes(projection='3d')
-        #ax.plot3D(aligned_conf[:,0], aligned_conf[:,1], aligned_conf[:,2], c='r')
-        #ax.plot3D(ctx.mean_coords.positions[ctx.indexes][:,0], ctx.mean_coords.positions[ctx.indexes][:,1], ctx.mean_coords.positions[ctx.indexes][:,2], c='b')
-        #plt.show()
         SFs[i] = np.power(np.linalg.norm(aligned_conf - ctx.mean_coords.positions, axis=1), 2)
 
     return SFs
