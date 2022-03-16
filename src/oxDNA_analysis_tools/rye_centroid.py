@@ -5,8 +5,8 @@ import numpy as np
 import argparse
 import os
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.rye_mean import align
 
 import matplotlib.pyplot as plt
@@ -30,10 +30,9 @@ def compute_centroid(ctx:ComputeContext, chunk_id:int):
     centroid_id = -1
 
     for i, c in enumerate(np_confs):
-        c[0] -= np.mean(c[0][ctx.indexes], axis=0) #didn't inbox earlier because you have to center on the indexed particles
+        c[0] -= np.mean(c[0][ctx.indexes], axis=0) #didn't center earlier because you have to center on the indexed particles
         aligned_conf = align(ctx.ref_coords.positions[ctx.indexes], c, ctx.indexes)[0]
         RMSD = np.sqrt(np.mean(np.linalg.norm(aligned_conf[ctx.indexes] - ctx.ref_coords.positions[ctx.indexes], axis=1)**2))
-        print(confs[i].time, RMSD, aligned_conf[0])
         if RMSD < min_RMSD:
             min_RMSD = RMSD
             centroid_candidate = c
@@ -109,7 +108,7 @@ def main():
     print("All spawned")
 
     min_RMSD = np.inf
-    centroid_candidate = ref_conf
+    centroid_candidate = Configuration(0, ref_conf.box, np.zeros(3), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions))
     centroid_time = -1
 
     # Collect results from the worker processes
