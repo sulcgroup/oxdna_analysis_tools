@@ -9,9 +9,6 @@ import numpy as np
 from oxDNA_analysis_tools.config import set_analysis_path
 PROCESSPROGRAM = set_analysis_path()
 
-from oxDNA_analysis_tools.config import check_dependencies
-check_dependencies(["numpy"])
-
 def contact_map (inputfile, mysystem, return_full_matrix):
     """
     Computes the distance between every pair of nucleotides and creates a matrix of these distances.

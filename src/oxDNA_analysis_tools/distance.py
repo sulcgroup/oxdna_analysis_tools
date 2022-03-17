@@ -24,6 +24,24 @@ def min_image(p1, p2, box):
     diff = diff - (np.round(diff/box)*box)
     return np.linalg.norm(diff)
 
+def vectorized_min_image(p1s, p2s, box):
+    """
+    Calculates all mutual distances between two sets of points taking PBC into account
+    
+    Paramters:
+        p1s (np.array): the first set of points (Nx3 array)
+        p2s (np.array): the second set of points (Mx3 array)
+
+    returns:
+        distances (np.array): the distances between the points (NxM array)
+    """
+
+    p1s = p1s - (np.floor(p1s/box) * box)
+    p2s = p2s - (np.floor(p2s/box) * box)
+    diff = p1s[np.newaxis,:,:] - p2s[:,np.newaxis,:]
+    diff = diff - (np.round(diff/box)*box)
+    return np.linalg.norm(diff, axis=2)
+
 def get_distances(trajectories, p1s, p2s):
     """
     Calculates specified distances in each of the provided trajectories

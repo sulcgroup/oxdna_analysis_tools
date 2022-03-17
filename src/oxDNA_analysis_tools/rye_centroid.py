@@ -9,11 +9,6 @@ from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.rye_mean import align
 
-import matplotlib.pyplot as plt
-from mpl_toolkits import mplot3d
-
-
-
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
                                               "ref_coords",

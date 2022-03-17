@@ -42,10 +42,10 @@ def main():
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('topology', type=str, nargs=1, help='the topology file associated with the trajectory')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
-    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the deviations json file to')
+    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the RMSF json file to')
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
     parser.add_argument('-r', metavar='rmsd_plot', dest='rmsd_plot', nargs=1, help='The name of the file to save the RMSD plot to.')
-    parser.add_argument('-d', metavar='rmsd_data', dest='rmsd_data', nargs=1, help='The name of the file to save the RNSD data in json format.')
+    parser.add_argument('-d', metavar='rmsd_data', dest='rmsd_data', nargs=1, help='The name of the file to save the RMSD data in json format.')
     args = parser.parse_args()
 
     #system check
