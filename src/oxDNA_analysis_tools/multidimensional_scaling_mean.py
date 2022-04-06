@@ -7,6 +7,7 @@
 #by Scikit.learn's MDS algorithm, then subtracts the contact map of each individual structure from the man
 #This is used to compute a per-nucleotide deviation in the contact map, which can be visualized with oxView
 
+from statistics import mean
 import numpy as np
 from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
 from sys import exit, stderr
@@ -206,7 +207,7 @@ def main():
     from sklearn.manifold import MDS
     mds = MDS(n_components=3, metric=True, max_iter=3000, eps=1e-12, dissimilarity="precomputed", n_jobs=1, n_init=1)
     out_coords = mds.fit_transform(masked_mean)#, init=init) #this one worked best
-    
+
     #Overwrite the system we made earlier with the coordinates calculated via MDS
     for i, n in enumerate(output_system._nucleotides):
         n.cm_pos = out_coords[i]
@@ -218,8 +219,8 @@ def main():
     print("INFO: wrote output files: {}.dat, {}.top".format(meanfile, meanfile), file=stderr)
 
     #Loop through the trajectory again and calculate deviations from the average distances
-    print("INFO: Computing distance deviations of {} configurations using 1 core.".format(num_confs), file=stderr)
     if not parallel:
+        print("INFO: Computing distance deviations of {} configurations using 1 core.".format(num_confs), file=stderr)
         r = LorenzoReader2(traj_file,top_file)
         devs = get_devs(r, masked_mean, inputfile, cutoff_distance, num_confs)
 

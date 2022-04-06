@@ -58,7 +58,7 @@ def devs_mds(ctx:DevsContext, chunk_id:int, ):
 
     devs = np.zeros((ctx.top_info.nbases, ctx.top_info.nbases))
 
-    for i, c in enumerate(np_poses):
+    for c in np_poses:
         c_map = vectorized_min_image(c, c, confs[0].box)
         masked_distances = np.ma.masked_array(c_map, ~(c_map < CUTOFF))
 
@@ -122,7 +122,6 @@ def main():
     masked_mean = np.ma.masked_array(mean_distances, ~(mean_distances < CUTOFF))
 
     print("INFO: fitting local distance data", file=stderr)
-    print(masked_mean[:10, :10])
     mds = MDS(n_components=3, metric=True, max_iter=3000, eps=1e-12, dissimilarity="precomputed", n_jobs=1, n_init=1)
     out_coords = mds.fit_transform(masked_mean, init=example_conf.positions) #without the init you can get a left-handed structure.
     a1s = np.zeros((top_info.nbases, 3))
