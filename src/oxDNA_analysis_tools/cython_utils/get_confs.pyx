@@ -5,7 +5,7 @@ from cpython.bytes cimport PyBytes_Size
 from libc.stdio cimport fopen, fclose, fread, fseek, FILE
 from libc.string cimport strtok, strcpy
 from libc.stdlib cimport atoi, atof, malloc, free
-from oxDNA_analysis_tools.UTILS.RyeReader import Configuration
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
