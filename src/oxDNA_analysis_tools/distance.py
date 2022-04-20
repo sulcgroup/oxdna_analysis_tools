@@ -174,7 +174,7 @@ def main():
             names = names[:n_dists]
 
     else:
-        print("INFO: Defaulting to particle IDs as data series names")
+        print("INFO: Defaulting to particle IDs as data series names", file=stderr)
         names = ["{}-{}".format(p1, p2) for p1, p2 in zip([i for sl in p1s for i in sl], [i for sl in p2s for i in sl])]
     
     # -d will dump the distances as json files for loading with the trajectories in oxView
@@ -192,7 +192,7 @@ def main():
             for n, d in zip(ns, dist_list):
                 obj[n] = d        
             with open(file_name, 'w+') as f:
-                print("INFO: writing data to {}.  This can be opened in oxView using the Order parameter selector".format(file_name))
+                print("INFO: writing data to {}.  This can be opened in oxView using the Order parameter selector".format(file_name), file=stderr)
                 dump(obj, f)
 
     #convert the distance list into numpy arrays because they're easier to work with

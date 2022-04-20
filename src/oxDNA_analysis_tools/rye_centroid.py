@@ -4,10 +4,10 @@ from collections import namedtuple
 import numpy as np
 import argparse
 import os
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf, write_conf
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
-from oxDNA_analysis_tools.rye_mean import align
+from oxDNA_analysis_tools.rye_align import align
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",

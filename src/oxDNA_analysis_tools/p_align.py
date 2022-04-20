@@ -10,6 +10,8 @@ from pathos.pools import ProcessPool
 from pathos.multiprocessing import cpu_count
 from functools import partial
 import argparse
+import time
+start_time = time.time()
 
 #actually unused these days, but just in case...
 def get_n_cpu():
@@ -57,8 +59,8 @@ def align(indexes, ref_conf, mysystem):
 
 def main():
 
-    ncpus = get_n_cpu()
-    ntopart = 5
+    ncpus = 5
+    ntopart = 20
     #prepare to fire multiple processes 
     pool = ProcessPool(nodes=ncpus)
 
@@ -121,7 +123,7 @@ def main():
             parsed_confs =  pool.map(handle_align, confs_to_parse)
             out.write("".join(flatten(parsed_confs)))
 
-    #print("--- %s seconds ---" % (time.time() - start_time))
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()

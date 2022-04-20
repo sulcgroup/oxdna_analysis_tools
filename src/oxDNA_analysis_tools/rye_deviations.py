@@ -8,7 +8,7 @@ from json import dumps
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
-from oxDNA_analysis_tools.rye_mean import align
+from oxDNA_analysis_tools.rye_align import align
 import matplotlib.pyplot as plt
 import time
 start_time = time.time()

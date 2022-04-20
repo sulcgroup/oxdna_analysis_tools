@@ -80,7 +80,7 @@ def inbox(conf, center=False):
         positions, conf.a1s, conf.a3s
     )
 
-def write_conf(path,conf):
+def write_conf(path,conf, append=False):
     """
         write the conf to a file
     """
@@ -90,7 +90,9 @@ def write_conf(path,conf):
     out.append('E = {}'.format(' '.join(conf.energy.astype(str))))
     for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s):
         out.append('{} {} {} 0.0 0.0 0.0 0.0 0.0 0.0'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
-    with open(path,"w") as f:
+    
+    mode = 'a' if append else 'w'
+    with open(path,mode) as f:
         f.write("\n".join(out))
  
 def get_top_info(top):

@@ -1,44 +1,17 @@
 import argparse
 import os
 import time
+from nbformat import write
 import numpy as np
 from sys import stderr
 from multiprocessing import Pool
 from collections import namedtuple
 from random import randrange
+from oxDNA_analysis_tools.rye_align import align
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 start_time = time.time()
-
-def align(centered_ref_coords, coords, indexes):
-    """
-    Single-value decomposition-based alignment of configurations
-
-    Parameters
-        centered_ref_coords: reference coordinates, centered on [0, 0, 0]
-        coords: coordinates to be aligned
-        indexes: indexes of the atoms to be aligned
-
-    Returns
-        A tuple of the aligned coordinates (coords, a1s, a3s) for the given chunk
-    """
-    # center on centroid
-    av1, reference_coords = np.zeros(3), centered_ref_coords.copy()
-    av2 = np.mean(coords[0][indexes], axis=0)
-    coords[0] = coords[0] - av2
-    # correlation matrix
-    a = np.dot(np.transpose(coords[0][indexes]), reference_coords)
-    u, _, vt = np.linalg.svd(a)
-    rot = np.transpose(np.dot(np.transpose(vt), np.transpose(u)))
-    # check if we have found a reflection
-    if np.linalg.det(rot) < 0:
-        vt[2] = -vt[2]
-        rot = np.transpose(np.dot(np.transpose(vt), np.transpose(u)))
-    tran = av1 - np.dot(av2, rot)
-    return  (np.dot(coords[0], rot) + tran,
-             np.dot(coords[1], rot),
-             np.dot(coords[2], rot))
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
@@ -49,9 +22,9 @@ def compute(ctx:ComputeContext,chunk_id:int):
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
     confs = (inbox(c, center=True) for c in confs)
     # convert to numpy repr
-    aligned_coords = np.asarray([[c.positions, c.a1s, c.a3s] for c in confs])
+    np_coords = np.asarray([[c.positions, c.a1s, c.a3s] for c in confs])
     sub_mean = np.zeros(shape=[3,ctx.top_info.nbases,3])
-    for c in aligned_coords:
+    for c in np_coords:
         sub_mean += align(ctx.centered_ref_coords, c, ctx.indexes)
     
     return sub_mean

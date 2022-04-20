@@ -7,6 +7,7 @@
 #This is used to compute a per-nucleotide deviation in the contact map, which can be visualized with oxView
 
 from matplotlib.pyplot import box
+from nbformat import write
 import numpy as np
 import argparse
 from os import path
