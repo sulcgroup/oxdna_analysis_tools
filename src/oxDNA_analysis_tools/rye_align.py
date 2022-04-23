@@ -5,8 +5,7 @@ import numpy as np
 from sys import stderr
 from multiprocessing import Pool
 from collections import namedtuple
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, conf_to_str
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 start_time = time.time()
 
@@ -57,7 +56,9 @@ def compute(ctx:ComputeContext, chunk_id:int):
         confs[i].positions = c[0]
         confs[i].a1s = c[1]
         confs[i].a3s = c[2]
-    return confs
+    #return confs
+    out = '/n'.join([conf_to_str(c) for c in confs])
+    return out
 
 def main():
 
@@ -110,12 +111,12 @@ def main():
     ntopart = 20
     pool = Pool(ncpus)
 
-        # deduce how many chunks we have to run in parallel
+    # deduce how many chunks we have to run in parallel
     n_confs  = traj_info.nconfs 
     n_chunks = int(n_confs / ntopart +
                          (1 if n_confs % ntopart else 0))
 
-    # alignment requires the ref to be centered at 0
+    # alignment requires the ref to be centered at 0.  Inboxing did not take the indexing into account.
     reference_coords = ref_conf.positions[indexes]
     ref_cms = np.mean(reference_coords, axis=0) # cms prior to centering
     reference_coords = reference_coords - ref_cms
@@ -125,31 +126,16 @@ def main():
         traj_info, top_info, reference_coords, indexes, ntopart
     )
 
-    #for i in range(n_chunks):
-    #    chunk = compute(ctx, i)
-    #    if i == 0:
-    #        write_conf(outfile, chunk[0], append=False)
-    #        for c in chunk[1:]:
-    #            write_conf(outfile, c, append=True)
-    #    else:
-    #        for c in chunk:
-    #            write_conf(outfile, c, append=True)
-
     ## Distribute jobs to the worker processes
     print(f"Starting up {ncpus} processes for {n_chunks} chunks")
     results = [pool.apply_async(compute,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned")
+    print("All spawned, waiting for results")
 
-    for i,r in enumerate(results):
-        print(f"finished {i+1}/{n_chunks}",end="\r")
-        chunk = r.get()
-        if i == 0:
-            write_conf(outfile, chunk[0], append=False)
-            for c in chunk[1:]:
-                write_conf(outfile, c, append=True)
-        else:
-            for c in chunk:
-                write_conf(outfile, c, append=True)
+    with open(outfile, 'w+') as f:
+        for i,r in enumerate(results):
+            chunk = r.get()
+            print(f"finished {i+1}/{n_chunks}",end="\r")
+            f.write(chunk)
 
     pool.close()
     pool.join()
