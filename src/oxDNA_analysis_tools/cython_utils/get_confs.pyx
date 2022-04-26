@@ -64,11 +64,11 @@ cdef parse_conf(char *chunk, int start_byte, int size, int nbases):
     cdef int time
     
     #allocate some memory for our configuration
-    cdef double *cbox = <double *> malloc(THREE * sizeof(double))
-    cdef double *cenergy = <double *> malloc(THREE * sizeof(double))
-    cdef double *cposes = <double *> malloc(nbases * THREE * sizeof(double))
-    cdef double *ca1s = <double *> malloc(nbases * THREE * sizeof(double))
-    cdef double *ca3s = <double *> malloc(nbases * THREE * sizeof(double))
+    cdef cbox    = np.zeros(3, dtype = np.float64)
+    cdef cenergy = np.zeros(3, dtype = np.float64)
+    cdef cposes  = np.zeros(nbases * THREE, dtype = np.float64)
+    cdef ca1s    = np.zeros(nbases * THREE, dtype = np.float64)
+    cdef ca3s    = np.zeros(nbases * THREE, dtype = np.float64)
 
     cdef int j = 0
     cdef int i = 0
@@ -108,13 +108,11 @@ cdef parse_conf(char *chunk, int start_byte, int size, int nbases):
             ca3s[i*THREE+j] = atof(ptr)
         ptr = strtok(NULL, '\n')
 
-    # Convert the configuration information into numpy arrays and store in a Configuration
-    box = np.asarray(<double[:3]>cbox)
-    energy = np.asarray(<double[:3]>cenergy)
-    poses = np.asarray(<double[:nbases*3]>cposes).reshape(nbases, THREE)
-    a1s = np.asarray(<double[:nbases*3]>ca1s).reshape(nbases, THREE)
-    a3s = np.asarray(<double[:nbases*3]>ca3s).reshape(nbases, THREE)
-        
-    cdef out  = Configuration(time, box, energy, poses, a1s, a3s)
-
-    return out
+    return Configuration(
+                time, 
+                cbox, 
+                cenergy, 
+                cposes.reshape(nbases, THREE),
+                ca1s.reshape(nbases, THREE), 
+                ca3s.reshape(nbases, THREE)
+            )
