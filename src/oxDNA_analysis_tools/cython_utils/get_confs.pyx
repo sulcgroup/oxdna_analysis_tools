@@ -9,7 +9,6 @@ from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-
 def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
     """
     A string!
@@ -59,6 +58,8 @@ def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
 
     return confs
 
+@cython.wraparound(False)
+@cython.boundscheck(False)
 cdef parse_conf(char *chunk, int start_byte, int size, int nbases):
     cdef int THREE = 3
     cdef int time
