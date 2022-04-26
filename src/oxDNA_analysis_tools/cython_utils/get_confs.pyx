@@ -16,7 +16,7 @@ def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
     """
     # Number of configurations to read
     cdef int conf_count = len(idxs)
-    if (start+nconfs >= conf_count):
+    if (start+nconfs >= conf_count): #this handles the last chunk which may not have nconfs confs remaining.
         nconfs = conf_count - start
 
     # Configuration start/size markers within the chunk

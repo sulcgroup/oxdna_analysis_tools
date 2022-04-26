@@ -82,12 +82,13 @@ def main():
     if args.reference_structure:
         #read reference configuration
         _, ref_info = describe(top_file, args.reference_structure[0])
+        print(top_info)
         ref_conf = get_confs(ref_info.idxs, ref_info.path, 0, 1, top_info.nbases)[0]
     else:
         #read the first configuration and use it as the reference configuration for the rest
         ref_conf = get_confs(traj_info.idxs, traj_info.path, 1, 1, top_info.nbases)[0]
 
-    ref_conf = inbox(ref_conf, center=True)
+    ref_conf = inbox(ref_conf) # Don't need to center now because we're going to after indexing anyway.
 
     #-i will make it only run on a subset of nucleotides.
     #The index file is a space-separated list of particle IDs

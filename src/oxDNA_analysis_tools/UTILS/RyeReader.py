@@ -89,7 +89,7 @@ def write_conf(path,conf, append=False):
     out.append('b = {}'.format(' '.join(conf.box.astype(str))))
     out.append('E = {}'.format(' '.join(conf.energy.astype(str))))
     for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s):
-        out.append('{} {} {} 0.0 0.0 0.0 0.0 0.0 0.0'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
+        out.append('{} {} {} 0 0 0 0 0 0'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
     
     mode = 'a' if append else 'w'
     with open(path,mode) as f:
@@ -110,7 +110,7 @@ def conf_to_str(conf):
     # When writing a configuration to a file, the conversion from ndarray to string is the slowest part
     # This horrific list comp is the best solution we found
     header = f't = {int(conf.time)}\nb = {" ".join(conf.box.astype(str))}\nE = {" ".join(conf.energy.astype(str))}\n'
-    return(''.join([header, ''.join([('{} {} {} 0.0 0.0 0.0 0.0 0.0 0.0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str)))) for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s)])]))
+    return(''.join([header, ''.join([('{} {} {} 0 0 0 0 0 0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str)))) for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s)])]))
 
 def get_top_info(top):
     """
@@ -129,4 +129,25 @@ def describe(top, traj):
         retrieve top and traj info for a provided pair
     """
     return get_top_info(top), get_traj_info(traj)
+
+def no_top_describe(traj):
+    """
+        Retrieve top and traj info without providing a topology. 
+
+        Note that the resulting top_info will have 0 strands because that information cannot be found in the trajectory. 
+    """
+
+    with open(traj) as f:
+        l = ''
+        # dump the header
+        for _ in range(4):
+            l = f.readline()
+        n_bases = 0
+        while (l[0] != 't'):
+            n_bases += 1
+            l = f.readline()
+            if l == '':
+                break
+
+    return TopInfo(int(n_bases), 0), get_traj_info(traj)
 
