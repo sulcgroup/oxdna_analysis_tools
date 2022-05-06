@@ -8,6 +8,8 @@ from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf, wr
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.rye_align import align
+import time
+start_time = time.time()
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
@@ -131,6 +133,8 @@ def main():
     print("INFO: Wrote centroid to {}".format(outfile), file=stderr)
     print("INFO: Min RMSD: {} nm".format(min_RMSD), file=stderr)
     print("INFO: Centroid time: {}".format(centroid_time), file=stderr)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()

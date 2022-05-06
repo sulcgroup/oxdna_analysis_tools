@@ -11,6 +11,8 @@ import os
 from json import load
 from oxDNA_analysis_tools.UTILS import parallelize_erik_onefile
 from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
+import time
+start_time = time.time()
 
 def compute_centroid(reader, mean_structure, indexes, num_confs, start=None, stop=None):
     """
@@ -162,6 +164,8 @@ def main():
     from oxDNA_analysis_tools.mean2dat import make_dat
 
     make_dat({'g_mean' : centroid, 'a1_mean': centroid_a1s, 'a3_mean': centroid_a3s}, outfile)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()

@@ -133,7 +133,7 @@ def compute_mean (reader, align_conf, indexes, num_confs, start = None, stop = N
         mean_a3_storage += mysystem.a3s
 
         # print the rmsd of the alignment in case anyone is interested...
-        print("Frame:", confid, "Time:", mysystem.time, "RMSF:", sup.get_rms())
+        #print("Frame:", confid, "Time:", mysystem.time, "RMSF:", sup.get_rms())
         # thats all we do for a frame
         confid += 1
         mysystem = reader.read()
@@ -301,6 +301,8 @@ def main():
         from oxDNA_analysis_tools.mean2dat import make_dat
         make_dat(loads(mean_file), outname)
 
+    print("--- %s seconds ---" % (time.time() - start_t))
+
     #If requested, run compute_deviations.py using the output from this script.
     if dev_file:
         print("INFO: launching compute_deviations.py", file=stderr)
@@ -320,8 +322,6 @@ def main():
 
         from oxDNA_analysis_tools import compute_deviations
         from sys import executable
-        print(executable)
-        print(argv)
 
         compute_deviations.main()
 
@@ -331,8 +331,6 @@ def main():
             print("INFO: deleting {}".format(jsonfile), file=stderr)
             from os import remove
             remove(jsonfile)
-
-    print(time.time() - start_t)
 
 if __name__ == '__main__':
     main()

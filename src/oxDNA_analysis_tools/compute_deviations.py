@@ -11,6 +11,8 @@ import numpy as np
 import argparse
 import os
 from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
+import time
+start_time = time.time()
 
 def compute_deviations(reader, mean_structure, indexed_mean_structure, indexes, num_confs, start=None, stop=None):
     """
@@ -48,7 +50,7 @@ def compute_deviations(reader, mean_structure, indexed_mean_structure, indexes, 
         indexed_cur_conf = cur_conf[indexes]
         sup.set(indexed_mean_structure, indexed_cur_conf)
         sup.run()
-        print("Frame number:",confid, "Time:", mysystem.time, "RMSD:", sup.get_rms())
+        #print("Frame number:",confid, "Time:", mysystem.time, "RMSD:", sup.get_rms())
         # realign frame
         rot, tran = sup.get_rotran()
         # align structures and collect coordinates for each frame 
@@ -175,6 +177,8 @@ def main():
             f.write(dumps({
                 "RMSD (nm)" : RMSDs
             }))
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()

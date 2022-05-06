@@ -14,6 +14,8 @@ from oxDNA_analysis_tools.UTILS.readers import ErikReader
 import numpy as np
 import argparse
 import os
+import time
+start_time = time.time()
 
 #aligner
 def align_frame(ref_conf, sup, mysystem, indexes):
@@ -110,6 +112,8 @@ def main():
         mysystem.write_append(outfile)
     
         mysystem = r.read()
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()
