@@ -1,0 +1,138 @@
+import numpy as np
+import argparse
+from sys import exit, stderr
+from os import path
+from multiprocessing import Pool
+from collections import namedtuple
+import oxpy
+from oxDNA_analysis_tools.UTILS.readers import get_input_parameter
+from oxDNA_analysis_tools.UTILS.RyeReader import describe
+
+import time
+start_time = time.time()
+
+ComputeContext = namedtuple("ComputeContext",["traj_info",
+                                              "top_info",
+                                              "designed_pairs",
+                                              "input_file",
+                                              "ntopart"])
+
+def compute(ctx, chunk_id):
+    with oxpy.Context():
+        inp = oxpy.InputFile()
+        inp.init_from_filename(ctx.input_file)
+        inp["list_type"] = "cells"
+        inp["trajectory_file"] = ctx.traj_info.path
+        inp["analysis_bytes_to_skip"] = str(ctx.traj_info.idxs[chunk_id*ctx.ntopart].offset)
+        inp["confs_to_analyse"] = str(ctx.ntopart)
+        inp["analysis_data_output_1"] = '{ \n name = stdout \n print_every = 1e10 \n col_1 = { \n id = my_obs \n type = hb_list \n } \n }'
+
+        backend = oxpy.analysis.AnalysisBackend(inp)
+    
+        count_correct_bonds = 0
+        count_incorrect_bonds = 0
+        tot_bonds = 0
+        out_array = np.zeros(ctx.top_info.nbases, dtype=int)
+        while backend.read_next_configuration():
+            pairs = backend.config_info().get_observable_by_id("my_obs").get_output_string(0).strip().split('\n')
+            for p in pairs[1:]:
+                p = p.split()
+                a = int(p[0])
+                b = int(p[1])
+                if a in ctx.designed_pairs.keys():
+                    if ctx.designed_pairs[a] == b:
+                        count_correct_bonds += 1
+                        tot_bonds += 1
+                        out_array[a] += 1
+                        out_array[b] += 1
+                    else:
+                        count_incorrect_bonds += 1
+                        tot_bonds += 1
+
+        return(tot_bonds, count_correct_bonds, count_incorrect_bonds, out_array)
+
+
+
+
+def main():
+    #read data from files
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Compare the bonds found at each trajectory with the intended design")
+    parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
+    parser.add_argument('trajectory', type=str, nargs=1, help="The trajecotry file to compare against the designed pairs")
+    parser.add_argument('designed_pairs', type=str, nargs=1, help="The file containing the desired nucleotides pairings in the format \n a b\nc d")
+    parser.add_argument('output_file', type=str, nargs=1, help="name of the file to save the output json overlay to")
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    args = parser.parse_args()
+
+    #run system checks
+    from oxDNA_analysis_tools.config import check_dependencies
+    check_dependencies(["python", "numpy"])
+
+    inputfile = args.inputfile[0]
+    traj_file = args.trajectory[0]
+    designfile = args.designed_pairs[0]
+    outfile = args.output_file[0]
+
+    top_file = get_input_parameter(inputfile, "topology")
+    top_info, traj_info = describe(top_file, traj_file)
+
+    with open(designfile, 'r') as file:
+        pairs_txt = file.readlines()
+
+    pairs = {int(p[0]) : int(p[1]) for p in [p.split() for p in pairs_txt]}
+
+    if args.parallel:
+        ncpus = args.parallel[0]
+    else:
+        ncpus = 1
+        
+
+    # how many confs we want to distribute between the processes
+    ntopart = 20
+    pool = Pool(ncpus)
+
+    # deduce how many chunks we have to run in parallel
+    n_confs  = traj_info.nconfs 
+    n_chunks = int(n_confs / ntopart +
+                         (1 if n_confs % ntopart else 0))
+
+    ctx = ComputeContext(traj_info, top_info, pairs, inputfile, ntopart)
+
+    ## Distribute jobs to the worker processes
+    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
+    results = [pool.apply_async(compute,(ctx,i)) for i in range(n_chunks)]
+    print("All spawned, waiting for results")
+
+    total_bonds = 0
+    correct_bonds = 0
+    incorrect_bonds = 0
+    nt_array = np.zeros(ctx.top_info.nbases, dtype=int)
+
+    for i, r in enumerate(results):
+        tb, cb, ib, arr = r.get()
+        total_bonds += tb
+        correct_bonds += cb
+        incorrect_bonds += ib
+        nt_array += arr
+        print(f"finished {i+1}/{n_chunks}",end="\r")
+
+    total_bonds /= traj_info.nconfs
+    correct_bonds /= traj_info.nconfs
+    incorrect_bonds /= traj_info.nconfs
+    nt_array  = nt_array / traj_info.nconfs
+
+    print("\nSummary:\navg bonds: {}\navg_missbonds: {}".format(total_bonds, incorrect_bonds))
+
+    print("INFO: Writing bond occupancy data to {}".format(outfile))
+
+    with open(outfile, "w+") as file:
+        file.write("{\n\"occupancy\" : [")
+        file.write(str(nt_array[0]))
+        for n in nt_array[1:]:
+            file.write(", {}".format(n))
+        file.write("] \n}")
+
+    print("--- %s seconds ---" % (time.time() - start_time))
+
+if __name__ == '__main__':
+    main()
