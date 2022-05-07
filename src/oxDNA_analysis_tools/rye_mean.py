@@ -1,7 +1,6 @@
 import argparse
 import os
 import time
-from nbformat import write
 import numpy as np
 from sys import stderr
 from multiprocessing import Pool
