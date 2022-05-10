@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+from __future__ import annotations
 import numpy as np
 
 # Data class to hold information about a chunk of a trajectory
@@ -38,3 +39,39 @@ class Configuration:
 class TopInfo:
     nbases : int
     nstrands : int
+
+@dataclass(slots=True)
+class System:
+    top_info : TopInfo
+    strands : list
+
+    def __getitem__(self, key):
+        return self.strands[key]
+
+    def __setitem__(self, key, value):
+        self.strands[key] = value
+
+    def __iter__(self):
+        return (s for s in self.strands)
+
+@dataclass(slots=True)
+class Strand:
+    nbases : int
+    bases : list
+
+    def __getitem__(self, key):
+        return self.bases[key]
+
+    def __setitem__(self, key, value):
+        self.bases[key] = value
+
+    def __iter__(self):
+        return (b for b in self.bases)
+
+@dataclass(slots=True)
+class Base:
+    id : int
+    type : str
+    strand : Strand
+    n3 : Base
+    n5 : Base
