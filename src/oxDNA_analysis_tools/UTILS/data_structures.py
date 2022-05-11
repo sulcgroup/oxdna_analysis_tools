@@ -1,5 +1,5 @@
-from dataclasses import dataclass
 from __future__ import annotations
+from dataclasses import dataclass
 import numpy as np
 
 # Data class to hold information about a chunk of a trajectory
@@ -40,10 +40,12 @@ class TopInfo:
     nbases : int
     nstrands : int
 
-@dataclass(slots=True)
 class System:
-    top_info : TopInfo
+    __slots__ = ('strands')
     strands : list
+
+    def __init__(self, strands = []):
+        self.strands = strands
 
     def __getitem__(self, key):
         return self.strands[key]
@@ -54,24 +56,30 @@ class System:
     def __iter__(self):
         return (s for s in self.strands)
 
-@dataclass(slots=True)
+    def append(self, strand):
+        self.strands.append(strand)
+
 class Strand:
-    nbases : int
-    bases : list
+    __slots__ = ('id', 'monomers')
+    id : int
+    monomers : list
+
+    def __init__(self, id):
+        self.id = id
 
     def __getitem__(self, key):
-        return self.bases[key]
+        return self.monomers[key]
 
     def __setitem__(self, key, value):
-        self.bases[key] = value
+        self.monomers[key] = value
 
     def __iter__(self):
-        return (b for b in self.bases)
+        return (m for m in self.monomers)
 
 @dataclass(slots=True)
-class Base:
+class Monomer:
     id : int
     type : str
     strand : Strand
-    n3 : Base
-    n5 : Base
+    n3 : Monomer
+    n5 : Monomer

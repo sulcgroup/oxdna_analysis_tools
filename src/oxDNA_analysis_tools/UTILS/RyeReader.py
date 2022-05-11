@@ -151,3 +151,61 @@ def no_top_describe(traj):
 
     return TopInfo(int(n_bases), 0), get_traj_info(traj)
 
+def strand_describe(top):
+    """
+        Retrieve all information from topology file mapping nucleotides to strands.
+        
+        Parameters:
+            top (str) : path to topology file
+
+        Returns:
+            system (System) : system object 
+            monomers (list of Monomer) : list of monomers
+    """
+    get_neighbor = lambda x: monomers[x] if x != -1 else None
+
+    with open (top) as f:
+        l = f.readline().split()
+        nmonomers = int(l[0])
+        nstrands = int(l[1])
+
+        system = System([None] * nstrands)
+        monomers = [Monomer(i, None, None, None, None) for i in range(nmonomers)]
+
+        ls = f.readlines()
+
+        l = ls[0].split()
+        curr = int(l[0])
+        mid = 0
+        s_start = 0
+        s = Strand(curr)
+        monomers[mid].type = l[1]
+        monomers[mid].strand = s
+        monomers[mid].n3 = get_neighbor(int(l[2]))
+        monomers[mid].n5 = get_neighbor(int(l[3]))
+        l = ls[1].split()
+        mid += 1
+        while l:
+            if int(l[0]) != curr:
+                s.monomers = monomers[s_start:mid]
+                system[curr-1] = s #this is going to do something weird with proteins
+                curr = int(l[0])
+                s = Strand(curr)
+                s_start = mid
+            
+            monomers[mid].type = l[1]
+            monomers[mid].strand = s
+            monomers[mid].n3 = get_neighbor(int(l[2]))
+            monomers[mid].n5 = get_neighbor(int(l[3]))
+
+            mid += 1
+            try:
+                l = ls[mid].split()
+            except IndexError:
+                break  
+
+    s.monomers = monomers[s_start:mid]
+    system[curr-1] = s #this is going to do something weird with proteins
+
+    return system, monomers
+
