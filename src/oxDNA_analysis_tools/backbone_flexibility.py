@@ -7,6 +7,9 @@ import os
 import argparse
 from json import dumps
 
+import time
+start_time = time.time()
+
 def rad2degree(angle):
     """
     Convert radians to degrees
@@ -135,6 +138,8 @@ def main():
         file.write(dumps({
             "torsion" : torsion_mean
         }))
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()
