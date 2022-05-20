@@ -15,6 +15,10 @@ from oxDNA_analysis_tools.UTILS import geom
 from oxDNA_analysis_tools.output_bonds import output_bonds
 from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 
+import time
+start_time = time.time()
+print("--- %s seconds ---" % (time.time() - start_time))
+
 class Duplex:
     """
         Defines a nucleic acid duplex structure
@@ -201,6 +205,8 @@ def main():
             line = '{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}\t[{},{},{}]\n'.format(duplexes_at_step[i][j].time,duplexes_at_step[i][j].index,duplexes_at_step[i][j].start1,duplexes_at_step[i][j].end1,duplexes_at_step[i][j].start2,duplexes_at_step[i][j].end2,duplexes_at_step[i][j].axis[0],duplexes_at_step[i][j].axis[1],duplexes_at_step[i][j].axis[2],duplexes_at_step[i][j].final_hel_pos[0],duplexes_at_step[i][j].final_hel_pos[1],duplexes_at_step[i][j].final_hel_pos[2])
             output.write(line)
     output.close()
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()

@@ -17,6 +17,7 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "centered_ref_coords",
                                               "indexes",
                                               "ntopart"])
+                                              
 def compute(ctx:ComputeContext,chunk_id:int):
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
     confs = (inbox(c, center=True) for c in confs)
@@ -102,8 +103,8 @@ def main():
     # get the results from the workers
     acc = np.zeros([3, top_info.nbases, 3])
     for i,r in enumerate(results):
-        print(f"finished {i+1}/{n_chunks}",end="\r")
         acc += r.get()
+        print(f"finished {i+1}/{n_chunks}",end="\r")
     pool.close()
     pool.join()
 

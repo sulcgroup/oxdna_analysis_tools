@@ -27,6 +27,9 @@ def compute(ctx, chunk_id):
         inp["confs_to_analyse"] = str(ctx.ntopart)
         inp["analysis_data_output_1"] = '{ \n name = stdout \n print_every = 1e10 \n col_1 = { \n id = my_obs \n type = hb_list \n } \n }'
 
+        if (not inp["use_average_seq"] or inp.get_bool("use_average_seq")) and "RNA" in inp["interaction_type"]:
+            print("WARNING: Sequence dependence not set for RNA model, wobble base pairs will be ignored", file=stderr)
+
         backend = oxpy.analysis.AnalysisBackend(inp)
     
         count_correct_bonds = 0

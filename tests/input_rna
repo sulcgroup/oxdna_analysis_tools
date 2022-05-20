@@ -18,7 +18,8 @@ delta_rotation = 0.2
 T = 35C  
 verlet_skin = 0.2
 mismatch_repulsion = 1
-use_average_seq = 1
+use_average_seq = 0
+seq_dep_file = rna_sequence_dependent_parameters.txt
 
 #umbrella_sampling = 1
 #op_file = op.txt

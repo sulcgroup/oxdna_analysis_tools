@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import numpy as np
 
 # Data class to hold information about a chunk of a trajectory
-@dataclass(slots=True)
+@dataclass
 class Chunk:
     block : str
     offset : int
@@ -11,21 +11,21 @@ class Chunk:
     file_size : int
 
 # Data class to hold metadata about an individual configuration
-@dataclass(slots=True)
+@dataclass
 class ConfInfo:
     offset : int
     size : int
     id : int
 
 # Data class to hold information about a whole trajectory file
-@dataclass(slots=True)
+@dataclass
 class TrajInfo:
     path : str
     nconfs : int
     idxs : ConfInfo
 
 # Data class which actually contains configuration information
-@dataclass(slots=True)
+@dataclass
 class Configuration:
     time : int
     box : np.array
@@ -35,7 +35,7 @@ class Configuration:
     a3s : np.array
 
 # Data class which contains topology information
-@dataclass(slots=True)
+@dataclass
 class TopInfo:
     nbases : int
     nstrands : int
@@ -76,10 +76,14 @@ class Strand:
     def __iter__(self):
         return (m for m in self.monomers)
 
-@dataclass(slots=True)
+#No, you cannot make n3, n5 and pair refs to other Monomers
+#Scaffold strands are long enough that it would stack overflow while pickling for Pool processing
+#Therefore you have to get the references from ids in the monomers array
+@dataclass
 class Monomer:
     id : int
     type : str
     strand : Strand
-    n3 : Monomer
-    n5 : Monomer
+    n3 : int
+    n5 : int
+    pair : int

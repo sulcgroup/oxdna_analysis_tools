@@ -162,7 +162,7 @@ def strand_describe(top):
             system (System) : system object 
             monomers (list of Monomer) : list of monomers
     """
-    get_neighbor = lambda x: monomers[x] if x != -1 else None
+    get_neighbor = lambda x: monomers[x].id if x != -1 else None
 
     with open (top) as f:
         l = f.readline().split()
@@ -170,7 +170,7 @@ def strand_describe(top):
         nstrands = int(l[1])
 
         system = System([None] * nstrands)
-        monomers = [Monomer(i, None, None, None, None) for i in range(nmonomers)]
+        monomers = [Monomer(i, None, None, None, None, None) for i in range(nmonomers)]
 
         ls = f.readlines()
 

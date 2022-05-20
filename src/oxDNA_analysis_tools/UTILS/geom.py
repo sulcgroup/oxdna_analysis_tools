@@ -273,6 +273,7 @@ def get_RNA_axis(s,first_base, last_base, cfirst_base, clast_base, only_plane_ve
 
 	#now we try to fit a plane through all these points
 	plane_vector = fit_plane(back_poses)
+	print("pv: ",len(plane_vector), plane_vector[0])
 	#print(plane_vector)
 	#plane_vector = fit_plane(vectorsA)
 
@@ -292,7 +293,7 @@ def get_RNA_axis(s,first_base, last_base, cfirst_base, clast_base, only_plane_ve
 		bpos = bpos - np.dot(bpos,plane_vector) * plane_vector
 		bp_vec = -apos + bpos
 		if np.linalg.norm(bp_vec) == 0:
-			    continue
+			continue
 		midpointA = 0.5 * (apos + bpos)
 		perpendicular_vecA = np.cross(bp_vec,plane_vector)
 		perpendicular_vecA /= my_norm(perpendicular_vecA)
@@ -310,7 +311,7 @@ def get_RNA_axis(s,first_base, last_base, cfirst_base, clast_base, only_plane_ve
 		y = midpointB - midpointA
 		t,c = np.linalg.lstsq(mat,y)[0]
 		if my_norm(midpointA + t*perpendicular_vecA  -  (midpointB + c *perpendicular_vecB)) > 1.e-6 :
-			print ('Error in finding common intersection point',midpointA + t*perpendicular_vecA , mipointB + c *perpendicular_vecB)
+			print ('Error in finding common intersection point',midpointA + t*perpendicular_vecA , midpointB + c *perpendicular_vecB)
 		hel_position = midpointA + t*perpendicular_vecA	
 		#print ('Hel position from BP',i,'is ',hel_position)
 		hel_pos.append(hel_position)	
