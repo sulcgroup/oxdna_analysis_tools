@@ -40,7 +40,19 @@ def _index(traj_file):
     return idxs
 
 
-def get_traj_info(traj):
+def get_traj_info(traj : str):
+    """
+        Get the information of a trajectory file
+
+        Parameters
+        ----------
+        traj (str) : path to the trajectory file
+
+        Returns
+        -------
+        (TrajInfo) : trajectory info
+
+    """
     #if idxs is None: # handle case when we have no indexes provided
     if not(exists(traj+".pyidx")):
         idxs = _index(traj) # no index created yet
@@ -52,9 +64,18 @@ def get_traj_info(traj):
             idxs = loads(file.read())
     return TrajInfo(traj,len(idxs),idxs)
 
-def inbox(conf, center=False):
+def inbox(conf : Configuration, center=False):
     """
         Modify the positions attribute such that all positions are inside the box.
+
+        Parameters
+        ----------
+        conf (Configuration) : The configuration to inbox
+        center (bool) : If True, center the configuration on the box
+
+        Returns
+        -------
+        (Configuration) : The inboxed configuration
     """
     def realMod (n, m):
         return(((n % m) + m) % m)
@@ -80,9 +101,15 @@ def inbox(conf, center=False):
         positions, conf.a1s, conf.a3s
     )
 
-def write_conf(path,conf, append=False):
+def write_conf(path : str, conf : Configuration, append=False):
     """
         write the conf to a file
+
+        Parameters
+        ----------
+        path (str) : path to the file
+        conf (Configuration) : the configuration to write
+        append (bool) : if True, append to the file, if False, overwrite
     """
     out = []
     out.append('t = {}'.format(int(conf.time)))
@@ -95,7 +122,7 @@ def write_conf(path,conf, append=False):
     with open(path,mode) as f:
         f.write("\n".join(out))
 
-def conf_to_str(conf):
+def conf_to_str(conf : Configuration):
     """
     Write configuration as a string
 
@@ -112,9 +139,17 @@ def conf_to_str(conf):
     header = f't = {int(conf.time)}\nb = {" ".join(conf.box.astype(str))}\nE = {" ".join(conf.energy.astype(str))}\n'
     return(''.join([header, ''.join([('{} {} {} 0 0 0 0 0 0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str)))) for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s)])]))
 
-def get_top_info(top):
+def get_top_info(top : str):
     """
         bare bones of topology info
+
+        Parameters
+        ----------
+        top (str) : path to the topology file
+
+        Returns
+        -------
+        (TopInfo) : topology info
     """
     with open(top) as f:
         my_top_info = f.readline().split(' ')
@@ -124,17 +159,34 @@ def get_top_info(top):
             nbases, nstrands, ndna, nres, ndnastrands = my_top_info
     return TopInfo(int(nbases), int(nstrands))
 
-def describe(top, traj):
+def describe(top : str, traj : str):
     """
         retrieve top and traj info for a provided pair
+
+        Parameters
+        ----------
+        top (str) : path to the topology file
+        traj (str) : path to the trajectory file
+
+        Returns
+        -------
+        (TopInfo, TrajInfo) : topology and trajectory info
     """
     return get_top_info(top), get_traj_info(traj)
 
-def no_top_describe(traj):
+def no_top_describe(traj : str):
     """
         Retrieve top and traj info without providing a topology. 
 
         Note that the resulting top_info will have 0 strands because that information cannot be found in the trajectory. 
+
+        Parameters
+        ----------
+        traj (str) : path to the trajectory file
+
+        Returns
+        -------
+        (TopInfo, TrajInfo) : topology and trajectory info
     """
 
     with open(traj) as f:
