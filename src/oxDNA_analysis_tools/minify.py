@@ -3,6 +3,9 @@ import argparse
 from os import remove, path
 from numpy import round
 
+import time
+start_time = time.time()
+
 
 def main():
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Compress given configuration.")
@@ -38,6 +41,8 @@ def main():
                 system.a3s -= system.a3s
             # output conf
             system.write_append(out)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()

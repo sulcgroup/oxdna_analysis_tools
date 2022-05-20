@@ -57,7 +57,7 @@ def compute(ctx:ComputeContext, chunk_id:int):
         confs[i].a1s = c[1]
         confs[i].a3s = c[2]
     #return confs
-    out = '/n'.join([conf_to_str(c) for c in confs])
+    out = ''.join([conf_to_str(c) for c in confs])
     return out
 
 def main():
@@ -82,7 +82,6 @@ def main():
     if args.reference_structure:
         #read reference configuration
         _, ref_info = describe(top_file, args.reference_structure[0])
-        print(top_info)
         ref_conf = get_confs(ref_info.idxs, ref_info.path, 0, 1, top_info.nbases)[0]
     else:
         #read the first configuration and use it as the reference configuration for the rest
