@@ -19,6 +19,9 @@ import oxDNA_analysis_tools.UTILS.utils as utils
 DD12_PDB_PATH = "./UTILS/dd12_na.pdb"
 
 def main():
+    print("This script isn't working yet.  Check back later.")
+    sys.exit()
+
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Convert oxDNA files to PDB.  This converter can handle oxDNANM protein simulation files.")
     parser.add_argument('input', type=str, nargs=1, help='the input file used to run the oxDNA simulation')
     parser.add_argument('configuration', type=str, nargs=1, help='the configuration file you wish to convert')
