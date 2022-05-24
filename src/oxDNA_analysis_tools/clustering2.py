@@ -8,9 +8,10 @@ from sklearn import metrics
 from matplotlib import animation
 from json import dump, load
 from collections import namedtuple
+from dataclasses import asdict
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.UTILS.data_structures import TrajInfo, TopInfo
-from oxDNA_analysis_tools.UTILS.RyeReader import linear_read, conf_to_str
+from oxDNA_analysis_tools.UTILS.RyeReader import linear_read, conf_to_str, describe
 
 #not tested, probably works.
 
@@ -41,13 +42,19 @@ def split_trajectory(traj_info, top_info, labs):
     print ("INFO: splitting trajectory...", file=stderr)
     print ("INFO: Trajectories for each cluster will be written to cluster_<cluster number>.dat", file=stderr)
 
-    files = [open("cluster_"+str(cluster)+".dat", 'w+') for cluster in slabs]
+    fnames = ["cluster_"+str(cluster)+".dat" for cluster in slabs]
+    files = [open(f, 'w+') for f in fnames]
     i = 0
 
     for chunk in linear_read(traj_info, top_info, ntopart=20):
         for conf in chunk:
             files[labs[i]].write(conf_to_str(conf))
             i += 1
+    [f.close() for f in files]
+
+    print(f"INFO: Wrote trajectory files: {fnames}", file=stderr)
+
+    return
 
 def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str, eps:float, min_samples:int):
     check_dependencies(["python", "sklearn", "matplotlib"])
@@ -56,8 +63,13 @@ def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str
     dump_file = "cluster_data.json"
     print("INFO: Serializing input data to {}".format(dump_file), file=stderr)
     print("INFO: Run  `oat clustering {} -e<eps> -m<min_samples>`  to adjust clustering parameters".format(dump_file), file=stderr)
-    out = [op.tolist(), traj_info, top_info, metric]
-    dump(out, open(dump_file, 'w+'), separators=(',', ':'), sort_keys=True, indent=4)
+    out = {
+        "data": op.tolist(), 
+        "traj" : traj_info.path, 
+        "top" : top_info.path,  
+        "metric" : metric
+    }
+    dump(out, open(dump_file, 'w+'))
 
     # Prepping a plot of the first 3 dimensions of the provided op
     dimensions = []
@@ -85,7 +97,6 @@ def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str
     #        If the matrix is already a square distance matrix, the metrix needs to be "precomputed".
     #the eps and min_samples need to be determined for each input based on the values of the input data
     #If you're making your own multidimensional data, you probably want to normalize your data first.
-    print("INFO: Adjust clustering parameters by adding the -e and -m flags to the invocation of this script.", file=stderr)
     print("INFO: Current values: eps={}, min_samples={}".format(eps, min_samples))
     db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric).fit(op) 
     labels = db.labels_
@@ -128,25 +139,27 @@ def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str
         anim.save(plot_file, fps=30, extra_args=['-vcodec', 'libx264'])
 
     else:
-        plot_file = "plot.png"
+        plot_file = "cluster_plot.png"
         if len(dimensions) == 1:
             dimensions.append(np.arange(len(dimensions[0])))
-            a = ax.scatter(dimensions[1], dimensions[0], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
+            a = ax.scatter(dimensions[1], dimensions[0], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
         else:
-            a = ax.scatter(dimensions[0], dimensions[1], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
-        b = fig.colorbar(a, ax=ax)
+            a = ax.scatter(dimensions[0], dimensions[1], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
+        b = fig.colorbar(a, ax=ax, ticks=list(set(labels)))
         plt.savefig(plot_file)
     print("INFO: Saved cluster plot to {}".format(plot_file), file=stderr)
 
-    split_trajectory(traj_info, top_info, labels, n_clusters_)
+    split_trajectory(traj_info, top_info, labels)
+    
+    print("INFO: Run  `oat clustering {} -e<eps> -m<min_samples>`  to adjust clustering parameters".format(dump_file), file=stderr)
 
     return labels
 
 def main():
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculates clusters based on provided order parameters.")
     parser.add_argument('serialized_data', type=str, nargs=1, help="The json-formatted input file")
-    parser.add_argument('eps', '-e', type=float, nargs=1, help="The epsilon parameter for DBSCAN")
-    parser.add_argument('min_samples', '-m', type=int, nargs=1, help="The min_samples parameter for DBSCAN")
+    parser.add_argument('-e', '--eps', type=float, nargs=1, help="The epsilon parameter for DBSCAN (maximum distance to be considered a 'neighbor')")
+    parser.add_argument('-m', '--min_samples', type=int, nargs=1, help="The min_samples parameter for DBSCAN (number of neighbors which define a point as a central point in a cluster)")
     args = parser.parse_args()
     data_file = args.serialized_data[0]
     if args.eps:
@@ -161,8 +174,10 @@ def main():
     #load a previously serialized dataset
     with open(data_file, 'r') as f:
         data = load(f)
-    points = np.array(data[0])
-    labels = perform_DBSCAN(points, data[1], data[2], data[3], data[4], eps, min_samples)
+    points = np.array(data["data"])
+    top_info, traj_info = describe(data["top"], data["traj"])
+    metric = data["metric"]
+    labels = perform_DBSCAN(traj_info, top_info, points, metric, eps, min_samples)
 
 if __name__ == '__main__':
     main()

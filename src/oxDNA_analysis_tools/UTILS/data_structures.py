@@ -37,6 +37,7 @@ class Configuration:
 # Data class which contains topology information
 @dataclass
 class TopInfo:
+    path : str
     nbases : int
     nstrands : int
 

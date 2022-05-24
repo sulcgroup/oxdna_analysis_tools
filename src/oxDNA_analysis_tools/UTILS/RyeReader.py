@@ -15,11 +15,25 @@ def Chunker(file, fsize, size=1000000):
         current_chunk+=1
 
 def linear_read(traj_info:TrajInfo, top_info:TopInfo, ntopart):
+    """
+        Read a trajecory without multiprocessing
+
+        Parameters
+        ----------
+        traj_info (TrajInfo) : The trajectory info
+        top_info (TopInfo) : The topology info
+        ntopart (int) : The number of confs to read at a time
+
+        Returns
+        -------
+        (Configuration[]) : list of configurations
+    """
     current_chunk = 0
     while True:
-        confs = get_confs(traj_info.idxs, traj_info.file, current_chunk*ntopart, ntopart, top_info.nbases)
-        if len(confs) == 0:
+        print(f"INFO: processed {current_chunk*ntopart} / {len(traj_info.idxs)} confs", end='\r', file=stderr)
+        if current_chunk*ntopart >= len(traj_info.idxs):
             break
+        confs = get_confs(traj_info.idxs, traj_info.path, current_chunk*ntopart, ntopart, top_info.nbases)
         yield confs
         current_chunk += 1
 
@@ -170,7 +184,7 @@ def get_top_info(top : str):
         else:
             print("ERROR: malformed topology header, failed to read topology file", file=stderr)
             exit()
-    return TopInfo(int(nbases), int(nstrands))
+    return TopInfo(top, int(nbases), int(nstrands))
 
 def describe(top : str, traj : str):
     """

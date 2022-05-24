@@ -284,13 +284,13 @@ def main():
         print("INFO: Writing trajectory plot to file {}".format(out), file=stderr)
         plt.savefig("{}".format(out))
 
-    #if cluster == True:
-    #    if not all([x == trajectories[0] for x in trajectories]):
-    #        print("ERROR: Clustering can only be run on a single trajectory", file=stderr)
-    #        exit(1)
-    #    from oxDNA_analysis_tools.clustering import perform_DBSCAN
-#
-    #    labs = perform_DBSCAN(distances[0].T, len(distances[0][0]), trajectories[0], input_files[0], "euclidean", 12, 8)
+    if cluster == True:
+        if not all([x == trajectories[0] for x in trajectories]):
+            print("ERROR: Clustering can only be run on a single trajectory", file=stderr)
+            exit(1)
+        from oxDNA_analysis_tools.clustering2 import perform_DBSCAN
+
+        labs = perform_DBSCAN(traj_infos[0], top_infos[0], distances[0].T, "euclidean", 12, 8)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
