@@ -1,6 +1,6 @@
+from sys import stderr
 import numpy as np
 from pickle import loads, dumps
-from io import StringIO
 from os.path import exists
 import os
 from oxDNA_analysis_tools.UTILS.data_structures import *
@@ -157,6 +157,9 @@ def get_top_info(top : str):
             nbases, nstrands = my_top_info
         elif len(my_top_info) == 5:
             nbases, nstrands, ndna, nres, ndnastrands = my_top_info
+        else:
+            print("ERROR: malformed topology header, failed to read topology file", file=stderr)
+            exit()
     return TopInfo(int(nbases), int(nstrands))
 
 def describe(top : str, traj : str):
@@ -260,4 +263,52 @@ def strand_describe(top):
     system[curr-1] = s #this is going to do something weird with proteins
 
     return system, monomers
+
+def get_top_string(system):
+    """
+        Write topology file from system object.
+
+        Parameters
+        ----------
+        system (System) : system object
+
+        Returns
+        -------
+        (str) : string representation of the system in .top format
+
+    """
+
+    n_na = 0
+    n_aa = 0
+    na_strands = 0
+    aa_strands = 0
+    mid = -1
+
+
+    header = []
+    body = []
+
+    # iterate through strands and assign sequential ids
+    # this will break circular strands.
+    for s in system.strands:
+        #it's a nucleic acid strand
+        if s.id > 0:
+            na_strands += 1
+            for i, m in enumerate(s.monomers):
+                n_na += 1
+                mid += 1
+                body.append(f'{na_strands} {m.type} {-1 if i == 0 else mid-1} {-1 if i == len(s.monomers)-1 else mid+1}')
+
+        # it's a peptide strand
+        elif s.id < 0:
+            aa_strands -= 1
+            for i, m in enumerate(s.monomers):
+                n_aa += 1
+                mid += 1
+                body.append(f'{aa_strands} {m.type} {-1 if i == 0 else mid-1} {-1 if i == len(s.monomers)-1 else mid+1}')
+
+    header.append(f'{n_na+n_aa} {na_strands+aa_strands} {n_na if n_aa > 0 else ""} {n_aa if n_aa > 0 else ""}')
+
+    out = header+body
+    return '\n'.join(out)
 
