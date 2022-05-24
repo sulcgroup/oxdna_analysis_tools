@@ -15,11 +15,13 @@ try:
     from Bio.SVDSuperimposer import SVDSuperimposer
 except:
     from bio.SVDSuperimposer import SVDSuperimposer
-from random import randint
 from oxDNA_analysis_tools.UTILS import parallelize_erik_onefile
 from warnings import catch_warnings, simplefilter
 from os import environ, path
 from oxDNA_analysis_tools.config import check_dependencies
+
+import time
+start_time = time.time()
 
 def make_heatmap(covariance):
     """
@@ -251,6 +253,8 @@ def main():
             file.write(dumps({
                 "pca" : prep_pos_for_json(output_vectors)
             }))
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
     #If we're running clustering, feed the linear terms into the clusterer
     if cluster:
