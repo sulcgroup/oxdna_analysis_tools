@@ -4,6 +4,7 @@ from pickle import loads, dumps
 from os.path import exists
 import os
 from oxDNA_analysis_tools.UTILS.data_structures import *
+from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 def Chunker(file, fsize, size=1000000):
     current_chunk = 0  
@@ -12,6 +13,15 @@ def Chunker(file, fsize, size=1000000):
         if not b: break
         yield Chunk(b,current_chunk*size, current_chunk * size + size > fsize, fsize)
         current_chunk+=1
+
+def linear_read(traj_info:TrajInfo, top_info:TopInfo, ntopart):
+    current_chunk = 0
+    while True:
+        confs = get_confs(traj_info.idxs, traj_info.file, current_chunk*ntopart, ntopart, top_info.nbases)
+        if len(confs) == 0:
+            break
+        yield confs
+        current_chunk += 1
 
 #calculates the length of a trajectory file
 def _index(traj_file): 
