@@ -36,7 +36,7 @@ def linear_read(traj_info:TrajInfo, top_info:TopInfo, chunk_size=None):
     """
         Read a trajecory without multiprocessing.  
 
-        Produces an iterator that yields a list of <ntopart> configurations.
+        Produces an iterator that yields a list of <chunk_size> configurations.
 
         Parameters
         ----------
