@@ -94,7 +94,7 @@ def main():
     min_RMSD = np.inf
     centroid_candidate = Configuration(0, ref_conf.box, np.zeros(3), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions))
     centroid_time = -1
-    def callback(r):
+    def callback(i, r):
         nonlocal min_RMSD, centroid_candidate, centroid_time
         centroid, RMSD, t = r
         if RMSD < min_RMSD:

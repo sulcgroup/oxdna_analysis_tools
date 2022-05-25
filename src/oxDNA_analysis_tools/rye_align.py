@@ -118,7 +118,7 @@ def main():
     )
 
     with open(outfile, 'w+') as f:
-        def callback(r):
+        def callback(i, r):
             nonlocal f
             f.write(r)
 
