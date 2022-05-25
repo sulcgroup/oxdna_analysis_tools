@@ -3,7 +3,7 @@ from os import remove, path
 from sys import stderr
 from collections import namedtuple
 from numpy import round
-from multiprocessing import Pool
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import no_top_describe, conf_to_str
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
@@ -13,11 +13,10 @@ start_time = time.time()
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
                                               "d",
-                                              "a",
-                                              "ntopart"])
+                                              "a"])
 
-def compute(ctx:ComputeContext, chunk_id:int):
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     
     for conf in confs:
         if ctx.d is not None: #round positions
@@ -63,37 +62,20 @@ def main():
         a = True
     else:
         a = False
-    
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
 
     try:
         remove(out)
     except:
         pass
 
-    ctx = ComputeContext(
-        traj_info, top_info, d, a, ntopart)
-
-    ## Distribute jobs to the worker processes
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(compute,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned, waiting for results")
+    ctx = ComputeContext(traj_info, top_info, d, a)
 
     with open(out, 'w+') as f:
-        for i,r in enumerate(results):
-            chunk = r.get()
-            print(f"finished {i+1}/{n_chunks}",end="\r")
-            f.write(chunk)
+        def callback(i, r):
+            nonlocal f
+            f.write(r)
 
-    pool.close()
-    pool.join()
+        oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     print(f"INFO: Wrote aligned trajectory to {out}", file=stderr)
     print("--- %s seconds ---" % (time.time() - start_time))

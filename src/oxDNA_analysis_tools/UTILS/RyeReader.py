@@ -230,7 +230,7 @@ def no_top_describe(traj : str):
             if l == '':
                 break
 
-    return TopInfo(int(n_bases), 0), get_traj_info(traj)
+    return TopInfo("", int(n_bases), 0), get_traj_info(traj)
 
 def strand_describe(top):
     """
