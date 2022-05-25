@@ -2,12 +2,21 @@
 
 import numpy as np
 from sys import exit, stderr
+from collections import namedtuple
 import argparse
 import os
 import matplotlib.pyplot as plt
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import get_chunk_size, oat_multiprocesser
+from oxDNA_analysis_tools.UTILS.RyeReader import describe
+from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 import time
 start_time = time.time()
+
+ComputeContext = namedtuple("ComputeContext",["traj_info",
+                                              "top_info", 
+                                              "p1s",
+                                              "p2s"])
 
 #Calculates distance taking PBC into account
 def min_image(p1, p2, box):
@@ -45,63 +54,28 @@ def vectorized_min_image(p1s, p2s, box):
     diff = diff - (np.round(diff/box)*box)
     return np.linalg.norm(diff, axis=2)
 
-def get_distances(trajectories, p1s, p2s):
-    """
-    Calculates specified distances in each of the provided trajectories
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
+    box = confs[0].box
+    distances = np.empty((len(ctx.p1s), len(confs)))
 
-    Parameters:
-        trajectories (string[]): A list of trajectory file names
-        p1s (int[]): A list of particle indexes for the first particle in each distance
-        p2s (int[]): A list of particle indexes for the second particle in each distance
-
-    Returns:
-        distances (float[][]): A list of distances for each particle pair in each trajectory
-    """
-    distances = [[] for _ in trajectories]
-    for i,trajectory in enumerate(trajectories):
-        with open(trajectory, 'r') as traj:
-            distances[i] = [[] for _ in p1s[i]]
-            l = traj.readline()
-            l = traj.readline() #skip the first time line
-
-            #get the box size
-            box = np.array([l.split(' ')[2], l.split(' ')[3], l.split(' ')[4]], dtype=float)
-
-            #Read the file line by line and make a dictionary of particle positions
-            line_num = 1
-            d = {}
-            while l:
-                #If you're at the right particle, save the COM of the particle to a dictionary
-                if line_num-3 in p1s[i] or line_num-3 in p2s[i]:
-                    d[line_num-3] = np.array(l.split(' ')[0:3], dtype=float)
-
-                #if its the start of a new configuration, dump the distance data from the last one
-                if 't' in l:
-                    for j, (p1, p2) in enumerate(zip(p1s[i], p2s[i])):
-                        p1 = d[p1]
-                        p2 = d[p2]
-                        distances[i][j].append(min_image(p1, p2, box)*0.85) #1 oxDNA su = 0.85 nm
-                        line_num = 0
-                l = traj.readline() #returns false if there's no more conf to load
-                line_num += 1
-            
-            #catch the last configuration
-            for j, (p1, p2) in enumerate(zip(p1s[i], p2s[i])):
-                p1 = d[p1]
-                p2 = d[p2]
-                distances[i][j].append(min_image(p1, p2, box)*0.85) #1 oxDNA su = 0.85 nm
-
+    for i, conf in enumerate(confs):
+        distances[:,i] = [min_image(conf.positions[p1], conf.positions[p2], box)* 0.85 for p1, p2 in zip(ctx.p1s, ctx.p2s)]
+    
     return distances
+
+
 
 def main():
     #handle commandline arguments
     #this program has no positional arguments, only flags
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Finds the ensemble of distances between any two particles in the system")
-    parser.add_argument('-i', '--input', metavar='input', nargs='+', action='append', help='An input, trajectory, and a list of particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
+    parser.add_argument('-i', '--input', metavar='input', nargs='+', action='append', help='A trajectory, and a list of particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
     parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a json to this filename for loading in oxView or your own scripts')
     parser.add_argument('-n', '--names', metavar='names', nargs='+', action='append', help='Names of the data series.  Will default to particle ids if not provided')
+    parser.add_argument('-p', '--parallel', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-c', metavar='cluster', dest='cluster', action='store_const', const=True, default=False, help="Run the clusterer on each configuration's distance?")
     args = parser.parse_args()
 
@@ -110,12 +84,11 @@ def main():
 
     #-i requires 4 or more arguments, the topology file of the structure, the trajectory to analyze, and any number of particle pairs to compute the distance between.
     try:
-        input_files = [i[0] for i in args.input]
-        trajectories = [i[1] for i in args.input]
-        p1s = [i[2::2] for i in args.input]
-        p2s = [i[3::2] for i in args.input]
-        p1s = [[int(j) for j in i] for i in p1s]
-        p2s = [[int(j) for j in i] for i in p2s]
+        trajectories = [i[0] for i in args.input]
+        p1ss = [i[1::2] for i in args.input]
+        p2ss = [i[2::2] for i in args.input]
+        p1ss = [[int(j) for j in i] for i in p1ss]
+        p2ss = [[int(j) for j in i] for i in p2ss]
 
     except Exception as e:
         print("ERROR:", e)
@@ -123,16 +96,20 @@ def main():
         exit(1)
     
     #get number of distances to calculate
-    n_dists = sum([len(l) for l in p1s])
+    n_dists = sum([len(l) for l in p1ss])
 
     #Make sure that the input is correctly formatted
-    if(len(input_files) != len(trajectories)):
-        print("ERROR: bad input arguments\nPlease supply an equal number of input and, trajectory files", file=stderr)
-        exit(1)
-    if len(p1s) != len(p2s):
+    if len(p1ss) != len(p2ss):
         print("ERROR: bad input arguments\nPlease supply an even number of particles", file=stderr)
         exit(1)
 
+    # Get metadata on the inputs
+    top_infos = []
+    traj_infos = []
+    for traj in trajectories:
+        top_info, traj_info = describe(None, traj)
+        top_infos.append(top_info)
+        traj_infos.append(traj_info)
 
     #-o names the output file
     if args.output:
@@ -161,9 +138,27 @@ def main():
 
     #-c makes it run the clusterer on the output
     cluster = args.cluster
-    
-    #get the specified distances
-    distances = get_distances(trajectories, p1s, p2s)
+
+    # -p sets the number of cpus to use
+    if args.parallel:
+        ncpus = args.parallel[0]
+    else:
+        ncpus = 1
+
+    distances = [[] for _ in trajectories]
+    for i, (traj_info, top_info, p1s, p2s) in enumerate(zip(traj_infos, top_infos, p1ss, p2ss)):
+        
+        ctx = ComputeContext(traj_info, top_info, p1s, p2s)
+        
+        chunk_size = get_chunk_size()
+        distances[i] = [[None]*traj_info.nconfs for _ in p1s]
+        def callback(j, r):
+            nonlocal distances
+            for k, d in enumerate(r):
+                distances[i][k][chunk_size*j:chunk_size*j+len(d)] = d
+        print("INFO: Working on trajectory: {}".format(traj_info.path), file=stderr)
+
+        oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     # -n sets the names of the data series
     if args.names:
@@ -178,7 +173,7 @@ def main():
 
     else:
         print("INFO: Defaulting to particle IDs as data series names", file=stderr)
-        names = ["{}-{}".format(p1, p2) for p1, p2 in zip([i for sl in p1s for i in sl], [i for sl in p2s for i in sl])]
+        names = ["{}-{}".format(p1, p2) for p1, p2 in zip([i for sl in p1ss for i in sl], [i for sl in p2ss for i in sl])]
     
     # -d will dump the distances as json files for loading with the trajectories in oxView
     if args.data:
@@ -188,7 +183,7 @@ def main():
             file_names = ["{}_{}.json".format(args.data[0].strip('.json'), i) for i,_ in enumerate(trajectories)]
         else:
             file_names = [args.data[0].strip('.json')+'.json']
-        names_by_traj = [['{}-{}'.format(p1, p2) for p1, p2 in zip(p1l, p2l)] for p1l, p2l in zip(p1s, p2s)]
+        names_by_traj = [['{}-{}'.format(p1, p2) for p1, p2 in zip(p1l, p2l)] for p1l, p2l in zip(p1ss, p2ss)]
         
         for file_name, ns, dist_list in zip(file_names, names_by_traj, distances):
             obj = {}
@@ -212,7 +207,7 @@ def main():
 
     #those horrific list comprehensions unpack lists of lists into a single list
     print("input:\t", end='')
-    [print("{}-{}\t".format(p1, p2), end='') for p1, p2 in zip([i for sl in p1s for i in sl], [i for sl in p2s for i in sl])]
+    [print("{}-{}\t".format(p1, p2), end='') for p1, p2 in zip([i for sl in p1ss for i in sl], [i for sl in p2ss for i in sl])]
     print("")
 
     print("name:\t", end='')
@@ -276,12 +271,11 @@ def main():
         if not all([x == trajectories[0] for x in trajectories]):
             print("ERROR: Clustering can only be run on a single trajectory", file=stderr)
             exit(1)
-        from oxDNA_analysis_tools.clustering import perform_DBSCAN
+        from oxDNA_analysis_tools.clustering2 import perform_DBSCAN
 
-        labs = perform_DBSCAN(distances[0].T, len(distances[0][0]), trajectories[0], input_files[0], "euclidean", 12, 8)
+        labs = perform_DBSCAN(traj_infos[0], top_infos[0], distances[0].T, "euclidean", 12, 8)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()
-    

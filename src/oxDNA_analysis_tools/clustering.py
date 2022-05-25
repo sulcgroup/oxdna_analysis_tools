@@ -1,50 +1,57 @@
-#!/usr/bin/env python3
-
 import numpy as np
+import argparse
 from os import environ, remove, path
 from sys import stderr
-import subprocess
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 from sklearn.cluster import DBSCAN
-from sklearn import metrics
-from mpl_toolkits.mplot3d import Axes3D
 from matplotlib import animation
-from json import loads, dump
-import codecs
-from oxDNA_analysis_tools.output_bonds import output_bonds
-from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
+from json import dump, load
+from oxDNA_analysis_tools.config import check_dependencies
+from oxDNA_analysis_tools.UTILS.data_structures import TrajInfo, TopInfo
+from oxDNA_analysis_tools.UTILS.RyeReader import linear_read, conf_to_str, describe, write_conf
+from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
-#Runs principal component analysis of the points to produce orthogonal variation allowing for flattening of data to 3D
-def perform_pca(points, out_dims):
-    normed_points = points - np.mean(points, axis=0)
-    R = np.cov(normed_points, rowvar=False)
-    evals, evecs = np.linalg.eigh(R)
-    idx = np.argsort(evals)[::-1]
-    evecs = evecs[:,idx]
-    evals = evals[idx] 
-    evecs = evecs[:, :out_dims]
-    return np.dot(evecs.T, normed_points.T).T, evals, evecs
-
-def make_heatmap(inputfile, system, filename):
+def split_trajectory(traj_info, top_info, labs):
     """
-    Creates a heatmap for each cluster centroid
+    Splits the trajectory into the clustered trajectories
 
-    Parameters: 
-        inputfile (str): The input file used to run the simulation.
-        system (base.system): The system to make a heatmap from.
-        filename (str): The file to write the heatmap to.
+    Parameters:
+        traj_info (TrajInfo): Metadata on the trajectory file
+        top_info (TopInfo): Metadata on the topology file
+        labs (numpy.array): The cluster each configuration belongs to.
     """
-    from oxDNA_analysis_tools.contact_map import contact_map
-    m = contact_map(inputfile, system, True)
-    fig, ax = plt.subplots()
-    a = ax.imshow(m, cmap='viridis', origin='lower')
-    ax.set(title = "interaction network",
-        ylabel="nucleotide id",
-        xlabel="nucleotide id")
-    b = fig.colorbar(a, ax=ax)
-    b.set_label("distance", rotation = 270)
-    plt.savefig(filename+".png")
 
+    #How many are in each cluster?
+    print ("cluster\tmembers")
+
+    slabs = set(labs)
+
+    for cluster in slabs:
+        in_cluster = list(labs).count(cluster)
+        print ("{}\t{}".format(cluster, in_cluster))
+
+        #Clear old trajectory files
+        try:
+            remove("cluster_"+str(cluster)+".dat")
+        except: pass
+
+    print ("INFO: splitting trajectory...", file=stderr)
+    print ("INFO: Trajectories for each cluster will be written to cluster_<cluster number>.dat", file=stderr)
+
+    fnames = ["cluster_"+str(cluster)+".dat" for cluster in slabs]
+    files = [open(f, 'w+') for f in fnames]
+    i = 0
+
+    for chunk in linear_read(traj_info, top_info):
+        for conf in chunk:
+            files[labs[i]].write(conf_to_str(conf))
+            i += 1
+    [f.close() for f in files]
+
+    print(f"INFO: Wrote trajectory files: {fnames}", file=stderr)
+
+    return
 
 def find_element(n, x, array):
     """
@@ -58,89 +65,7 @@ def find_element(n, x, array):
             c += 1
     return -1
 
-def split_trajectory(traj_file, inputfile, labs, n_clusters):
-    """
-    Splits the trajectory into the clustered trajectories
-
-    Parameters:
-        traj_file (str): The analyzed trajectory file.
-        inputfile (str): The input file used to run the analyzed simulation.
-        labs (numpy.array): The cluster each point belongs to.
-    """
-    top_file = get_input_parameter(inputfile, "topology")
-
-    print ("cluster\tmembers")
-
-    #energies = []
-    #H_counts = []
-
-    for cluster in (set(labs)):
-        in_cluster = list(labs).count(cluster)
-
-        print ("{}\t{}".format(cluster, in_cluster))
-
-        #energies.append([])
-        #H_counts.append([])
-
-        #for making trajectories of each cluster
-        try:
-            remove("cluster_"+str(cluster)+".dat")
-        except: pass
-
-    confid = 0
-    r1 = LorenzoReader2(traj_file, top_file)
-    system = r1._get_system() 
-    
-    print ("INFO: splitting trajectory...", file=stderr)
-    print ("INFO: Will write cluster trajectories to cluster_<cluster number>.dat", file=stderr)
-
-    while system != False:
-        system.print_traj_output("cluster_"+str(labs[confid])+".dat", "/dev/null")
-
-        ###########
-        #If you want to get additional information about a cluster, add that code here
-        #for example, if you want average energy and hydrogen bonds:
-        '''
-        energies[labs[confid]].append(0)
-        H_counts[labs[confid]].append(0)
-        system.map_nucleotides_to_strands()
-        out = output_bonds(inputfile, system)
-
-        for line in out.split('\n'):
-            if line[0] != '#' and line[0] != '\n':
-                line = line.split(" ")
-                for m in line[2:9]:
-                    energies[labs[confid]][-1] += float(m)
-                if float(line[6]) != 0:
-                    H_counts[labs[confid]][-1] += 1
-        energies[labs[confid]][-1] /= len(system._nucleotides)
-        '''
-        ############
-            
-        confid += 1
-        system = r1._get_system()
-
-    #This is where you print the information about each cluster
-    '''    
-    avg_energy = []
-    energy_dev = []
-    avg_H = []
-    H_dev = []
-    for e, h in zip(energies, H_counts):
-        avg_energy.append(np.mean(e))
-        energy_dev.append(np.std(e))
-        avg_H.append(np.mean(h))
-        H_dev.append(np.std(h))
-    print ("cluster\tmembers\tavg_E\tE_dev\tavg_H\tH_dev")
-    for cluster in (set(labs)):
-        in_cluster = list(labs).count(cluster)
-        print ("{}\t{}\t{:.3f}\t{:.3f}\t{:.3f}\t{:.3f}".format(cluster, in_cluster, avg_energy[cluster], energy_dev[cluster], avg_H[cluster], H_dev[cluster]))
-    '''
-
-#Calculates the centroid for each cluster
-#Creates a .dat and .top file for each centroid
-#also makes a heatmap for each cluster and provides some information
-def get_centroid(points, metric_name, num_confs, labs, traj_file, inputfile):
+def get_centroid(points, metric_name, labs, traj_info, top_info):
     """
     Takes the output from DBSCAN and produces the trajectory and centroid from each cluster.
 
@@ -148,96 +73,56 @@ def get_centroid(points, metric_name, num_confs, labs, traj_file, inputfile):
         points (numpy.array): The points fed to the clstering algorithm.
         metric_name (str): The type of data the points represent.
         labs (numpy.array): The cluster each point belongs to.
-        traj_file (str): The analyzed trajectory file.
-        inputfile (str): The input file used to run the analyzed simulation.
+        traj_info (TrajInfo): Trajectory metadata.
+        tpo_file (TopInfo): Topology metadata.
     """
+
+    if metric_name == 'euclidean':
+        points = points[np.newaxis,:,:] - points[:,np.newaxis,:]
+        points = np.sqrt(np.sum(points**2, axis=2))    
     
-    print("INFO: splitting clusters...", file=stderr)
-    print("INFO: Will write cluster trajectories to traj_<cluster_number>.dat", file=stderr)
-    print ("cluster\tn\tavg_E\tE_dev\tavg_H\tH_dev\tcentroid_t")
+    print("INFO: Finding cluster centroid...", file=stderr)
+    cids = []
     for cluster in (set(labs)):
-        if metric_name == "precomputed":
-            masked = points[labs == cluster]
-            in_cluster_id = np.sum(masked, axis = 1).argmin()
+        masked = points[labs == cluster]
+        in_cluster_id = np.sum(masked, axis = 1).argmin()
 
-        in_cluster = list(labs).count(cluster)
         centroid_id = find_element(in_cluster_id, cluster, labs)
-        top_file = get_input_parameter(inputfile, "topology")
+        cids.append(centroid_id)
 
-        r = LorenzoReader2(traj_file, top_file)
-        output = r._get_system(N_skip=centroid_id)
-        filename = "centroid"+str(cluster)
+        centroid = get_confs(traj_info.idxs, traj_info.path, centroid_id, 1, top_info.nbases)[0]
+        fname = "centroid_"+str(cluster)+".dat"
+        write_conf(fname, centroid)
+        print(f"INFO: Wrote centroid file {fname}", file=stderr)
 
-        output.print_lorenzo_output(filename+".dat", filename+".top")
-        
-        make_heatmap(inputfile, output, filename)
+    return cids
 
-#Runs a DBSCAN on the points matrix and creates a 3D plot showing the clusters
-#There is code for both animating the plot and just having an interactive 3D plot.  Comment out the one you don't want
-def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name, eps, min_samples):
-    """
-    Runs the DBSCAN algorithm using the provided analysis as positions and splits the trajectory into clusters.
-
-    Parameters:
-        points (numpy.array): The points fed to the clstering algorithm.
-        num_confs (int): The number of configurations in the trajectory.
-        traj_file (str): The analyzed trajectory file.
-        inputfile (str): The input file used to run the analyzed simulation.
-        metric_name (str): The type of data the points represent (usually either "euclidean" or "precomputed").
-    
-    Returns:
-        labels (numpy.array): The clusterID of each configuration in the trajectory.
-    """
-
-    #run system checks
-    from oxDNA_analysis_tools.config import check_dependencies
-    check_dependencies(["python", "sklearn", "matplotlib"])
-    
-    print("INFO: Running DBSCAN...", file=stderr)
-
-    #dump the input as a json file so you can iterate on eps and min_samples
-    dump_file = "cluster_data.json"
-    print("INFO: Serializing input data to {}".format(dump_file), file=stderr)
-    print("INFO: Run just clustering.py with the serialized data to adjust clustering parameters", file=stderr)
-    out = [points.tolist(), num_confs, traj_file, inputfile, metric_name]
-    dump(out, codecs.open(dump_file, 'w', encoding='utf-8'), separators=(',', ':'), sort_keys=True, indent=4)
-
-    #prepping to show the plot later
-    #this only shows the first three dimensions because we assume that this is either PCA data or only a few dimensions anyway
-
-    #components = perform_pca(points, 3)
+def make_plot(op, labels, centroid_ids):
+    # Prepping a plot of the first 3 dimensions of the provided op
     dimensions = []
     x = []
+    y = []
     dimensions.append(x)
+    dimensions.append(y)
 
-    if points.shape[1] > 1:
-        y = []
-        dimensions.append(y)
+    # if the op is 1-dimensional add a time dimension
+    add_time = False
+    if op.shape[1] == 1:
+        add_time = True
+        op = np.hstack((op, np.arange(op.shape[0]).reshape(op.shape[0], 1)))
 
-    if points.shape[1] > 2:
+    if op.shape[1] > 2:
         z = []
         dimensions.append(z)
     
-    for i in points:
+    for i in op:
         for j, dim in enumerate(dimensions):
             dim.append(i[j])
 
-    #DBSCAN parameters:
-    #eps: the pairwise distance that configurations below are considered neighbors
-    #min_samples: The smallest number of neighboring configurations required to start a cluster
-    #metric: If the matrix fed in are points in n-dimensional space, then the metric needs to be "euclidean".
-    #        If the matrix is already a square distance matrix, the metrix needs to be "precomputed".
-    #the eps and min_samples need to be determined for each input based on the values of the input data
-    #If you're making your own multidimensional data, you probably want to normalize your data first.
-    print("INFO: Adjust clustering parameters by adding the -e and -m flags to the invocation of this script.", file=stderr)
-    print("INFO: Current values: eps={}, min_samples={}".format(eps, min_samples))
-    db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric_name).fit(points) 
-    labels = db.labels_
-    
-    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
-    print ("Number of clusters:", n_clusters_)
+    dimensions = np.array(dimensions)
 
-    
+    n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+
     print("INFO: Making cluster plot...")
     if len(dimensions) == 3:
         fig = plt.figure()
@@ -246,8 +131,8 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name, eps, mi
         fig = plt.figure()
         ax = fig.add_subplot(1, 1, 1)
 
-    plt.xlabel("OP0")
-    plt.ylabel("OP1")
+    ax.set_xlabel("OP0")
+    ax.set_ylabel("OP1")
 
     if len(dimensions) == 3:
         ax.set_zlabel("OP2")
@@ -259,8 +144,11 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name, eps, mi
         #to make a video showing a rotating plot
         plot_file = "animated.mp4"
         def init():
-            a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
+            a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1))
+            cen = ax.scatter(dimensions[0][centroid_ids], dimensions[1][centroid_ids], dimensions[2][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
             fig.colorbar(a, ax=ax)
+            handles, labels = cen.legend_elements(prop="colors", num = 1)
+            l = ax.legend(handles, ['Centroids'])
             return [fig]
 
         def animate(i):
@@ -268,33 +156,72 @@ def perform_DBSCAN(points, num_confs, traj_file, inputfile, metric_name, eps, mi
             return [fig]
 
         anim = animation.FuncAnimation(fig, animate, init_func=init, frames=range(360), interval=20, blit=True)
-        
         anim.save(plot_file, fps=30, extra_args=['-vcodec', 'libx264'])
 
     else:
-        plot_file = "plot.png"
-        if len(dimensions) == 1:
-            dimensions.append(np.arange(len(dimensions[0])))
-            a = ax.scatter(dimensions[1], dimensions[0], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
+        plot_file = "cluster_plot.png"
+        if add_time:
+            a = ax.scatter(dimensions[1], dimensions[0], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
+            cen = ax.scatter(dimensions[1][centroid_ids], dimensions[0][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
+            ax.set_xlabel("conf id")
+            ax.set_ylabel("OP0")
         else:
-            a = ax.scatter(dimensions[0], dimensions[1], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
-        b = fig.colorbar(a, ax=ax)
+            a = ax.scatter(x, y, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
+            cen = ax.scatter(dimensions[0][centroid_ids], dimensions[1][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
+
+        b = fig.colorbar(a, ax=ax, ticks=list(set(labels)))
+        handles, labels = cen.legend_elements(prop="colors", num = 1)
+        l = ax.legend(handles, ['Centroids'])
+        ax.add_artist(l)
         plt.savefig(plot_file)
     print("INFO: Saved cluster plot to {}".format(plot_file), file=stderr)
 
-    if metric_name == "precomputed":
-        get_centroid(points, metric_name, num_confs, labels, traj_file, inputfile)
 
-    split_trajectory(traj_file, inputfile, labels, n_clusters_)
+def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str, eps:float, min_samples:int):
+    check_dependencies(["python", "sklearn", "matplotlib"])
+    
+    #dump the input as a json file so you can iterate on eps and min_samples
+    dump_file = "cluster_data.json"
+    print("INFO: Serializing input data to {}".format(dump_file), file=stderr)
+    print("INFO: Run  `oat clustering {} -e<eps> -m<min_samples>`  to adjust clustering parameters".format(dump_file), file=stderr)
+    out = {
+        "data": op.tolist(), 
+        "traj" : traj_info.path,
+        "metric" : metric
+    }
+    dump(out, open(dump_file, 'w+'))
+
+
+    
+    print("INFO: Running DBSCAN...", file=stderr)
+
+    #DBSCAN parameters:
+    #eps: the pairwise distance that configurations below are considered neighbors
+    #min_samples: The smallest number of neighboring configurations required to start a cluster
+    #metric: If the matrix fed in are points in n-dimensional space, then the metric needs to be "euclidean".
+    #        If the matrix is already a square distance matrix, the metrix needs to be "precomputed".
+    #the eps and min_samples need to be determined for each input based on the values of the input data
+    #If you're making your own multidimensional data, you probably want to normalize your data first.
+    print("INFO: Current values: eps={}, min_samples={}".format(eps, min_samples))
+    db = DBSCAN(eps=eps, min_samples=min_samples, metric=metric).fit(op) 
+    labels = db.labels_
+    
+    n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
+    print ("Number of clusters:", n_clusters_)
+
+    split_trajectory(traj_info, top_info, labels)
+    centroid_ids =  get_centroid(op, metric, labels, traj_info, top_info)
+    make_plot(op, labels, centroid_ids)
+    
+    print("INFO: Run  `oat clustering {} -e<eps> -m<min_samples>`  to adjust clustering parameters".format(dump_file), file=stderr)
 
     return labels
 
 def main():
-    import argparse
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculates clusters based on provided order parameters.")
     parser.add_argument('serialized_data', type=str, nargs=1, help="The json-formatted input file")
-    parser.add_argument('eps', '-e', type=float, nargs=1, help="The epsilon parameter for DBSCAN")
-    parser.add_argument('min_samples', '-m', type=int, nargs=1, help="The min_samples parameter for DBSCAN")
+    parser.add_argument('-e', '--eps', type=float, nargs=1, help="The epsilon parameter for DBSCAN (maximum distance to be considered a 'neighbor')")
+    parser.add_argument('-m', '--min_samples', type=int, nargs=1, help="The min_samples parameter for DBSCAN (number of neighbors which define a point as a central point in a cluster)")
     args = parser.parse_args()
     data_file = args.serialized_data[0]
     if args.eps:
@@ -307,11 +234,12 @@ def main():
         min_samples = 8
 
     #load a previously serialized dataset
-    data = codecs.open(data_file, 'r', encoding='utf-8').read()
-    unpacked = loads(data)
-    points = np.array(unpacked[0])
-    labels = perform_DBSCAN(points, unpacked[1], unpacked[2], unpacked[3], unpacked[4], eps, min_samples)
+    with open(data_file, 'r') as f:
+        data = load(f)
+    points = np.array(data["data"])
+    top_info, traj_info = describe(None, data["traj"])
+    metric = data["metric"]
+    labels = perform_DBSCAN(traj_info, top_info, points, metric, eps, min_samples)
 
 if __name__ == '__main__':
     main()
-    

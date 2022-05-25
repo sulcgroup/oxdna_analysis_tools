@@ -1,42 +1,46 @@
-from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2
-from oxDNA_analysis_tools.UTILS import base
+import os
 import argparse
 from sys import stderr
-import os
+from collections import namedtuple
+from copy import deepcopy
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, strand_describe, conf_to_str, get_top_string
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration
+from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
-def subset_traj(system, ids):
-    """
-    Extracts specified parts of a configuration into separate configuration files
 
-    Parameters:
-        system (System): the system object representing a single configuration
-        ids (list[]): a list of lists of particle ids to extract
 
-    Returns:
-        new_systems (list[System]): a list of systems representing the extracted configurations
-    """
-    new_systems = [base.System(system._box) for _ in ids]
-    for s in new_systems:
-        s._time = system._time
-    system.inbox()
-    for s in system._strands:
-        tmp_strands = [None for _ in ids]
-        for n in s._nucleotides:
-            for i, idx in enumerate(ids):
-                if n.index in idx:
-                    if not tmp_strands[i]:
-                        if s.index >= 0:
-                            tmp_strands[i] = base.Strand()
-                        elif s.index < 0:
-                            tmp_strands[i] = base.Peptide()
+ComputeContext = namedtuple("ComputeContext",["traj_info",
+                                              "top_info",
+                                              "indexes"])
 
-                    tmp_strands[i].add_nucleotide(n)
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
+    outstr = [[] for _ in range(len(ctx.indexes))]
+    for conf in confs:
+        sub_confs = [Configuration(conf.time, conf.box, conf.energy, conf.positions[i], conf.a1s[i], conf.a3s[i]) for i in ctx.indexes]
+        for i, sub_conf in enumerate(sub_confs):
+            outstr[i].append(conf_to_str(sub_conf))
 
-        for st, sys in zip(tmp_strands, new_systems):
-            if st:
-                sys.add_strand(st, check_overlap=False)
+    return [''.join(out) for out in outstr]
 
-    return new_systems
+def write_topologies(system, indexes, outfiles):
+    top_names = [o+ ".top" for o in outfiles]
+    for idx, top_name in zip(indexes, top_names):
+        idx = set(idx)
+        new_sys = deepcopy(system)
+        for s in new_sys:
+            if s[0].n3 != None and s[0].id != s[-1].n5:
+                print(f"WARNING: Strand {s.id} is circular. Subsetting the trajectory will cut circular strands", file=stderr)
+            s.monomers = [n for n in s if n.id in idx]
+            
+        new_sys.strands = [s for s in new_sys if len(s.monomers) > 0]
+
+        with open(top_name, 'w+') as f:
+            f.write(get_top_string(new_sys))
+
+    return top_names
+
 
 def main():
     #command line arguments
@@ -44,40 +48,51 @@ def main():
     parser.add_argument('trajectory', type=str, nargs=1, help="The trajectory file to subset")
     parser.add_argument('topology', type=str, nargs=1, help="The topology file corresponding to the trajectory")
     parser.add_argument('-i', '--index', metavar='index', action='append', nargs=2, help='A space separated index file and the associated output file name.  This can be called multiple times')
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     args = parser.parse_args()
 
     top_file  = args.topology[0]
     traj_file = args.trajectory[0]
     index_files = [i[0] for i in args.index]
     output_files = [i[1] for i in args.index]
-    ids = []
-    for i in index_files:
+    top_info, traj_info = describe(top_file, traj_file)
+    system, _ = strand_describe(top_file)
+    indexes = []
+    outfiles = []
+    for i, o in zip(index_files, output_files):
         with open(i) as f:
             data = f.readline().split()
             try:
-                data = [int(i) for i in data]
+                data = sorted([int(i) for i in data])
             except:
                 print("ERROR: The index file {} must be a space-seperated list of particles.  These can be generated using oxView by clicking the \"Download Selected Base List\" button".format(i))
-        ids.append(data)
+        indexes.append(data)
+        outfiles.append(o)
 
-    r = LorenzoReader2(traj_file, top_file)
-    system = r._get_system()
+    if args.parallel:
+        ncpus = args.parallel[0]
+    else:
+        ncpus = 1
 
-    new_systems = subset_traj(system, ids)
+    # Create a ComputeContext which defines the problem to pass to the worker processes 
+    ctx = ComputeContext(traj_info, top_info, indexes)
 
-    for sys, o in zip(new_systems, output_files):
-        print("INFO: writing subset to {}".format(o), file=stderr)
-        sys.print_lorenzo_output(o+".dat", o+".top")
+    dat_names = [o+ ".dat" for o in outfiles]
+    files = [open(f, 'w+') for f in dat_names]
+    def callback(i, r):
+        for f, subset in zip(files, r):
+            f.write(subset)
 
-    system = r._get_system()
-    while system:
-        print("INFO: working on t = {}".format(system._time), file=stderr)
-        new_systems = subset_traj(system, ids)
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
-        for sys, o in zip(new_systems, output_files):
-            sys.print_traj_output(o+".dat", '/dev/null')
+    for f in files:
+        f.close()
 
-        system = r._get_system()
+    # Write topology files
+    top_names = write_topologies(system, indexes, outfiles)
+
+    print("INFO: Wrote trajectories: {}".format(dat_names), file=stderr)
+    print("INFO: Wrote topologies: {}".format(top_names), file=stderr)
 
 if __name__ == '__main__':
     main()

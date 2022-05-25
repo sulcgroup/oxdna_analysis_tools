@@ -1,19 +1,11 @@
-#!/usr/bin/env python3
-
-#superimpose.py
-#Created by: Erik Poppleton
-#Date: 2/27/19
-#Takes two (or more) configurations and aligns all proceeding ones to the first using the svd superimposer, then spits them out as new dat files.
-
-try:
-    from Bio.SVDSuperimposer import SVDSuperimposer
-except:
-    from bio.SVDSuperimposer import SVDSuperimposer
-from sys import exit, stderr
-from oxDNA_analysis_tools.UTILS.readers import ErikReader
-import numpy as np
 import argparse
 import os
+import numpy as np
+from sys import stderr
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
+from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.rye_align import align
+
 
 def main():
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="superimposes one or more structures sharing a topology to a reference structure")
@@ -22,13 +14,16 @@ def main():
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Align to only a subset of particles from a space-separated list in the provided file')
     args = parser.parse_args()
 
-
     #run system checks
     from oxDNA_analysis_tools.config import check_dependencies
-    check_dependencies(["python", "numpy", "Bio"])
+    check_dependencies(["python", "numpy"])
 
-    #Get the reference files
-    ref_dat = args.reference[0]
+    #Get the reference configuration
+    ref_file = args.reference[0]
+    top_info, ref_info = describe(None, ref_file)
+    ref_conf = get_confs(ref_info.idxs, ref_info.path, 0, 1, top_info.nbases)[0]
+
+    ref_conf = inbox(ref_conf)
 
     #-i will make it only run on a subset of nucleotides.
     #The index file is a space-separated list of particle IDs
@@ -41,33 +36,23 @@ def main():
             except:
                 print("ERROR: The index file must be a space-seperated list of particles.  These can be generated using oxView by clicking the \"Download Selected Base List\" button")
     else: 
-        with ErikReader(ref_dat) as r:
-            indexes = list(range(len(r.read().positions)))
+        indexes = list(range(top_info.nbases))
 
-    #Create list of configurations to superimpose
-    to_sup = []
-    r = ErikReader(ref_dat)
-    ref = r.read()
-    ref.inbox()
-    ref_conf = ref.positions[indexes]
-    for i in args.victims:
-        r = ErikReader(i)
-        sys = r.read()
-        sys.inbox()
-        to_sup.append(sys)
+    # alignment requires the ref to be centered at 0.  Inboxing did not take the indexing into account.
+    reference_coords = ref_conf.positions[indexes]
+    ref_cms = np.mean(reference_coords, axis=0) # cms prior to centering
+    reference_coords = reference_coords - ref_cms
 
-    sup = SVDSuperimposer()
+    for i, f in enumerate(args.victims):
+        top_info, traj_info = describe(None, f)
+        conf = get_confs(traj_info.idxs, traj_info.path, 0, 1, top_info.nbases)[0]
+        conf = inbox(conf)
 
-    #Run the biopython superimposer on each configuration and rewrite its configuration file
-    for i, sys in enumerate(to_sup):
-        indexed_cur_conf = sys.positions[indexes]
-        sup.set(ref_conf, indexed_cur_conf)
-        sup.run()
-        rot, tran = sup.get_rotran()
-        sys.positions = np.einsum('ij, ki -> kj', rot, sys.positions) + tran
-        sys.a1s = np.einsum('ij, ki -> kj', rot, sys.a1s)
-        sys.a3s = np.einsum('ij, ki -> kj', rot, sys.a3s)
-        sys.write_new("aligned{}.dat".format(i))
+        np_coords = np.asarray([conf.positions, conf.a1s, conf.a3s])
+
+        conf.positions, conf.a1s, conf.a3s = align(reference_coords, np_coords, indexes)
+
+        write_conf("aligned{}.dat".format(i), conf)
         print("INFO: Wrote file aligned{}.dat".format(i), file=stderr)
 
 if __name__ == '__main__':

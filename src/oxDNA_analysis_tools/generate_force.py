@@ -1,14 +1,7 @@
-#!/usr/bin/env python3
-
-# Created by Hao Liu 
-# Date 01/22/2019 
-# A short script generating force file from the given .dat and .top
-
-from sys import stderr
 import os
-from oxDNA_analysis_tools.output_bonds import output_bonds
 import argparse
-from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
+from sys import stderr
+import oxpy
 
 def main():
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Create an external forces file enforcing the current base-pairing arrangement")
@@ -16,6 +9,7 @@ def main():
     parser.add_argument('configuration', type=str, nargs=1, help="The configuration to generate the forces from")
     parser.add_argument('-o', '--output', type=str, nargs=1, help='name of the file to write the forces to. Defaults to forces.txt')
     parser.add_argument('-f', '--pairs', type=str, nargs=1, help='name of the file to write the designed pairs list to')
+    parser.add_argument('-s', '--stiff', type=float, nargs=1, help='stiffness of the mutual trap')
 
     args = parser.parse_args()
 
@@ -33,47 +27,49 @@ def main():
     if args.pairs:
         pairsfile = args.pairs[0]
     else:
-        pairsfile = False     
+        pairsfile = False
 
-    #Get relevant parameters from the input file
-    top_file = get_input_parameter(inputfile, "topology")
+    #-s sets the stiffness of the mutual trap
+    if args.stiff:
+        stiff = args.stiff[0]
+    else:
+        stiff = 0.9
 
-    #get base pairs 
-    r = LorenzoReader2(conf_file, top_file)
-    mysystem = r._get_system()
-    out = output_bonds(inputfile, mysystem)
-    out = out.split('\n')
+    with oxpy.Context():
+        inp = oxpy.InputFile()
+        inp.init_from_filename(inputfile)
+        inp["list_type"] = "cells"
+        inp["trajectory_file"] = conf_file
+        inp["confs_to_analyse"] = str(1)
+        inp["analysis_data_output_1"] = '{ \n name = stdout \n print_every = 1e10 \n col_1 = { \n id = my_obs \n type = hb_list \n } \n }'
 
-    #Find out the forming bonds series 
-    print("INFO: Analyze the output...", file=stderr)
-    Bonded = {}
-    for i in out:
-        if i[0] == '#':
-            continue
-        splitline = i.split(' ')
-        try:
-            HB = float(splitline[6])
-        except:
-            continue
-        if HB < -0.001:
-            ntid0 = int(splitline[0])
-            ntid1 = int(splitline[1])
-            if ntid0 not in Bonded:
-                Bonded[ntid0] = ntid1
-            if ntid1 not in Bonded:
-                Bonded[ntid1] = ntid0
+        if (not inp["use_average_seq"] or inp.get_bool("use_average_seq")) and "RNA" in inp["interaction_type"]:
+            print("WARNING: Sequence dependence not set for RNA model, wobble base pairs will be ignored", file=stderr)
+
+        backend = oxpy.analysis.AnalysisBackend(inp)
+
+        # read one conf
+        backend.read_next_configuration()
+
+        pairs = backend.config_info().get_observable_by_id("my_obs").get_output_string(0).strip().split('\n')
+        
+    bonded = {}
+    print(pairs)
+    for p in pairs[1:]:
+        p = p.split()
+        bonded[int(p[0])] = int(p[1])
 
     lines = []
     pairlines = []
-    mutual_trap_template = '{ \ntype = mutual_trap\nparticle = %d\nstiff = 0.9\nr0 = 1.2\nref_particle = %d\nPBC=1\n}\n'
-    for key in sorted(Bonded):
+    mutual_trap_template = '{{ \ntype = mutual_trap\nparticle = {}\nstiff = {}\nr0 = 1.2\nref_particle = {}\nPBC=1\n}}\n'
+    for key in sorted(bonded):
         from_particle_id = key
-        to_particle_id = Bonded[key]
+        to_particle_id = bonded[key]
         if from_particle_id < to_particle_id:
             if pairsfile:
                 pairlines.append("{} {}\n".format(from_particle_id, to_particle_id))
-            lines.append(mutual_trap_template % (from_particle_id,to_particle_id))
-            lines.append(mutual_trap_template % (to_particle_id,from_particle_id))
+            lines.append(mutual_trap_template.format(from_particle_id,stiff,to_particle_id))
+            lines.append(mutual_trap_template.format(to_particle_id,stiff,from_particle_id))
 
     if pairsfile:
         with open(pairsfile, "w") as file:
@@ -84,6 +80,5 @@ def main():
             file.writelines(lines)
             print("INFO: Job finished. Wrote forces to {}".format(outfile), file=stderr)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
