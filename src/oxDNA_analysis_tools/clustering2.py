@@ -3,17 +3,14 @@ import argparse
 from os import environ, remove, path
 from sys import stderr
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 from sklearn.cluster import DBSCAN
-from sklearn import metrics
 from matplotlib import animation
 from json import dump, load
-from collections import namedtuple
-from dataclasses import asdict
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.UTILS.data_structures import TrajInfo, TopInfo
-from oxDNA_analysis_tools.UTILS.RyeReader import linear_read, conf_to_str, describe
-
-#not tested, probably works.
+from oxDNA_analysis_tools.UTILS.RyeReader import linear_read, conf_to_str, describe, write_conf
+from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 def split_trajectory(traj_info, top_info, labs):
     """
@@ -56,21 +53,51 @@ def split_trajectory(traj_info, top_info, labs):
 
     return
 
-def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str, eps:float, min_samples:int):
-    check_dependencies(["python", "sklearn", "matplotlib"])
-    
-    #dump the input as a json file so you can iterate on eps and min_samples
-    dump_file = "cluster_data.json"
-    print("INFO: Serializing input data to {}".format(dump_file), file=stderr)
-    print("INFO: Run  `oat clustering {} -e<eps> -m<min_samples>`  to adjust clustering parameters".format(dump_file), file=stderr)
-    out = {
-        "data": op.tolist(), 
-        "traj" : traj_info.path, 
-        "top" : top_info.path,  
-        "metric" : metric
-    }
-    dump(out, open(dump_file, 'w+'))
+def find_element(n, x, array):
+    """
+    Finds the id of the nth time element x appears in an array.
+    """
+    c = 0
+    for i, j in enumerate(array):
+        if (j == x):
+            if (c == n):
+                return i
+            c += 1
+    return -1
 
+def get_centroid(points, metric_name, labs, traj_info, top_info):
+    """
+    Takes the output from DBSCAN and produces the trajectory and centroid from each cluster.
+
+    Parameters:
+        points (numpy.array): The points fed to the clstering algorithm.
+        metric_name (str): The type of data the points represent.
+        labs (numpy.array): The cluster each point belongs to.
+        traj_info (TrajInfo): Trajectory metadata.
+        tpo_file (TopInfo): Topology metadata.
+    """
+
+    if metric_name == 'euclidean':
+        points = points[np.newaxis,:,:] - points[:,np.newaxis,:]
+        points = np.sqrt(np.sum(points**2, axis=2))    
+    
+    print("INFO: Finding cluster centroid...", file=stderr)
+    cids = []
+    for cluster in (set(labs)):
+        masked = points[labs == cluster]
+        in_cluster_id = np.sum(masked, axis = 1).argmin()
+
+        centroid_id = find_element(in_cluster_id, cluster, labs)
+        cids.append(centroid_id)
+
+        centroid = get_confs(traj_info.idxs, traj_info.path, centroid_id, 1, top_info.nbases)[0]
+        fname = "centroid_"+str(cluster)+".dat"
+        write_conf(fname, centroid)
+        print(f"INFO: Wrote centroid file {fname}", file=stderr)
+
+    return cids
+
+def make_plot(op, labels, centroid_ids):
     # Prepping a plot of the first 3 dimensions of the provided op
     dimensions = []
     x = []
@@ -87,6 +114,82 @@ def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str
     for i in op:
         for j, dim in enumerate(dimensions):
             dim.append(i[j])
+
+    dimensions = np.array(dimensions)
+
+    n_clusters = len(set(labels)) - (1 if -1 in labels else 0)
+
+    print("INFO: Making cluster plot...")
+    if len(dimensions) == 3:
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+    else:
+        fig = plt.figure()
+        ax = fig.add_subplot(1, 1, 1)
+
+    ax.set_xlabel("OP0")
+    ax.set_ylabel("OP1")
+
+    if len(dimensions) == 3:
+        ax.set_zlabel("OP2")
+        #to show the plot immediatley and interactivley
+        '''a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', 7))
+        b = fig.colorbar(a, ax=ax)
+        plt.show()'''
+        
+        #to make a video showing a rotating plot
+        plot_file = "animated.mp4"
+        def init():
+            a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1))
+            cen = ax.scatter(dimensions[0][centroid_ids], dimensions[1][centroid_ids], dimensions[2][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
+            fig.colorbar(a, ax=ax)
+            handles, labels = cen.legend_elements(prop="colors", num = 1)
+            l = ax.legend(handles, ['Centroids'])
+            return [fig]
+
+        def animate(i):
+            ax.view_init(elev=10., azim=i)
+            return [fig]
+
+        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=range(360), interval=20, blit=True)
+        anim.save(plot_file, fps=30, extra_args=['-vcodec', 'libx264'])
+
+    else:
+        plot_file = "cluster_plot.png"
+        if len(dimensions) == 1:
+            dimensions.append(np.arange(len(dimensions[0])))
+            a = ax.scatter(dimensions[1], dimensions[0], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
+            cen = ax.scatter(dimensions[1][centroid_ids], dimensions[0][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
+            ax.set_xlabel("conf id")
+            ax.set_ylabel("OP0")
+        else:
+            a = ax.scatter(x, y, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
+            cen = ax.scatter(dimensions[0][centroid_ids], dimensions[1][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
+
+        b = fig.colorbar(a, ax=ax, ticks=list(set(labels)))
+        handles, labels = cen.legend_elements(prop="colors", num = 1)
+        l = ax.legend(handles, ['Centroids'])
+        ax.add_artist(l)
+        plt.savefig(plot_file)
+    print("INFO: Saved cluster plot to {}".format(plot_file), file=stderr)
+
+
+def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str, eps:float, min_samples:int):
+    check_dependencies(["python", "sklearn", "matplotlib"])
+    
+    #dump the input as a json file so you can iterate on eps and min_samples
+    dump_file = "cluster_data.json"
+    print("INFO: Serializing input data to {}".format(dump_file), file=stderr)
+    print("INFO: Run  `oat clustering {} -e<eps> -m<min_samples>`  to adjust clustering parameters".format(dump_file), file=stderr)
+    out = {
+        "data": op.tolist(), 
+        "traj" : traj_info.path, 
+        "top" : top_info.path,  
+        "metric" : metric
+    }
+    dump(out, open(dump_file, 'w+'))
+
+
     
     print("INFO: Running DBSCAN...", file=stderr)
 
@@ -104,52 +207,9 @@ def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str
     n_clusters_ = len(set(labels)) - (1 if -1 in labels else 0)
     print ("Number of clusters:", n_clusters_)
 
-    
-    print("INFO: Making cluster plot...")
-    if len(dimensions) == 3:
-        fig = plt.figure()
-        ax = fig.add_subplot(111, projection='3d')
-    else:
-        fig = plt.figure()
-        ax = fig.add_subplot(1, 1, 1)
-
-    plt.xlabel("OP0")
-    plt.ylabel("OP1")
-
-    if len(dimensions) == 3:
-        ax.set_zlabel("OP2")
-        #to show the plot immediatley and interactivley
-        '''a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', 7))
-        b = fig.colorbar(a, ax=ax)
-        plt.show()'''
-        
-        #to make a video showing a rotating plot
-        plot_file = "animated.mp4"
-        def init():
-            a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1))
-            fig.colorbar(a, ax=ax)
-            return [fig]
-
-        def animate(i):
-            ax.view_init(elev=10., azim=i)
-            return [fig]
-
-        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=range(360), interval=20, blit=True)
-        
-        anim.save(plot_file, fps=30, extra_args=['-vcodec', 'libx264'])
-
-    else:
-        plot_file = "cluster_plot.png"
-        if len(dimensions) == 1:
-            dimensions.append(np.arange(len(dimensions[0])))
-            a = ax.scatter(dimensions[1], dimensions[0], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
-        else:
-            a = ax.scatter(dimensions[0], dimensions[1], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters_+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
-        b = fig.colorbar(a, ax=ax, ticks=list(set(labels)))
-        plt.savefig(plot_file)
-    print("INFO: Saved cluster plot to {}".format(plot_file), file=stderr)
-
     split_trajectory(traj_info, top_info, labels)
+    centroid_ids =  get_centroid(op, metric, labels, traj_info, top_info)
+    make_plot(op, labels, centroid_ids)
     
     print("INFO: Run  `oat clustering {} -e<eps> -m<min_samples>`  to adjust clustering parameters".format(dump_file), file=stderr)
 

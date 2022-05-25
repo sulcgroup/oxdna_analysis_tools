@@ -16,7 +16,9 @@ def Chunker(file, fsize, size=1000000):
 
 def linear_read(traj_info:TrajInfo, top_info:TopInfo, ntopart):
     """
-        Read a trajecory without multiprocessing
+        Read a trajecory without multiprocessing.  
+
+        Produces an iterator that yields a list of <ntopart> configurations.
 
         Parameters
         ----------
