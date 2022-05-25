@@ -2,9 +2,9 @@ import numpy as np
 import argparse
 from sys import exit, stderr
 from os import path
-from multiprocessing import Pool
 from collections import namedtuple
 import oxpy
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.readers import get_input_parameter
 from oxDNA_analysis_tools.UTILS.RyeReader import describe
 
@@ -14,17 +14,16 @@ start_time = time.time()
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
                                               "designed_pairs",
-                                              "input_file",
-                                              "ntopart"])
+                                              "input_file"])
 
-def compute(ctx, chunk_id):
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     with oxpy.Context():
         inp = oxpy.InputFile()
         inp.init_from_filename(ctx.input_file)
         inp["list_type"] = "cells"
         inp["trajectory_file"] = ctx.traj_info.path
-        inp["analysis_bytes_to_skip"] = str(ctx.traj_info.idxs[chunk_id*ctx.ntopart].offset)
-        inp["confs_to_analyse"] = str(ctx.ntopart)
+        inp["analysis_bytes_to_skip"] = str(ctx.traj_info.idxs[chunk_id*chunk_size].offset)
+        inp["confs_to_analyse"] = str(chunk_size)
         inp["analysis_data_output_1"] = '{ \n name = stdout \n print_every = 1e10 \n col_1 = { \n id = my_obs \n type = hb_list \n } \n }'
 
         if (not inp["use_average_seq"] or inp.get_bool("use_average_seq")) and "RNA" in inp["interaction_type"]:
@@ -88,36 +87,21 @@ def main():
         ncpus = args.parallel[0]
     else:
         ncpus = 1
-        
 
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
-    ctx = ComputeContext(traj_info, top_info, pairs, inputfile, ntopart)
-
-    ## Distribute jobs to the worker processes
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(compute,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned, waiting for results")
+    ctx = ComputeContext(traj_info, top_info, pairs, inputfile)
 
     total_bonds = 0
     correct_bonds = 0
     incorrect_bonds = 0
     nt_array = np.zeros(ctx.top_info.nbases, dtype=int)
+    def callback(i, r):
+        nonlocal total_bonds, correct_bonds, incorrect_bonds, nt_array
+        total_bonds += r[0]
+        correct_bonds += r[1]
+        incorrect_bonds += r[2]
+        nt_array += r[3]
 
-    for i, r in enumerate(results):
-        tb, cb, ib, arr = r.get()
-        total_bonds += tb
-        correct_bonds += cb
-        incorrect_bonds += ib
-        nt_array += arr
-        print(f"finished {i+1}/{n_chunks}",end="\r")
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     total_bonds /= traj_info.nconfs
     correct_bonds /= traj_info.nconfs
