@@ -19,17 +19,16 @@ from sklearn.manifold import MDS
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.rye_contact_map import contact_map
 from oxDNA_analysis_tools.distance import vectorized_min_image
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
-                                              "top_info",
-                                              "ntopart"])
+                                              "top_info"])
 
 DevsContext = namedtuple("DevsContext",["traj_info",
                                         "top_info",
-                                        "ntopart",
                                         "masked_mean_coords"])
 
 #at 2.5 you start to see the hard edges caused by end-loops and see some loop interactions
@@ -52,8 +51,8 @@ def make_heatmap(contact_map):
     b.set_label("distance", rotation = 270)
     plt.show()
 
-def devs_mds(ctx:DevsContext, chunk_id:int, ):
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+def devs_mds(ctx:DevsContext, chunk_size:int, chunk_id:int, ):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     
     np_poses = np.asarray([c.positions for c in confs])
 
@@ -96,30 +95,15 @@ def main():
 
     check_dependencies(['python', 'numpy'])
 
-    ntopart = 20
-    pool = Pool(ncpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
-    ctx = ComputeContext(traj_info, top_info, ntopart)
-
-    # Distribute jobs to the worker processes
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(contact_map,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned")
-
-    # Accumulate the results
+    ctx = ComputeContext(traj_info, top_info)
     distances = np.zeros((top_info.nbases, top_info.nbases))
-    for i, r in enumerate(results):
-        print(f"Finished {i+1}/{n_chunks}")
-        distances += r.get()
-    pool.close()
-    pool.join()
+    def callback(i, r):
+        nonlocal distances
+        distances += r
 
-    mean_distances = distances / n_confs
+    oat_multiprocesser(traj_info.nconfs, ncpus, contact_map, callback, ctx)
+
+    mean_distances = distances / traj_info.nconfs
     masked_mean = np.ma.masked_array(mean_distances, ~(mean_distances < CUTOFF))
 
     print("INFO: fitting local distance data", file=stderr)
@@ -139,24 +123,17 @@ def main():
     print("INFO: Wrote mean to {}".format(outfile), file=stderr)
 
     # Compute the deviations from the mean
-    ctx = DevsContext(traj_info, top_info, ntopart, masked_mean)
-    pool = Pool(ncpus)
-
-    # Distribute jobs to the worker processes
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(devs_mds,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned")
-
-    # Accumulate the results
+    ctx = DevsContext(traj_info, top_info, masked_mean)
+    
     devs = np.zeros((top_info.nbases, top_info.nbases))
-    for i, r in enumerate(results):
-        print(f"Finished {i+1}/{n_chunks}")
-        devs += r.get()
-    pool.close()
-    pool.join()
+    def callback(i, r):
+        nonlocal devs
+        devs += r
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, devs_mds, callback, ctx)
 
     np.ma.masked_array(devs, ~(devs != 0.0))
-    devs = devs / n_confs
+    devs = devs / traj_info.nconfs
     devs = np.mean(devs, axis=0)
     devs = np.sqrt(devs)
 
