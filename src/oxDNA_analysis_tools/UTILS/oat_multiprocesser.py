@@ -1,3 +1,4 @@
+from sys import stderr
 from multiprocessing import Pool
 
 def get_chunk_size():
