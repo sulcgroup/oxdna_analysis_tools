@@ -7,6 +7,7 @@ import os
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf, write_conf
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.rye_align import align
 import time
 start_time = time.time()
@@ -14,12 +15,11 @@ start_time = time.time()
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
                                               "ref_coords",
-                                              "indexes",
-                                              "ntopart"])
+                                              "indexes"])
 
 
-def compute_centroid(ctx:ComputeContext, chunk_id:int):
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+def compute_centroid(ctx:ComputeContext, chunk_size, chunk_id:int):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     confs = [inbox(c) for c in confs]
     np_confs = np.asarray([[c.positions, c.a1s, c.a3s] for c in confs])
     centroid_candidate = np.zeros_like(np_confs[0])
@@ -79,15 +79,6 @@ def main():
     else:
         ncpus = 1
 
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
     # get the mean structure from the file path
     ref_conf = get_confs(ref_info.idxs, ref_info.path, 0, 1, top_info.nbases)[0]
     ref_conf = inbox(ref_conf)
@@ -96,28 +87,24 @@ def main():
 
     # create a ComputeContext which defines the problem to pass to the worker processes
     ctx = ComputeContext(
-        traj_info, top_info, ref_conf, indexes, ntopart
+        traj_info, top_info, ref_conf, indexes
     )
 
-    # Distribute jobs to the worker processes
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(compute_centroid,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned")
-
+    # What do we do with the output from the worker processes?
     min_RMSD = np.inf
     centroid_candidate = Configuration(0, ref_conf.box, np.zeros(3), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions))
     centroid_time = -1
-
-    # Collect results from the worker processes
-    for i, r in enumerate(results):
-        print(f"finished {i+1}/{n_chunks}",end="\r")
-        centroid, RMSD, t = r.get()
+    def callback(r):
+        nonlocal min_RMSD, centroid_candidate, centroid_time
+        centroid, RMSD, t = r
         if RMSD < min_RMSD:
             min_RMSD = RMSD
             centroid_time = t
             centroid_candidate.positions = centroid[0]
             centroid_candidate.a1s = centroid[1]
             centroid_candidate.a3s = centroid[2]
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute_centroid, callback, ctx)
     
     min_RMSD *= 0.8518
     centroid_candidate.time = centroid_time
