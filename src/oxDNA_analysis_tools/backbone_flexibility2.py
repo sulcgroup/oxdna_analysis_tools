@@ -1,11 +1,11 @@
 import os
 import argparse
 from json import dumps
-from multiprocessing import Pool
 from collections import namedtuple
 from sys import stderr
 import numpy as np
 import matplotlib.pyplot as plt
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, strand_describe
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
@@ -14,8 +14,7 @@ start_time = time.time()
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
-                                              "system",
-                                              "ntopart"])
+                                              "system"])
 
 def rad2degree(angle:float):
     """
@@ -32,11 +31,11 @@ def rad2degree(angle:float):
 def get_internal_coords():
     pass
 
-def compute(ctx:ComputeContext, chunk_id:int):
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     torsions = np.zeros(ctx.top_info.nbases-(2*ctx.top_info.nstrands))
     dihedrals = np.zeros(ctx.top_info.nbases-(3*ctx.top_info.nstrands))
 
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     for conf in confs:
         for i, strand in enumerate(ctx.system):
             for j, n in enumerate(strand):
@@ -97,44 +96,26 @@ def main():
     system, monomers = strand_describe(top_file)
 
     if args.parallel:
-        n_cpus = args.parallel[0]
+        ncpus = args.parallel[0]
     else:
-        n_cpus = 1
-
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(n_cpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
+        ncpus = 1
 
     # Create a ComputeContext which defines the problem to pass to the worker processes 
-    ctx = ComputeContext(
-        traj_info, top_info, system, ntopart
-    )
+    ctx = ComputeContext(traj_info, top_info, system)
 
     # Allocate memory to store the results
     torsions = np.zeros(ctx.top_info.nbases-(2*top_info.nstrands))
     dihedrals = np.zeros(ctx.top_info.nbases-(3*top_info.nstrands))
-
-    ## Distribute jobs to the worker processes
-    print(f"Starting up {n_cpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(compute,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned, waiting for results")
-
-    for i,r in enumerate(results):
-        t, d = r.get()
+    def callback(i, r):
+        nonlocal torsions, dihedrals
+        t, d = r
         torsions += t
         dihedrals += d
-        print(f"finished {i+1}/{n_chunks}",end="\r")
 
-    pool.close()
-    pool.join()
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
-    torsions /= n_confs
-    dihedrals /= n_confs
+    torsions /= traj_info.nconfs
+    dihedrals /= traj_info.nconfs
 
     torsions = torsions.tolist()
     dihedrals = dihedrals.tolist()
