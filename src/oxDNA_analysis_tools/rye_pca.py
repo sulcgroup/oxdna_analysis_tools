@@ -6,7 +6,7 @@ from json import dumps
 from warnings import catch_warnings, simplefilter
 from os import path
 from collections import namedtuple
-from multiprocessing import Pool
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser, get_chunk_size
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
@@ -16,14 +16,12 @@ start_time = time.time()
 
 ComputeContext_cov = namedtuple("ComputeContext_cov",["traj_info",
                                                       "top_info",
-                                                      "centered_ref_coords",
-                                                      "ntopart"])
+                                                      "centered_ref_coords"])
 
 ComputeContext_map = namedtuple("ComputeContext_map",["traj_info",
                                                       "top_info",
                                                       "centered_ref_coords",
-                                                      "components",
-                                                      "ntopart"])
+                                                      "components"])
 
 def align_positions(centered_ref_coords, coords):
     """
@@ -74,9 +72,9 @@ def make_heatmap(covariance):
     plt.savefig("heatmap.png")
 
 
-def compute_cov(ctx:ComputeContext_cov, chunk_id:int):
+def compute_cov(ctx:ComputeContext_cov, chunk_size:int, chunk_id:int):
     # get a chunk of confs and convert the positions to numpy arrays
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     covariation_matrix = np.zeros((ctx.top_info.nbases*3, ctx.top_info.nbases*3))
     for c in confs:
         c = inbox(c, center=True)
@@ -86,7 +84,7 @@ def compute_cov(ctx:ComputeContext_cov, chunk_id:int):
 
     return covariation_matrix
 
-def map_confs_to_pcs(ctx:ComputeContext_map, chunk_id:int):
+def map_confs_to_pcs(ctx:ComputeContext_map, chunk_size:int, chunk_id:int):
     """
     Transforms each configuration in a trajectory into a point in principal component space
 
@@ -98,8 +96,8 @@ def map_confs_to_pcs(ctx:ComputeContext_map, chunk_id:int):
         coordinates (numpy.array): The positions of each frame of the trajectory in principal component space.
     """
 
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
-    coordinates = np.zeros((ctx.ntopart, ctx.top_info.nbases*3))
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
+    coordinates = np.zeros((chunk_size, ctx.top_info.nbases*3))
     for i, c in enumerate(confs):
         c = inbox(c, center=True)
         c.positions = align_positions(ctx.centered_ref_coords, c.positions)
@@ -144,34 +142,16 @@ def main():
     #-c makes it run the clusterer on the output
     cluster = args.cluster
 
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
     # Create a ComputeContext which defines the problem to pass to the worker processes 
     ctx = ComputeContext_cov(
-        traj_info, top_info, align_conf.positions, ntopart
-    )
+        traj_info, top_info, align_conf.positions)
 
     covariation_matrix = np.zeros((ctx.top_info.nbases*3, ctx.top_info.nbases*3))
+    def callback(i, r):
+        nonlocal covariation_matrix
+        covariation_matrix += r
 
-    ## Distribute jobs to the worker processes
-    print("INFO: Calculating covariance matrix", file=stderr)
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(compute_cov,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned, waiting for results")
-
-    # get the results from the workers
-    for i,r in enumerate(results):
-        covariation_matrix += r.get()
-        print(f"finished {i+1}/{n_chunks}",end="\r")
-    pool.close()
-    pool.join()
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute_cov, callback, ctx)
 
     covariation_matrix /= (traj_info.nconfs-1)
 
@@ -196,23 +176,15 @@ def main():
         i += 1
     print("90% of the variance is found in the first {} components".format(i))
 
-    ctx = ComputeContext_map(traj_info, top_info, align_conf.positions, evectors, ntopart)
-    pool = Pool(ncpus)
+    ctx = ComputeContext_map(traj_info, top_info, align_conf.positions, evectors)
 
-    print("INFO: Mapping confs to PCA space", file=stderr)
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(map_confs_to_pcs,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned, waiting for results")
-
-    # get the results from the workers
+    chunk_size = get_chunk_size()
     coordinates = np.zeros((traj_info.nconfs, ctx.top_info.nbases*3))
-    for i,r in enumerate(results):
-        coord_block = r.get()
-        coordinates[i*ctx.ntopart:(i*ctx.ntopart)+len(coord_block)]= coord_block
-        print(f"finished {i+1}/{n_chunks}",end="\r")
+    def callback(i, r):
+        nonlocal coordinates, chunk_size
+        coordinates[i*chunk_size:(i*chunk_size)+len(r)] = r
 
-    pool.close()
-    pool.join()
+    oat_multiprocesser(traj_info.nconfs, ncpus, map_confs_to_pcs, callback, ctx)
 
     #make a quick plot from the first three components
     print("INFO: Creating coordinate plot from first three eigenvectors.  Saving to coordinates.png", file=stderr)
