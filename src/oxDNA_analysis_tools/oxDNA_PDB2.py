@@ -10,8 +10,7 @@ import argparse
 import oxpy
 
 from oxDNA_analysis_tools.UTILS.pdb import Atom, Nucleotide, AminoAcid, FROM_OXDNA_TO_ANGSTROM
-from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, strand_describe
-from oxDNA_analysis_tools.UTILS.readers import get_input_parameter
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, strand_describe, get_input_parameter
 import oxDNA_analysis_tools.UTILS.protein_to_pdb as pro
 import oxDNA_analysis_tools.UTILS.utils as utils
 

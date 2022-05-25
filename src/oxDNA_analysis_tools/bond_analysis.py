@@ -5,8 +5,7 @@ from os import path
 from collections import namedtuple
 import oxpy
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
-from oxDNA_analysis_tools.UTILS.readers import get_input_parameter
-from oxDNA_analysis_tools.UTILS.RyeReader import describe
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, get_input_parameter
 
 import time
 start_time = time.time()

@@ -29,29 +29,6 @@ def cal_confs(traj_file):
     with open(traj_file, "rb") as f:
         return (sum(bl.count(b"t") for bl in blocks(f)))
 
-#gets the value out of an oxDNA input file
-def get_input_parameter(input_file, parameter):
-    """
-    Gets the value of a parameter in an oxDNA input file
-    Parameters:
-        input_file (str): The path to the input file
-        parameter (str): The parameter you want to get the value of
-
-    Returns:
-        value (str): The value of the parameter
-    """
-    fin = open(input_file)
-    value = ''
-    for line in fin:
-        line = line.lstrip()
-        if not line.startswith('#'):
-            if parameter in line:
-                value = line.split('=')[1].replace(' ','').replace('\n','')
-    fin.close()
-    if value == '':
-        print("ERROR: Key {} not found in input file {}".format(parameter, input_file))
-    return value
-
 #The Python3 successor to the trusty LorenzoReader
 #Reads in oxDNA trajectory files one configuration at a time to avoid memory overflow
 #_get_system() returns a System object as defined in base.py

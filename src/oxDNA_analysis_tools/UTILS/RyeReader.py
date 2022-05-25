@@ -273,6 +273,28 @@ def strand_describe(top):
 
     return system, monomers
 
+def get_input_parameter(input_file, parameter):
+    """
+    Gets the value of a parameter in an oxDNA input file
+    Parameters:
+        input_file (str): The path to the input file
+        parameter (str): The parameter you want to get the value of
+
+    Returns:
+        value (str): The value of the parameter
+    """
+    fin = open(input_file)
+    value = ''
+    for line in fin:
+        line = line.lstrip()
+        if not line.startswith('#'):
+            if parameter in line:
+                value = line.split('=')[1].replace(' ','').replace('\n','')
+    fin.close()
+    if value == '':
+        print("ERROR: Key {} not found in input file {}".format(parameter, input_file))
+    return value
+
 ####################################################################################
 ##########                              CONF UTILS                        ##########
 ####################################################################################
