@@ -18,7 +18,7 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "centered_ref_coords",
                                               "indexes"])
                                               
-def compute(ctx:ComputeContext,chunk_size,chunk_id:int):
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     confs = (inbox(c, center=True) for c in confs)
     # convert to numpy repr
@@ -88,7 +88,7 @@ def main():
 
     # What do we do with the output from the worker processes?
     acc = np.zeros([3, top_info.nbases, 3])
-    def callback(r):
+    def callback(i, r):
         nonlocal acc
         acc += r
 
