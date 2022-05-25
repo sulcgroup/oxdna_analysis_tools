@@ -7,6 +7,7 @@ from collections import namedtuple
 import argparse
 import os
 import matplotlib.pyplot as plt
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import get_chunk_size, oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
@@ -16,8 +17,7 @@ start_time = time.time()
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info", 
                                               "p1s",
-                                              "p2s",
-                                              "ntopart"])
+                                              "p2s"])
 
 #Calculates distance taking PBC into account
 def min_image(p1, p2, box):
@@ -55,8 +55,8 @@ def vectorized_min_image(p1s, p2s, box):
     diff = diff - (np.round(diff/box)*box)
     return np.linalg.norm(diff, axis=2)
 
-def compute(ctx:ComputeContext, chunk_id:int):
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     box = confs[0].box
     distances = np.empty((len(ctx.p1s), len(confs)))
 
@@ -150,32 +150,20 @@ def main():
     else:
         ncpus = 1
 
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
-
     distances = [[] for _ in trajectories]
     for i, (traj_info, top_info, p1s, p2s) in enumerate(zip(traj_infos, top_infos, p1ss, p2ss)):
-        # deduce how many chunks we have to run in parallel
-        n_confs  = traj_info.nconfs 
-        n_chunks = int(n_confs / ntopart +
-                    (1 if n_confs % ntopart else 0))
         
-        ctx = ComputeContext(traj_info, top_info, p1s, p2s, ntopart)
-        distances[i] = [[None]*n_confs for _ in p1s]
-
+        ctx = ComputeContext(traj_info, top_info, p1s, p2s)
+        
+        chunk_size = get_chunk_size()
+        distances[i] = [[None]*traj_info.nconfs for _ in p1s]
+        def callback(j, r):
+            nonlocal distances
+            for k, d in enumerate(r):
+                distances[i][k][chunk_size*j:chunk_size*j+len(d)] = d
         print("INFO: Working on trajectory: {}".format(traj_info.path), file=stderr)
 
-        ## Distribute jobs to the worker processes
-        print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-        results = [pool.apply_async(compute,(ctx,j)) for j in range(n_chunks)]
-        print("All spawned, waiting for results")
- 
-        for j, r in enumerate(results):
-            for k, d in enumerate(r.get()):
-                distances[i][k][ntopart*j:ntopart*j+len(d)] = d
-            print(f"finished {j+1}/{n_chunks}", end="\r")
-
+        oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     # -n sets the names of the data series
     if args.names:
