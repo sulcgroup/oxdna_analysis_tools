@@ -22,7 +22,7 @@ ComputeContext_map = namedtuple("ComputeContext_map",["traj_info",
                                                       "centered_ref_coords",
                                                       "components"])
 
-def align_positions(centered_ref_coords, coords):
+def align_positions(centered_ref_coords:np.array, coords:np.array):
     """
     Single-value decomposition-based alignment of configurations
 

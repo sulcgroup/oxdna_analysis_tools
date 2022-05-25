@@ -32,7 +32,7 @@ def Chunker(file, fsize, size=1000000):
         yield Chunk(b,current_chunk*size, current_chunk * size + size > fsize, fsize)
         current_chunk+=1
 
-def linear_read(traj_info:TrajInfo, top_info:TopInfo, chunk_size=None):
+def linear_read(traj_info:TrajInfo, top_info:TopInfo, chunk_size:int=None):
     """
         Read a trajecory without multiprocessing.  
 
