@@ -2,8 +2,8 @@ import os
 import argparse
 from sys import stderr
 from collections import namedtuple
-from multiprocessing import Pool
 from copy import deepcopy
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, strand_describe, conf_to_str, get_top_string
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
@@ -12,11 +12,10 @@ from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
-                                              "indexes",
-                                              "ntopart"])
+                                              "indexes"])
 
-def compute(ctx:ComputeContext, chunk_id:int):
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     outstr = [[] for _ in range(len(ctx.indexes))]
     for conf in confs:
         sub_confs = [Configuration(conf.time, conf.box, conf.energy, conf.positions[i], conf.a1s[i], conf.a3s[i]) for i in ctx.indexes]
@@ -75,36 +74,16 @@ def main():
     else:
         ncpus = 1
 
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
     # Create a ComputeContext which defines the problem to pass to the worker processes 
-    ctx = ComputeContext(
-        traj_info, top_info, indexes, ntopart
-    )
+    ctx = ComputeContext(traj_info, top_info, indexes)
 
-    ## Distribute jobs to the worker processes
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(compute,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned, waiting for results")
-
-    # Collect the trajectory file contents and write out
     dat_names = [o+ ".dat" for o in outfiles]
     files = [open(f, 'w+') for f in dat_names]
-    for i, r in enumerate(results):
-        subsets = r.get()
-        for f, subset in zip(files, subsets):
+    def callback(i, r):
+        for f, subset in zip(files, r):
             f.write(subset)
-        print(f"finished {i+1}/{n_chunks}",end="\r")
 
-    pool.close()
-    pool.join()
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     for f in files:
         f.close()
