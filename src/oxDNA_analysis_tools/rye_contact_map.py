@@ -7,16 +7,16 @@ from multiprocess import Pool
 from collections import namedtuple
 from oxDNA_analysis_tools.UTILS.RyeReader import describe
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.distance import vectorized_min_image
 
 from time import time
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
-                                              "top_info",
-                                              "ntopart"])
+                                              "top_info"])
 
-def contact_map(ctx:ComputeContext,chunk_id:int):
+def contact_map(ctx:ComputeContext, chunk_size:int,  chunk_id:int):
     """
     Computes the average distance between every pair of nucleotides and creates a matrix of these distances.
 
@@ -27,7 +27,7 @@ def contact_map(ctx:ComputeContext,chunk_id:int):
     Returns:
         distances (numpy.array): A NxN matrix containing pairwise distances between every pair of nucleotides.
     """
-    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*ctx.ntopart, ctx.ntopart, ctx.top_info.nbases)
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
 
     np_poses = np.asarray([c.positions for c in confs])
     distances = np.zeros((ctx.top_info.nbases, ctx.top_info.nbases))
@@ -58,32 +58,17 @@ def main():
     else:
         ncpus = 1
 
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
+    ctx = ComputeContext(traj_info, top_info)
 
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
-    ctx = ComputeContext(traj_info, top_info, ntopart)
-
-    # Distribute jobs to the worker processes
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(contact_map,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned")
-
-    # Accumulate the results
     distances = np.zeros((top_info.nbases, top_info.nbases))
-    for i, r in enumerate(results):
-        print(f"Finished {i+1}/{n_chunks}")
-        distances += r.get()
-    pool.close()
-    pool.join()
+    def callback(i, r):
+        nonlocal distances
+        distances += r
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, contact_map, callback, ctx)
 
     # Normalize the distances and convert to nm
-    distances /= n_confs
+    distances /= traj_info.nconfs
     distances *= 0.8518
 
     # Plot the contact map
