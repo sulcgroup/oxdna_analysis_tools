@@ -1,5 +1,4 @@
 import numpy as np
-from oxDNA_analysis_tools.duplex_finder2 import Duplex
 
 #I bet there's a builtin for this...
 def fit_plane(points):
@@ -21,7 +20,7 @@ def fit_plane(points):
     #print vals, vecs		
     return vecs[:,0]
 
-def get_RNA_axis(particles, d : Duplex):
+def get_RNA_axis(particles, d):
     """
         Returns the axis of a RNA duplex
         
@@ -112,7 +111,7 @@ def get_RNA_axis(particles, d : Duplex):
 
     return plane_vector, final_hel_pos
 
-def get_DNA_axis (particles, d : Duplex):
+def get_DNA_axis (particles, d):
     """
         Returns the axis of a RNA duplex
         

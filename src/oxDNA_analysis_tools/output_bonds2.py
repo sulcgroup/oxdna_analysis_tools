@@ -1,8 +1,8 @@
 import numpy as np
-from os import path, getcwd
+from os import path
 from sys import stderr
-from multiprocessing import Pool
 from collections import namedtuple
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import no_top_describe
 import oxpy
 
@@ -10,17 +10,16 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
                                               "input_file",
                                               "visualize",
-                                              "conversion_factor",
-                                              "ntopart"])
+                                              "conversion_factor"])
 
-def compute(ctx, chunk_id):
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     with oxpy.Context():
         inp = oxpy.InputFile()
         inp.init_from_filename(ctx.input_file)
         inp["list_type"] = "cells"
         inp["trajectory_file"] = ctx.traj_info.path
-        inp["analysis_bytes_to_skip"] = str(ctx.traj_info.idxs[chunk_id*ctx.ntopart].offset)
-        inp["confs_to_analyse"] = str(ctx.ntopart)
+        inp["analysis_bytes_to_skip"] = str(ctx.traj_info.idxs[chunk_id*chunk_size].offset)
+        inp["confs_to_analyse"] = str(chunk_size)
         inp["analysis_data_output_1"] = '{ \n name = stdout \n print_every = 1e10 \n col_1 = { \n id = my_obs \n type = pair_energy \n } \n }'
 
         if (not inp["use_average_seq"] or inp.get_bool("use_average_seq")) and "RNA" in inp["interaction_type"]:
@@ -117,34 +116,20 @@ def main():
         conversion_factor = 1
         print("INFO: no units specified, assuming oxDNA su", file=stderr)
 
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
-
-    ctx = ComputeContext(traj_info, top_info, inputfile, visualize, conversion_factor, ntopart)
-
-    ## Distribute jobs to the worker processes
-    print(f"Starting up {ncpus} processes for {n_chunks} chunks")
-    results = [pool.apply_async(compute,(ctx,i)) for i in range(n_chunks)]
-    print("All spawned, waiting for results")
+    ctx = ComputeContext(traj_info, top_info, inputfile, visualize, conversion_factor)
 
     energies = np.zeros((ctx.top_info.nbases, 9))
-
-    for i, r in enumerate(results):
+    def callback(i, r):
+        nonlocal visualize, energies
         if visualize:
-            energies += r.get()
+            energies += r
         else:
-            r.get()
-        print(f"finished {i+1}/{n_chunks}",end="\r")
+            print(r)
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     if visualize:
-        energies /= n_confs
+        energies /= traj_info.nconfs
         for i, potential in enumerate(["FENE","bexc", "stack", "nexc", "hb", "cr_stack", "cx_stack", "Debye-Huckel", "Total"]):
             fname = '.'.join(outfile.split('.')[:-1])+"_"+potential+'.json'
             with open(fname, 'w+') as f:
