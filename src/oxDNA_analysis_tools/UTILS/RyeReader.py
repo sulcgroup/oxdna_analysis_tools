@@ -7,7 +7,24 @@ from oxDNA_analysis_tools.UTILS.data_structures import *
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import get_chunk_size
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
+####################################################################################
+##########                             FILE READERS                       ##########
+####################################################################################
+
 def Chunker(file, fsize, size=1000000):
+    """
+        Generator that yields chunks of a fixed number of bytes
+
+        Parameters
+        ----------
+        file (file) : The file to read
+        fsize (int) : The size of the file
+        size (int) : The size of the chunks
+
+        Returns
+        -------
+        (Chunk) : The chunk
+    """
     current_chunk = 0  
     while True:
         b = file.read(size)
@@ -44,6 +61,17 @@ def linear_read(traj_info:TrajInfo, top_info:TopInfo, chunk_size=None):
 
 #calculates the length of a trajectory file
 def _index(traj_file): 
+    """
+        Finds conf starts in a trajectory file.
+
+        Parameters
+        ----------
+        traj_file (file) : The trajectory file
+
+        Returns
+        -------
+        (ConfInfo[]) : The start byte and number of bytes in each conf.
+    """
     def find_all(a_str, sub):
         #https://stackoverflow.com/questions/4664850/how-to-find-all-occurrences-of-a-substring
         start = 0
@@ -68,105 +96,9 @@ def _index(traj_file):
     idxs.append(ConfInfo(conf_starts[-1], fsize - conf_starts[-1], len(conf_starts)-1))
     return idxs
 
-
-def get_traj_info(traj : str):
-    """
-        Get the information of a trajectory file
-
-        Parameters
-        ----------
-        traj (str) : path to the trajectory file
-
-        Returns
-        -------
-        (TrajInfo) : trajectory info
-
-    """
-    #if idxs is None: # handle case when we have no indexes provided
-    if not(exists(traj+".pyidx")):
-        idxs = _index(traj) # no index created yet
-        with open(traj+".pyidx","wb") as file:
-            file.write(dumps(idxs)) # save it
-    else:
-        #we can load the index file
-        with open(traj+".pyidx","rb") as file:
-            idxs = loads(file.read())
-    return TrajInfo(traj,len(idxs),idxs)
-
-def inbox(conf : Configuration, center=False):
-    """
-        Modify the positions attribute such that all positions are inside the box.
-
-        Parameters
-        ----------
-        conf (Configuration) : The configuration to inbox
-        center (bool) : If True, center the configuration on the box
-
-        Returns
-        -------
-        (Configuration) : The inboxed configuration
-    """
-    def realMod (n, m):
-        return(((n % m) + m) % m)
-    def coord_in_box(p):
-        p = realMod(p, conf.box)
-        return(p)
-    def calc_PBC_COM(conf):
-        angle = (conf.positions * 2 * np.pi) / conf.box
-        cm = np.array([[np.sum(np.cos(angle[:,0])), np.sum(np.sin(angle[:,0]))], 
-        [np.sum(np.cos(angle[:,1])), np.sum(np.sin(angle[:,1]))], 
-        [np.sum(np.cos(angle[:,2])), np.sum(np.sin(angle[:,2]))]]) / len(angle)
-        return conf.box / (2 * np.pi) * (np.arctan2(-cm[:,1], -cm[:,0]) + np.pi)
-    target = np.array([conf.box[0] / 2, conf.box[1] / 2, conf.box[2] / 2])
-    cms = calc_PBC_COM(conf)
-    positions = conf.positions + target - cms   
-    new_poses = coord_in_box(positions)
-    positions += (new_poses - conf.positions)
-    if center:
-        cms = np.mean(positions, axis=0)
-        positions -= cms
-    return Configuration(
-        conf.time, conf.box, conf.energy,
-        positions, conf.a1s, conf.a3s
-    )
-
-def write_conf(path : str, conf : Configuration, append=False):
-    """
-        write the conf to a file
-
-        Parameters
-        ----------
-        path (str) : path to the file
-        conf (Configuration) : the configuration to write
-        append (bool) : if True, append to the file, if False, overwrite
-    """
-    out = []
-    out.append('t = {}'.format(int(conf.time)))
-    out.append('b = {}'.format(' '.join(conf.box.astype(str))))
-    out.append('E = {}'.format(' '.join(conf.energy.astype(str))))
-    for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s):
-        out.append('{} {} {} 0 0 0 0 0 0'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
-    
-    mode = 'a' if append else 'w'
-    with open(path,mode) as f:
-        f.write("\n".join(out))
-
-def conf_to_str(conf : Configuration):
-    """
-    Write configuration as a string
-
-    Parameters
-    ----------
-    conf (Configuration) : The configuration to write
-
-    Returns
-    -------
-    (str) : The configuration as a string
-    """
-    # When writing a configuration to a file, the conversion from ndarray to string is the slowest part
-    # This horrific list comp is the best solution we found
-    header = f't = {int(conf.time)}\nb = {" ".join(conf.box.astype(str))}\nE = {" ".join(conf.energy.astype(str))}\n'
-    return(''.join([header, ''.join([('{} {} {} 0 0 0 0 0 0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str)))) for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s)])]))
+####################################################################################
+##########                             FILE PARSERS                       ##########
+####################################################################################
 
 def get_top_info(top : str):
     """
@@ -190,27 +122,6 @@ def get_top_info(top : str):
             print("ERROR: malformed topology header, failed to read topology file", file=stderr)
             exit()
     return TopInfo(top, int(nbases))
-
-def describe(top : str, traj : str):
-    """
-        retrieve top and traj info for a provided pair
-
-        You can provide None as the topology and it will read the first conf of the traj to get the number of particles.
-        Note that the TopInfo will be missing the path parameter if no topology is provided.
-
-        Parameters
-        ----------
-        top (str or None) : path to the topology file
-        traj (str) : path to the trajectory file
-
-        Returns
-        -------
-        (TopInfo, TrajInfo) : topology and trajectory info
-    """
-    if top is None:
-        return get_top_info_from_traj(traj), get_traj_info(traj)
-    else:
-        return get_top_info(top), get_traj_info(traj)
 
 def get_top_info_from_traj(traj : str):
     """
@@ -239,6 +150,51 @@ def get_top_info_from_traj(traj : str):
                 break
 
     return TopInfo("", int(n_bases))
+
+def get_traj_info(traj : str):
+    """
+        Get the information of a trajectory file
+
+        Parameters
+        ----------
+        traj (str) : path to the trajectory file
+
+        Returns
+        -------
+        (TrajInfo) : trajectory info
+
+    """
+    #if idxs is None: # handle case when we have no indexes provided
+    if not(exists(traj+".pyidx")):
+        idxs = _index(traj) # no index created yet
+        with open(traj+".pyidx","wb") as file:
+            file.write(dumps(idxs)) # save it
+    else:
+        #we can load the index file
+        with open(traj+".pyidx","rb") as file:
+            idxs = loads(file.read())
+    return TrajInfo(traj,len(idxs),idxs)
+
+def describe(top : str, traj : str):
+    """
+        retrieve top and traj info for a provided pair
+
+        You can provide None as the topology and it will read the first conf of the traj to get the number of particles.
+        Note that the TopInfo will be missing the path parameter if no topology is provided.
+
+        Parameters
+        ----------
+        top (str or None) : path to the topology file
+        traj (str) : path to the trajectory file
+
+        Returns
+        -------
+        (TopInfo, TrajInfo) : topology and trajectory info
+    """
+    if top is None:
+        return get_top_info_from_traj(traj), get_traj_info(traj)
+    else:
+        return get_top_info(top), get_traj_info(traj)
 
 def strand_describe(top):
     """
@@ -298,6 +254,89 @@ def strand_describe(top):
 
     return system, monomers
 
+####################################################################################
+##########                              CONF UTILS                        ##########
+####################################################################################
+
+def inbox(conf : Configuration, center=False):
+    """
+        Modify the positions attribute such that all positions are inside the box.
+
+        Parameters
+        ----------
+        conf (Configuration) : The configuration to inbox
+        center (bool) : If True, center the configuration on the box
+
+        Returns
+        -------
+        (Configuration) : The inboxed configuration
+    """
+    def realMod (n, m):
+        return(((n % m) + m) % m)
+    def coord_in_box(p):
+        p = realMod(p, conf.box)
+        return(p)
+    def calc_PBC_COM(conf):
+        angle = (conf.positions * 2 * np.pi) / conf.box
+        cm = np.array([[np.sum(np.cos(angle[:,0])), np.sum(np.sin(angle[:,0]))], 
+        [np.sum(np.cos(angle[:,1])), np.sum(np.sin(angle[:,1]))], 
+        [np.sum(np.cos(angle[:,2])), np.sum(np.sin(angle[:,2]))]]) / len(angle)
+        return conf.box / (2 * np.pi) * (np.arctan2(-cm[:,1], -cm[:,0]) + np.pi)
+    target = np.array([conf.box[0] / 2, conf.box[1] / 2, conf.box[2] / 2])
+    cms = calc_PBC_COM(conf)
+    positions = conf.positions + target - cms   
+    new_poses = coord_in_box(positions)
+    positions += (new_poses - conf.positions)
+    if center:
+        cms = np.mean(positions, axis=0)
+        positions -= cms
+    return Configuration(
+        conf.time, conf.box, conf.energy,
+        positions, conf.a1s, conf.a3s
+    )
+
+####################################################################################
+##########                             FILE WRITERS                       ##########
+####################################################################################
+
+def write_conf(path : str, conf : Configuration, append=False):
+    """
+        write the conf to a file
+
+        Parameters
+        ----------
+        path (str) : path to the file
+        conf (Configuration) : the configuration to write
+        append (bool) : if True, append to the file, if False, overwrite
+    """
+    out = []
+    out.append('t = {}'.format(int(conf.time)))
+    out.append('b = {}'.format(' '.join(conf.box.astype(str))))
+    out.append('E = {}'.format(' '.join(conf.energy.astype(str))))
+    for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s):
+        out.append('{} {} {} 0 0 0 0 0 0'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str))))
+    
+    mode = 'a' if append else 'w'
+    with open(path,mode) as f:
+        f.write("\n".join(out))
+
+def conf_to_str(conf : Configuration):
+    """
+    Write configuration as a string
+
+    Parameters
+    ----------
+    conf (Configuration) : The configuration to write
+
+    Returns
+    -------
+    (str) : The configuration as a string
+    """
+    # When writing a configuration to a file, the conversion from ndarray to string is the slowest part
+    # This horrific list comp is the best solution we found
+    header = f't = {int(conf.time)}\nb = {" ".join(conf.box.astype(str))}\nE = {" ".join(conf.energy.astype(str))}\n'
+    return(''.join([header, ''.join([('{} {} {} 0 0 0 0 0 0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str)))) for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s)])]))
+
 def get_top_string(system):
     """
         Write topology file from system object.
@@ -345,4 +384,3 @@ def get_top_string(system):
 
     out = header+body
     return '\n'.join(out)
-
