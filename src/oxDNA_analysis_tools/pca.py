@@ -8,8 +8,7 @@ from os import path
 from collections import namedtuple
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser, get_chunk_size
 from oxDNA_analysis_tools.config import check_dependencies
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox
 
 import time
 start_time = time.time()

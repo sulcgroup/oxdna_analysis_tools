@@ -9,7 +9,7 @@ from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 
 @cython.wraparound(False)
 @cython.boundscheck(False)
-def get_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
+def cget_confs(list idxs, str traj_path, int start, int nconfs, int nbases):
     """
     A string!
     """

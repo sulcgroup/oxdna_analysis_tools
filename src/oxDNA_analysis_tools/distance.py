@@ -7,8 +7,7 @@ import argparse
 import os
 import matplotlib.pyplot as plt
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import get_chunk_size, oat_multiprocesser
-from oxDNA_analysis_tools.UTILS.RyeReader import describe
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, get_confs
 
 import time
 start_time = time.time()
@@ -271,7 +270,7 @@ def main():
         if not all([x == trajectories[0] for x in trajectories]):
             print("ERROR: Clustering can only be run on a single trajectory", file=stderr)
             exit(1)
-        from oxDNA_analysis_tools.clustering2 import perform_DBSCAN
+        from oxDNA_analysis_tools.clustering import perform_DBSCAN
 
         labs = perform_DBSCAN(traj_infos[0], top_infos[0], distances[0].T, "euclidean", 12, 8)
 

@@ -7,7 +7,7 @@ from multiprocessing import Pool
 from collections import namedtuple
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, conf_to_str
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs
 start_time = time.time()
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",

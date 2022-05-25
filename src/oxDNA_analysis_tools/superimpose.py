@@ -2,9 +2,8 @@ import argparse
 import os
 import numpy as np
 from sys import stderr
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
-from oxDNA_analysis_tools.rye_align import align
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf
+from oxDNA_analysis_tools.align import align
 
 
 def main():

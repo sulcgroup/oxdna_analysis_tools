@@ -2,14 +2,11 @@ import argparse
 import os
 import numpy as np
 from sys import stderr
-from multiprocessing import Pool
 from collections import namedtuple
 from json import dumps
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser, get_chunk_size
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
-from oxDNA_analysis_tools.rye_align import align
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, get_confs
+from oxDNA_analysis_tools.align import align
 import matplotlib.pyplot as plt
 import time
 start_time = time.time()

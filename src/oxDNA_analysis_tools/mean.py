@@ -3,14 +3,12 @@ import os
 import time
 import numpy as np
 from sys import stderr
-from multiprocessing import Pool
 from collections import namedtuple
 from random import randrange
-from oxDNA_analysis_tools.rye_align import align
+from oxDNA_analysis_tools.align import align
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 start_time = time.time()
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
@@ -113,7 +111,7 @@ def main():
     # -d runs compute_deviations.py
     if args.deviations:
         from sys import argv
-        from oxDNA_analysis_tools import rye_deviations
+        from oxDNA_analysis_tools import deviations
         dev_file = args.deviations[0]
         print("INFO: Launching compute_deviations")
 
@@ -130,7 +128,7 @@ def main():
         argv.append(outfile)
         argv.append(traj)
 
-        rye_deviations.main()
+        deviations.main()
 
 if __name__ == '__main__':
     main()

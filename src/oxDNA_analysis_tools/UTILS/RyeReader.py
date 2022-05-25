@@ -5,7 +5,7 @@ from os.path import exists
 import os
 from oxDNA_analysis_tools.UTILS.data_structures import *
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import get_chunk_size
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.UTILS.get_confs import cget_confs
 
 ####################################################################################
 ##########                             FILE READERS                       ##########
@@ -95,6 +95,25 @@ def _index(traj_file):
     #handle last offset
     idxs.append(ConfInfo(conf_starts[-1], fsize - conf_starts[-1], len(conf_starts)-1))
     return idxs
+
+def get_confs(indexes, traj_file, start_conf, n_confs, n_bases):
+    """
+        Read a chunk of confs from a trajectory file.
+
+        Parameters
+        ----------
+        indexes (ConfInfo[]) : The start bytes and sizes of each conf
+        traj_file (str) : The path to the trajectory file
+        start_conf (int) : The index of the first conf to read
+        n_confs (int) : The number of confs to read
+        n_bases (int) : The number of bases in the system
+
+        Returns
+        -------
+        (Configuration[]) : list of configurations
+
+    """
+    return cget_confs(indexes, traj_file, start_conf, n_confs, n_bases)
 
 ####################################################################################
 ##########                             FILE PARSERS                       ##########

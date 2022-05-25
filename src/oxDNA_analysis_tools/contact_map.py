@@ -5,8 +5,7 @@ import matplotlib.pyplot as plt
 from sys import stderr
 from multiprocess import Pool
 from collections import namedtuple
-from oxDNA_analysis_tools.UTILS.RyeReader import describe
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, get_confs
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.distance import vectorized_min_image

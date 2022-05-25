@@ -4,9 +4,8 @@ from sys import stderr
 from collections import namedtuple
 from copy import deepcopy
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, strand_describe, conf_to_str, get_top_string
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, strand_describe, conf_to_str, get_top_string
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 
 

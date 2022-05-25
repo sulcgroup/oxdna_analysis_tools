@@ -14,12 +14,11 @@ from json import dumps
 from collections import namedtuple
 from sklearn.manifold import MDS
 from oxDNA_analysis_tools.config import check_dependencies
-from oxDNA_analysis_tools.rye_contact_map import contact_map
+from oxDNA_analysis_tools.contact_map import contact_map
 from oxDNA_analysis_tools.distance import vectorized_min_image
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, write_conf
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info"])

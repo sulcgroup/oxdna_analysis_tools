@@ -4,9 +4,7 @@ from sys import stderr
 from collections import namedtuple
 from numpy import round
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
-from oxDNA_analysis_tools.UTILS.RyeReader import describe, conf_to_str
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
-
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, conf_to_str
 import time
 start_time = time.time()
 

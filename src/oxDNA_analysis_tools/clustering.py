@@ -9,8 +9,7 @@ from matplotlib import animation
 from json import dump, load
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.UTILS.data_structures import TrajInfo, TopInfo
-from oxDNA_analysis_tools.UTILS.RyeReader import linear_read, conf_to_str, describe, write_conf
-from oxDNA_analysis_tools.UTILS.get_confs import get_confs
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, linear_read, conf_to_str, describe, write_conf
 
 def split_trajectory(traj_info, top_info, labs):
     """
@@ -144,6 +143,7 @@ def make_plot(op, labels, centroid_ids):
         #to make a video showing a rotating plot
         plot_file = "animated.mp4"
         def init():
+            nonlocal labels, dimensions, n_clusters, centroid_ids
             a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1))
             cen = ax.scatter(dimensions[0][centroid_ids], dimensions[1][centroid_ids], dimensions[2][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
             fig.colorbar(a, ax=ax)

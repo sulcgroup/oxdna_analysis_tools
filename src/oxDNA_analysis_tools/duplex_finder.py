@@ -5,7 +5,7 @@ from sys import stderr
 from dataclasses import dataclass
 from collections import namedtuple
 import oxpy
-from oxDNA_analysis_tools.UTILS import geom2
+from oxDNA_analysis_tools.UTILS import geom
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.readers import get_input_parameter
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, strand_describe
@@ -115,10 +115,10 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
 
             if "RNA" in inp["interaction_type"]:
                 for d in duplex_list:
-                    d.axis, d.pos = geom2.get_RNA_axis(backend.config_info().particles(), d)
+                    d.axis, d.pos = geom.get_RNA_axis(backend.config_info().particles(), d)
             else:
                 for d in duplex_list:
-                    d.axis, d.pos = geom2.get_DNA_axis(backend.config_info().particles(), d)
+                    d.axis, d.pos = geom.get_DNA_axis(backend.config_info().particles(), d)
 
             duplexes_at_step.append(duplex_list)
             i +=1
