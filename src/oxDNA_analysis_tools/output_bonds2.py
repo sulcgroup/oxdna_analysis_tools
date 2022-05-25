@@ -3,7 +3,7 @@ from os import path
 from sys import stderr
 from collections import namedtuple
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
-from oxDNA_analysis_tools.UTILS.RyeReader import no_top_describe
+from oxDNA_analysis_tools.UTILS.RyeReader import describe
 import oxpy
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
@@ -83,7 +83,7 @@ def main():
     traj_file = args.trajectory[0]
     inputfile = args.inputfile[0]
 
-    top_info, traj_info  = no_top_describe(traj_file)
+    top_info, traj_info  = describe(None, traj_file)
 
     try:
         outfile = args.outfile[0]
@@ -131,7 +131,10 @@ def main():
     if visualize:
         energies /= traj_info.nconfs
         for i, potential in enumerate(["FENE","bexc", "stack", "nexc", "hb", "cr_stack", "cx_stack", "Debye-Huckel", "Total"]):
-            fname = '.'.join(outfile.split('.')[:-1])+"_"+potential+'.json'
+            if '.json' in outfile:
+                fname = '.'.join(outfile.split('.')[:-1])+"_"+potential+'.json'
+            else:
+                fname = outfile+"_"+potential+'.json'
             with open(fname, 'w+') as f:
                 f.write("{{\n\"{} ({})\" : [".format(potential, units))
                 f.write(', '.join([str(x) for x in energies[:,i]]))

@@ -63,8 +63,7 @@ def compute(ctx:ComputeContext, chunk_size, chunk_id:int):
 def main():
 
     #handle commandline arguments
-    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Aligns each frame in a trajectory to the first frame")
-    parser.add_argument('top', type=str, nargs=1, help="The trajectory file to align")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Aligns each frame in a trajectory to the first frame")    
     parser.add_argument('traj', type=str, nargs=1, help="The trajectory file to align")
     parser.add_argument('outfile', type=str, nargs=1, help='The name of the new trajectory file to write out')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
@@ -73,15 +72,14 @@ def main():
     args = parser.parse_args()
 
     #Parse command line arguments
-    top_file = args.top[0]
     traj_file = args.traj[0]
     outfile = args.outfile[0]
-    top_info, traj_info = describe(top_file, traj_file)
+    top_info, traj_info = describe(None, traj_file)
 
     #-r will make it align to a provided .dat file instead of the first configuration
     if args.reference_structure:
         #read reference configuration
-        _, ref_info = describe(top_file, args.reference_structure[0])
+        _, ref_info = describe(None, args.reference_structure[0])
         ref_conf = get_confs(ref_info.idxs, ref_info.path, 0, 1, top_info.nbases)[0]
     else:
         #read the first configuration and use it as the reference configuration for the rest

@@ -4,6 +4,7 @@ from pickle import loads, dumps
 from os.path import exists
 import os
 from oxDNA_analysis_tools.UTILS.data_structures import *
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import get_chunk_size
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 def Chunker(file, fsize, size=1000000):
@@ -14,7 +15,7 @@ def Chunker(file, fsize, size=1000000):
         yield Chunk(b,current_chunk*size, current_chunk * size + size > fsize, fsize)
         current_chunk+=1
 
-def linear_read(traj_info:TrajInfo, top_info:TopInfo, ntopart):
+def linear_read(traj_info:TrajInfo, top_info:TopInfo, chunk_size=None):
     """
         Read a trajecory without multiprocessing.  
 
@@ -30,12 +31,14 @@ def linear_read(traj_info:TrajInfo, top_info:TopInfo, ntopart):
         -------
         (Configuration[]) : list of configurations
     """
+    if chunk_size is None:
+        chunk_size = get_chunk_size()
     current_chunk = 0
     while True:
-        print(f"INFO: processed {current_chunk*ntopart} / {len(traj_info.idxs)} confs", end='\r', file=stderr)
-        if current_chunk*ntopart >= len(traj_info.idxs):
+        print(f"INFO: processed {current_chunk*chunk_size} / {len(traj_info.idxs)} confs", end='\r', file=stderr)
+        if current_chunk*chunk_size >= len(traj_info.idxs):
             break
-        confs = get_confs(traj_info.idxs, traj_info.path, current_chunk*ntopart, ntopart, top_info.nbases)
+        confs = get_confs(traj_info.idxs, traj_info.path, current_chunk*chunk_size, chunk_size, top_info.nbases)
         yield confs
         current_chunk += 1
 
@@ -180,30 +183,36 @@ def get_top_info(top : str):
     with open(top) as f:
         my_top_info = f.readline().split(' ')
         if len(my_top_info)  == 2:
-            nbases, nstrands = my_top_info
+            nbases = my_top_info[0]
         elif len(my_top_info) == 5:
-            nbases, nstrands, ndna, nres, ndnastrands = my_top_info
+            nbases, ndna, nres = (my_top_info[0], my_top_info[2], my_top_info[3])
         else:
             print("ERROR: malformed topology header, failed to read topology file", file=stderr)
             exit()
-    return TopInfo(top, int(nbases), int(nstrands))
+    return TopInfo(top, int(nbases))
 
 def describe(top : str, traj : str):
     """
         retrieve top and traj info for a provided pair
 
+        You can provide None as the topology and it will read the first conf of the traj to get the number of particles.
+        Note that the TopInfo will be missing the path parameter if no topology is provided.
+
         Parameters
         ----------
-        top (str) : path to the topology file
+        top (str or None) : path to the topology file
         traj (str) : path to the trajectory file
 
         Returns
         -------
         (TopInfo, TrajInfo) : topology and trajectory info
     """
-    return get_top_info(top), get_traj_info(traj)
+    if top is None:
+        return get_top_info_from_traj(traj), get_traj_info(traj)
+    else:
+        return get_top_info(top), get_traj_info(traj)
 
-def no_top_describe(traj : str):
+def get_top_info_from_traj(traj : str):
     """
         Retrieve top and traj info without providing a topology. 
 
@@ -217,7 +226,6 @@ def no_top_describe(traj : str):
         -------
         (TopInfo, TrajInfo) : topology and trajectory info
     """
-
     with open(traj) as f:
         l = ''
         # dump the header
@@ -230,7 +238,7 @@ def no_top_describe(traj : str):
             if l == '':
                 break
 
-    return TopInfo("", int(n_bases), 0), get_traj_info(traj)
+    return TopInfo("", int(n_bases))
 
 def strand_describe(top):
     """

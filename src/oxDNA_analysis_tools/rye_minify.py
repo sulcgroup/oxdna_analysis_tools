@@ -4,7 +4,7 @@ from sys import stderr
 from collections import namedtuple
 from numpy import round
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
-from oxDNA_analysis_tools.UTILS.RyeReader import no_top_describe, conf_to_str
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, conf_to_str
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 
 import time
@@ -43,7 +43,7 @@ def main():
     traj_file = args.trajectory[0]
     out = args.outfile[0]
 
-    top_info, traj_info = no_top_describe(traj_file)
+    top_info, traj_info = describe(None, traj_file)
 
     # -p sets the number of parallel processes
     if args.parallel:

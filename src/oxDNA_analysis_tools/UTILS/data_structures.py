@@ -39,7 +39,6 @@ class Configuration:
 class TopInfo:
     path : str
     nbases : int
-    nstrands : int
 
 class System:
     __slots__ = ('strands')

@@ -32,8 +32,8 @@ def get_internal_coords():
     pass
 
 def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
-    torsions = np.zeros(ctx.top_info.nbases-(2*ctx.top_info.nstrands))
-    dihedrals = np.zeros(ctx.top_info.nbases-(3*ctx.top_info.nstrands))
+    torsions = np.zeros(ctx.top_info.nbases-(2*len(ctx.system.strands)))
+    dihedrals = np.zeros(ctx.top_info.nbases-(3*len(ctx.system.strands)))
 
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     for conf in confs:
@@ -104,8 +104,8 @@ def main():
     ctx = ComputeContext(traj_info, top_info, system)
 
     # Allocate memory to store the results
-    torsions = np.zeros(ctx.top_info.nbases-(2*top_info.nstrands))
-    dihedrals = np.zeros(ctx.top_info.nbases-(3*top_info.nstrands))
+    torsions = np.zeros(ctx.top_info.nbases-(2*len(system.strands)))
+    dihedrals = np.zeros(ctx.top_info.nbases-(3*len(system.strands)))
     def callback(i, r):
         nonlocal torsions, dihedrals
         t, d = r
@@ -126,7 +126,7 @@ def main():
         out = "ramachandran.png"
         print("INFO: No output file specified, writing to {}".format(out), file=stderr)
 
-    plt.scatter(torsions[top_info.nstrands:], dihedrals)
+    plt.scatter(torsions[len(system.strands):], dihedrals)
     plt.xlabel("torsion_angle")
     plt.ylabel("dihedral_angle")
     plt.savefig(out)

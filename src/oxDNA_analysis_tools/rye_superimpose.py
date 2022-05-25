@@ -2,7 +2,7 @@ import argparse
 import os
 import numpy as np
 from sys import stderr
-from oxDNA_analysis_tools.UTILS.RyeReader import no_top_describe, inbox, write_conf
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, write_conf
 from oxDNA_analysis_tools.UTILS.get_confs import get_confs
 from oxDNA_analysis_tools.rye_align import align
 
@@ -20,7 +20,7 @@ def main():
 
     #Get the reference configuration
     ref_file = args.reference[0]
-    top_info, ref_info = no_top_describe(ref_file)
+    top_info, ref_info = describe(None, ref_file)
     ref_conf = get_confs(ref_info.idxs, ref_info.path, 0, 1, top_info.nbases)[0]
 
     ref_conf = inbox(ref_conf)
@@ -44,7 +44,7 @@ def main():
     reference_coords = reference_coords - ref_cms
 
     for i, f in enumerate(args.victims):
-        top_info, traj_info = no_top_describe(f)
+        top_info, traj_info = describe(None, f)
         conf = get_confs(traj_info.idxs, traj_info.path, 0, 1, top_info.nbases)[0]
         conf = inbox(conf)
 

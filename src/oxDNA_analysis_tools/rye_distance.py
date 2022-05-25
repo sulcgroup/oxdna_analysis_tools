@@ -2,7 +2,6 @@
 
 import numpy as np
 from sys import exit, stderr
-from multiprocessing import Pool
 from collections import namedtuple
 import argparse
 import os
@@ -71,7 +70,7 @@ def main():
     #handle commandline arguments
     #this program has no positional arguments, only flags
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Finds the ensemble of distances between any two particles in the system")
-    parser.add_argument('-i', '--input', metavar='input', nargs='+', action='append', help='A topology, trajectory, and a list of particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
+    parser.add_argument('-i', '--input', metavar='input', nargs='+', action='append', help='A trajectory, and a list of particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
     parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
     parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a json to this filename for loading in oxView or your own scripts')
@@ -85,10 +84,9 @@ def main():
 
     #-i requires 4 or more arguments, the topology file of the structure, the trajectory to analyze, and any number of particle pairs to compute the distance between.
     try:
-        topologies = [i[0] for i in args.input]
-        trajectories = [i[1] for i in args.input]
-        p1ss = [i[2::2] for i in args.input]
-        p2ss = [i[3::2] for i in args.input]
+        trajectories = [i[0] for i in args.input]
+        p1ss = [i[1::2] for i in args.input]
+        p2ss = [i[2::2] for i in args.input]
         p1ss = [[int(j) for j in i] for i in p1ss]
         p2ss = [[int(j) for j in i] for i in p2ss]
 
@@ -101,9 +99,6 @@ def main():
     n_dists = sum([len(l) for l in p1ss])
 
     #Make sure that the input is correctly formatted
-    if(len(topologies) != len(trajectories)):
-        print("ERROR: bad input arguments\nPlease supply an equal number of input and, trajectory files", file=stderr)
-        exit(1)
     if len(p1ss) != len(p2ss):
         print("ERROR: bad input arguments\nPlease supply an even number of particles", file=stderr)
         exit(1)
@@ -111,8 +106,8 @@ def main():
     # Get metadata on the inputs
     top_infos = []
     traj_infos = []
-    for top, traj in zip(topologies, trajectories):
-        top_info, traj_info = describe(top, traj)
+    for traj in trajectories:
+        top_info, traj_info = describe(None, traj)
         top_infos.append(top_info)
         traj_infos.append(traj_info)
 

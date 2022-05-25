@@ -32,7 +32,6 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
 def main():
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Computes the mean structure of a trajectory file")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
-    parser.add_argument('topology', type=str, nargs=1, help='the topology file associated with the trajectory')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the mean structure to')
     parser.add_argument('-d', '--deviations', metavar='deviation_file', nargs=1, help='Immediatley run compute_deviations.py from the output')
@@ -45,8 +44,7 @@ def main():
 
     # Get metadata about input files
     traj = args.trajectory[0]
-    top = args.topology[0]
-    top_info, traj_info = describe(top, traj)
+    top_info, traj_info = describe(None, traj)
 
 
     # -i comes with a list of particles indices representing a subset to compute the mean against.
@@ -131,7 +129,6 @@ def main():
             argv.append(str(ncpus))
         argv.append(outfile)
         argv.append(traj)
-        argv.append(top)
 
         rye_deviations.main()
 

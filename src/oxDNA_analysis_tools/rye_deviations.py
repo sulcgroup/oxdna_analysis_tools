@@ -24,7 +24,7 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     confs = (inbox(c, center=True) for c in confs)
     confs = np.asarray([[c.positions, c.a1s, c.a3s] for c in confs])
 
-    SFs = np.empty((chunk_size, ctx.top_info.nbases))
+    SFs = np.empty((len(confs), ctx.top_info.nbases))
     for i, c in enumerate(confs):
         aligned_conf = align(ctx.mean_coords.positions[ctx.indexes], c, ctx.indexes)[0]
         SFs[i] = np.power(np.linalg.norm(aligned_conf - ctx.mean_coords.positions, axis=1), 2)
@@ -40,7 +40,6 @@ def main():
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Compute the RMSD of each nucleotide from the mean structure produced by compute_mean.py")
     parser.add_argument('mean_structure', type=str, nargs=1, help="The mean structure .json file from compute_mean.py")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
-    parser.add_argument('topology', type=str, nargs=1, help='the topology file associated with the trajectory')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the RMSF json file to')
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
@@ -55,9 +54,8 @@ def main():
     # Get metadata about input files
     mean = args.mean_structure[0]
     traj = args.trajectory[0]
-    top = args.topology[0]
-    _, mean_info = describe(top, mean)
-    top_info, traj_info = describe(top, traj)
+    _, mean_info = describe(None, mean)
+    top_info, traj_info = describe(None, traj)
 
     # -i comes with a list of particles indices representing a subset to compute the mean against.
     # Get the index list which is a space-separated list of particle ids.
@@ -77,15 +75,6 @@ def main():
     else:
         ncpus = 1
 
-    # how many confs we want to distribute between the processes
-    ntopart = 20
-    pool = Pool(ncpus)
-
-    # deduce how many chunks we have to run in parallel
-    n_confs  = traj_info.nconfs 
-    n_chunks = int(n_confs / ntopart +
-                         (1 if n_confs % ntopart else 0))
-
     # get the mean structure from the file path
     mean_conf = get_confs(mean_info.idxs, mean_info.path, 0, 1, top_info.nbases)[0]
     mean_conf = inbox(mean_conf)
@@ -101,7 +90,7 @@ def main():
     MFs = np.empty((traj_info.nconfs, top_info.nbases))
     def callback(i, r):
         nonlocal MFs, chunk_size
-        MFs[i*chunk_size:i*chunk_size+ntopart] = r
+        MFs[i*chunk_size:i*chunk_size+len(r)] = r
 
     oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 

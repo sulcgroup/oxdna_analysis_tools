@@ -43,7 +43,7 @@ def split_trajectory(traj_info, top_info, labs):
     files = [open(f, 'w+') for f in fnames]
     i = 0
 
-    for chunk in linear_read(traj_info, top_info, ntopart=20):
+    for chunk in linear_read(traj_info, top_info):
         for conf in chunk:
             files[labs[i]].write(conf_to_str(conf))
             i += 1
@@ -101,11 +101,15 @@ def make_plot(op, labels, centroid_ids):
     # Prepping a plot of the first 3 dimensions of the provided op
     dimensions = []
     x = []
+    y = []
     dimensions.append(x)
+    dimensions.append(y)
 
-    if op.shape[1] > 1:
-        y = []
-        dimensions.append(y)
+    # if the op is 1-dimensional add a time dimension
+    add_time = False
+    if op.shape[1] == 1:
+        add_time = True
+        op = np.hstack((op, np.arange(op.shape[0]).reshape(op.shape[0], 1)))
 
     if op.shape[1] > 2:
         z = []
@@ -156,8 +160,7 @@ def make_plot(op, labels, centroid_ids):
 
     else:
         plot_file = "cluster_plot.png"
-        if len(dimensions) == 1:
-            dimensions.append(np.arange(len(dimensions[0])))
+        if add_time:
             a = ax.scatter(dimensions[1], dimensions[0], s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1), vmin=min(labels)-0.5, vmax=max(labels)+0.5)
             cen = ax.scatter(dimensions[1][centroid_ids], dimensions[0][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
             ax.set_xlabel("conf id")
@@ -183,8 +186,7 @@ def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str
     print("INFO: Run  `oat clustering {} -e<eps> -m<min_samples>`  to adjust clustering parameters".format(dump_file), file=stderr)
     out = {
         "data": op.tolist(), 
-        "traj" : traj_info.path, 
-        "top" : top_info.path,  
+        "traj" : traj_info.path,
         "metric" : metric
     }
     dump(out, open(dump_file, 'w+'))
@@ -235,7 +237,7 @@ def main():
     with open(data_file, 'r') as f:
         data = load(f)
     points = np.array(data["data"])
-    top_info, traj_info = describe(data["top"], data["traj"])
+    top_info, traj_info = describe(None, data["traj"])
     metric = data["metric"]
     labels = perform_DBSCAN(traj_info, top_info, points, metric, eps, min_samples)
 

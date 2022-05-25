@@ -6,15 +6,12 @@
 #by Scikit.learn's MDS algorithm, then subtracts the contact map of each individual structure from the man
 #This is used to compute a per-nucleotide deviation in the contact map, which can be visualized with oxView
 
-from matplotlib.pyplot import box
-from nbformat import write
 import numpy as np
 import argparse
 from os import path
 from sys import exit, stderr
 from json import dumps
 from collections import namedtuple
-from multiprocessing import Pool
 from sklearn.manifold import MDS
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.rye_contact_map import contact_map
@@ -78,14 +75,12 @@ def main():
     #get commandline arguments
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculate molecular contacts, and assembles an average set of contacts based on MDS")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
-    parser.add_argument('topology', type=str, nargs=1, help='the topology file associated with the trajectory')
     parser.add_argument('-o', '--output', metavar='output', type=str, nargs=1, help='the name of the .dat file where the mean will be written')
     parser.add_argument('-d', '--dev_file', metavar='dev_file', type=str, nargs=1, help='the name of the .json file where the devs will be written')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     args = parser.parse_args()
     traj = args.trajectory[0]
-    top = args.topology[0]
-    top_info, traj_info = describe(top, traj)
+    top_info, traj_info = describe(None, traj)
     example_conf = get_confs(traj_info.idxs, traj_info.path, 1, 1, top_info.nbases)[0]
 
     if args.parallel:

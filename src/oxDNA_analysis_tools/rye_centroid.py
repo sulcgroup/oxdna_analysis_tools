@@ -44,7 +44,6 @@ def main():
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Find the configuration in a trajectory closest to a provided reference configuration")
     parser.add_argument('reference_structure', type=str, nargs=1, help="The reference structure to search against")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
-    parser.add_argument('topology', type=str, nargs=1, help='the topology file associated with the trajectory')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the centroid to')
     parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Alignment and RMSD based on a subset of particles given in a space-separated list in the provided file')
@@ -57,9 +56,8 @@ def main():
     #Get file paths
     ref = args.reference_structure[0].strip()
     traj = args.trajectory[0].strip()
-    top = args.topology[0].strip()
-    _, ref_info = describe(top, ref)
-    top_info, traj_info = describe(top, traj)
+    _, ref_info = describe(None, ref)
+    top_info, traj_info = describe(None, traj)
 
     # -i comes with a list of particles indices representing a subset to compute the mean against.
     # Get the index list which is a space-separated list of particle ids.

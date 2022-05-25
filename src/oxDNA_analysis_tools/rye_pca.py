@@ -97,7 +97,7 @@ def map_confs_to_pcs(ctx:ComputeContext_map, chunk_size:int, chunk_id:int):
     """
 
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
-    coordinates = np.zeros((chunk_size, ctx.top_info.nbases*3))
+    coordinates = np.zeros((len(confs), ctx.top_info.nbases*3))
     for i, c in enumerate(confs):
         c = inbox(c, center=True)
         c.positions = align_positions(ctx.centered_ref_coords, c.positions)
@@ -108,7 +108,6 @@ def map_confs_to_pcs(ctx:ComputeContext_map, chunk_size:int, chunk_id:int):
 
 def main():
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculates a principal component analysis of nucleotide deviations over a trajectory")
-    parser.add_argument('topology', type=str, nargs=1, help="The topology for the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('meanfile', type=str, nargs=1, help='The mean structure .json file from compute_mean.py')
     parser.add_argument('outfile', type=str, nargs=1, help='the name of the .json file where the PCA will be written')
@@ -119,14 +118,13 @@ def main():
     check_dependencies(["python", "numpy"])
 
     traj_file = args.trajectory[0]
-    top_file = args.topology[0] 
     mean_file = args.meanfile[0]
     outfile = args.outfile[0]
     parallel = args.parallel
 
     # Get inputfile metadata
-    top_info, traj_info = describe(top_file, traj_file)
-    _, mean_info = describe(top_file, mean_file)
+    top_info, traj_info = describe(None, traj_file)
+    _, mean_info = describe(None, mean_file)
 
     # Get the mean structure and center it
     align_conf = get_confs(mean_info.idxs, mean_info.path, 0, 1, top_info.nbases)[0]
