@@ -26,7 +26,7 @@ def oat_multiprocesser(nconfs, ncpus, function, callback, ctx):
     pool.close()
 
     for i,r in enumerate(responses):
-        callback(r)
+        callback(r.get())
         print(f"finished {i+1}/{nchunks}",end="\r")
 
     pool.join()

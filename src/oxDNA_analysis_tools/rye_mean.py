@@ -90,7 +90,7 @@ def main():
     acc = np.zeros([3, top_info.nbases, 3])
     def callback(r):
         nonlocal acc
-        acc += r.get()
+        acc += r
 
     oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
