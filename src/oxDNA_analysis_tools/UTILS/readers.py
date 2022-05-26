@@ -2,7 +2,6 @@ import os.path
 import sys
 import numpy as np
 from oxDNA_analysis_tools.UTILS import base
-from oxDNA_analysis_tools.UTILS.base_array import base_array
 
 #The Python3 successor to the trusty LorenzoReader
 #Reads in oxDNA trajectory files one configuration at a time to avoid memory overflow

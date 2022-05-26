@@ -116,6 +116,7 @@ def main():
 
     # The parallelizer will call the "compute" function with ctx as an argument using "ncpus".
     # The "callback" function is called after each chunk is computed.
+    # Chunk size is a global variable which can be set by calling `oat config -n <chunk_size>`
     oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     # divide the sum by the number of confs to get the mean 
