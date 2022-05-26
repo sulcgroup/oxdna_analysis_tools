@@ -31,7 +31,6 @@ If you are not installing via pip, the following dependencies are required and c
 [MatPlotLib](https://matplotlib.org/index.html): 3.0.3 (minimum version 3.0),<br/>
 [BioPython](https://biopython.org/): 1.73,<br/>
 [Scikit-Learn](https://scikit-learn.org/stable/): 0.21.2,<br/>
-[Pathos](https://github.com/uqfoundation/pathos): 0.2.3</br>
 
 ### Setting up Bash autocompletes
 The invocation `oat` is calling a Python script which then handles calling the other available scripts.  If you would like autocompletes for the specific script names (and are using a Unix command line), these are provided by `oat-completion.sh` which can also be found in the repository.  To add autocompletes to your system, either append it to your local `.bash_completion` file with:  
@@ -41,6 +40,11 @@ The invocation `oat` is calling a Python script which then handles calling the o
 Or add it to your global completions with:  
 
 `sudo cp oat-completion.sh /etc/bash_completion.d/`
+
+-------------------------------------------------------------------
+oxDNA Analysis Tools v 2.0 is now out.  Updated documentation coming soon!
+
+All scripts have been completley rewritten to be 10-100x faster, however in the process most of the names have changed and the coding style is very different, please make sure you update your autocompletes and for now, take a look at `mean.py` for an example of how to use the new framework. 
 
 ### DNAnalysis and verifying installation
 Some scripts require DNAnalysis, a program in the oxDNA distribution to calcuate the oxDNA energy function for identifying bonded nucleotides.  Unfortunatley, there is not a good way to detect the location of this program on each user's system when installing from pip, so the path to it must be hardcoded.  In order to use scripts which check base pairing (particularly `bond_analysis`, `multidimensional_scaling_mean`, and `duplex_angle_finder`), you need to set the path in  `config.py` which is found in the oxDNA_analysis_tools source directory (which can be found by running `oat config`). There, edit the `PROCESSPROGRAM` variable in to point to the compiled DNAnalysis binary.  
