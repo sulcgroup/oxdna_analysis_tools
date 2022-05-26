@@ -1,5 +1,4 @@
 from sys import stderr
-from multiprocessing import Pool
 from collections import namedtuple
 import numpy as np
 import argparse

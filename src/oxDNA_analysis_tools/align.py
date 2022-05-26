@@ -3,7 +3,6 @@ import os
 import time
 import numpy as np
 from sys import stderr
-from multiprocessing import Pool
 from collections import namedtuple
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, conf_to_str
