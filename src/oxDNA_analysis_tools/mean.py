@@ -19,8 +19,9 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "centered_ref_coords",
                                               "indexes"])
 
-# This is the function which computes the sum of particle positions
-# This function will be parallelized.                                              
+# This is the function which computes the sum of particle positions for a chunk of a trajectory
+# This function will be parallelized. 
+# All parallelized functions MUST have these same three arguments                                             
 def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     confs = (inbox(c, center=True) for c in confs)
@@ -32,7 +33,7 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     
     return sub_mean
 
-# All scripts in oat must have a main with no arguments to work with the command line interface.
+# All scripts in oat must have a main method with no arguments to work with the command line interface.
 def main():
 
     # A standard way to create and parse command line arguments.
@@ -148,5 +149,6 @@ def main():
         # It will see the spoofed argv as if it was called from the command line.
         deviations.main()
 
+# This makes the script executable via the python interpreter since everything is inside the main() function.
 if __name__ == '__main__':
     main()
