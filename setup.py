@@ -20,7 +20,7 @@ extensions = [
               sources=[source]) for source in sources]
 
 if USING_CYTHON:
-    extensions = cythonize(extensions, compiler_directives={'language_level' : "3", 'embedsignature': True})
+    extensions = cythonize(extensions, compiler_directives={'language_level' : "3"})
 
 
 # Get version number

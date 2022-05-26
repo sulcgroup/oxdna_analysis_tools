@@ -147,7 +147,7 @@ def make_plot(op, labels, centroid_ids):
             a = ax.scatter(x, y, z, s=2, alpha=0.4, c=labels, cmap=plt.get_cmap('tab10', n_clusters+1))
             cen = ax.scatter(dimensions[0][centroid_ids], dimensions[1][centroid_ids], dimensions[2][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
             fig.colorbar(a, ax=ax)
-            handles, labels = cen.legend_elements(prop="colors", num = 1)
+            handles, _ = cen.legend_elements(prop="colors", num = 1)
             l = ax.legend(handles, ['Centroids'])
             return [fig]
 
@@ -155,8 +155,13 @@ def make_plot(op, labels, centroid_ids):
             ax.view_init(elev=10., azim=i)
             return [fig]
 
-        anim = animation.FuncAnimation(fig, animate, init_func=init, frames=range(360), interval=20, blit=True)
-        anim.save(plot_file, fps=30, extra_args=['-vcodec', 'libx264'])
+        try:
+            anim = animation.FuncAnimation(fig, animate, init_func=init, frames=range(360), interval=20, blit=True)
+            anim.save(plot_file, fps=30, extra_args=['-vcodec', 'libx264'])
+        except:
+            print("WARNING: ffmpeg not found, cannot make animated plot, opening interactivley instead", file=stderr)
+            f = init()
+            plt.show()
 
     else:
         plot_file = "cluster_plot.png"
@@ -170,7 +175,7 @@ def make_plot(op, labels, centroid_ids):
             cen = ax.scatter(dimensions[0][centroid_ids], dimensions[1][centroid_ids], s=1.5, c=[0 for _ in centroid_ids], cmap=ListedColormap(['black']))
 
         b = fig.colorbar(a, ax=ax, ticks=list(set(labels)))
-        handles, labels = cen.legend_elements(prop="colors", num = 1)
+        handles, _ = cen.legend_elements(prop="colors", num = 1)
         l = ax.legend(handles, ['Centroids'])
         ax.add_artist(l)
         plt.savefig(plot_file)
