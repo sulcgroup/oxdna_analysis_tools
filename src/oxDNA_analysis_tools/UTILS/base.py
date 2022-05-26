@@ -10,7 +10,6 @@ base.py includes the classes: System, Strand, Nucleotide
 """
 import sys, os
 import numpy as np
-from sqlalchemy import false, true
 
 def partition(s, d):
     if d in s:
@@ -1694,14 +1693,14 @@ class System(object):
         self.map_nucleotides_to_strands()
         out = output_bonds(inputfile, self)
         if out == '':
-            return false
+            return False
         try:
             self.read_H_bonds_output_bonds(out)
         except Exception as e:
             print ('Error while reading output bonds:', e)
-            return false
+            return False
 
-        return true
+        return True
 
     def read_all_interactions(self, inputpipe):
         for line in inputpipe:

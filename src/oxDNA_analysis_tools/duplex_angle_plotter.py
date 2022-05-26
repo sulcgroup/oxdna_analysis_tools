@@ -5,8 +5,6 @@ from sys import stderr, exit
 from os import environ, path
 import argparse
 
-from numpy.core.numeric import count_nonzero
-
 def rad2degree(angle):
     """
     Convert radians to degrees
@@ -102,6 +100,7 @@ def main():
 
         steps = 0 #counts the number of configurations in the file
         last_step = 0
+        count = 0
         all_angles[i] = [[] for _ in p1s[i]]
         found = False
 

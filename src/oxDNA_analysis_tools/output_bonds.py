@@ -1,53 +1,80 @@
-#!/usr/bin/env python
-# from original oxDNA repository
-#A utility that prints out the number of hydrogen bonds between different strands in the system
-
 import numpy as np
-from os import environ, path, getcwd
-from sys import stderr, exit
-from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
-import subprocess
-import tempfile
+from os import path
+from sys import stderr
+from collections import namedtuple
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
+from oxDNA_analysis_tools.UTILS.RyeReader import describe
+import oxpy
 
-from oxDNA_analysis_tools.config import set_analysis_path
-PROCESSPROGRAM = set_analysis_path()
+ComputeContext = namedtuple("ComputeContext",["traj_info",
+                                              "top_info",
+                                              "input_file",
+                                              "visualize",
+                                              "conversion_factor"])
 
-command_for_data =  'analysis_data_output_1={ \n name = stdout \n print_every = 1 \n col_1 = { \n type=pair_energy \n} \n}'
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
+    with oxpy.Context():
+        inp = oxpy.InputFile()
+        inp.init_from_filename(ctx.input_file)
+        inp["list_type"] = "cells"
+        inp["trajectory_file"] = ctx.traj_info.path
+        inp["analysis_bytes_to_skip"] = str(ctx.traj_info.idxs[chunk_id*chunk_size].offset)
+        inp["confs_to_analyse"] = str(chunk_size)
+        inp["analysis_data_output_1"] = '{ \n name = stdout \n print_every = 1e10 \n col_1 = { \n id = my_obs \n type = pair_energy \n } \n }'
 
-def output_bonds (inputfile, system):
-    """
-    Use DNAnalysis's builtin interaction potential calculator to calculate the interactions between nucleotides
+        if (not inp["use_average_seq"] or inp.get_bool("use_average_seq")) and "RNA" in inp["interaction_type"]:
+            print("WARNING: Sequence dependence not set for RNA model, wobble base pairs will be ignored", file=stderr)
 
-    Parameters:
-        inputfile (str): the inputfile used to run the simulation
-        system (System): the system object representing a single configuration
+        backend = oxpy.analysis.AnalysisBackend(inp)
 
-    Returns:
-        out (str): the output of the interaction potential calculator
-    """
-    tempfile_obj = tempfile.NamedTemporaryFile()
-    temp_top = tempfile.NamedTemporaryFile()
-    system.print_lorenzo_output(tempfile_obj.name,temp_top.name)
-    tempfile_obj.flush()
+        # The 8 energies are:
+        # 0 fene
+        # 1 bexc
+        # 2 stack
+        # 3 nexc
+        # 4 hb
+        # 5 cr_stack
+        # 6 cx_stack
+        # 9 Debye-Huckel
+        # 7 total
+        if ctx.visualize:
+            energies = np.zeros((ctx.top_info.nbases, 9))
 
-    launchargs = [PROCESSPROGRAM, inputfile, 'trajectory_file='+tempfile_obj.name, 'topology='+temp_top.name, command_for_data]
-
-    myinput = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    out = myinput.stdout.strip()
-    err = myinput.stderr.strip()
-    for line in err.split('\n'):
-        if "CRITICAL" in line or "ERROR" in line:
-            print(err, file=stderr)
-            print("Bad configuration found at t = {}, outputting blank string".format(int(system._time)), file=stderr)
-            return ''
-    return out
-
+        while backend.read_next_configuration():
+            e_txt = backend.config_info().get_observable_by_id("my_obs").get_output_string(0).strip().split('\n')
+            if ctx.visualize:
+                for e in e_txt[1:]:
+                    if not e[0] == '#':
+                        e = e.split()
+                        p = int(e[0])
+                        q = int(e[1])
+                        l = np.array([float(x) for x in e[2:]])*ctx.conversion_factor
+                        energies[p] += l
+                        energies[q] += l
+            else:
+                print(e_txt[0])
+                for e in e_txt[1:]:
+                    if not e[0] == '#':
+                        e = e.split()
+                        p = int(e[0])
+                        q = int(e[1])
+                        l = np.array([float(x) for x in e[2:]])*ctx.conversion_factor
+                        print("{} {} {} {} {} {} {} {} {} {} {}".format(p, q, l[0], l[1], l[2], l[3], l[4], l[5], l[6], l[7], l[8]))
+                    else: 
+                        print(e)
+        if ctx.visualize:
+            return energies
+        else:
+            return
+                
 def main():
     import argparse
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="List all the interactions between nucleotides")
     parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('-v', type=str, nargs=1, dest='outfile', help='if you want instead average per-particle energy as a viewer JSON')
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-u', '--units', type=str, nargs=1, dest='units', help="(optional) The units of the energy (pNnm or oxDNA)")
     args = parser.parse_args()
 
     from oxDNA_analysis_tools.config import check_dependencies
@@ -56,54 +83,64 @@ def main():
     traj_file = args.trajectory[0]
     inputfile = args.inputfile[0]
 
+    top_info, traj_info  = describe(None, traj_file)
+
     try:
         outfile = args.outfile[0]
         visualize = True
     except:
         visualize = False
 
-    if path.dirname(inputfile) != getcwd():
-        sim_directory = path.dirname(inputfile)
+    #if path.dirname(inputfile) != getcwd():
+    #    sim_directory = path.dirname(inputfile)
+    #else:
+    #    sim_directory = ""
+
+    if args.parallel:
+        ncpus = args.parallel[0]
     else:
-        sim_directory = ""
+        ncpus = 1
 
-    top_file = sim_directory + get_input_parameter(inputfile, "topology")
-    if "RNA" in get_input_parameter(inputfile, "interaction_type"):
-        environ["OXRNA"] = "1"
-    else:
-        environ["OXRNA"] = "0"
-    import oxDNA_analysis_tools.UTILS.base #this needs to be imported after the model type is set
-
-    myreader = LorenzoReader2(traj_file,top_file)
-    mysystem = myreader._get_system()
-
-    energies = np.zeros(mysystem.N)
-    count = 0
-
-    while mysystem != False:
-        out = output_bonds(inputfile, mysystem)
-        if visualize:
-            for line in out.split('\n'):
-                if not (line.startswith('#') or line == ''):
-                    line = [float(l) for l in line.split(' ')]
-                    energies[int(line[0])] += sum(line[2:])
-                    energies[int(line[1])] += sum(line[2:])
+    if args.units:
+        if args.units[0] == "pNnm":
+            units = "pN nm"
+            conversion_factor = 41.42
+        elif args.units[0] == "oxDNA":
+            units = "oxDNA su"
+            conversion_factor = 1
         else:
-            print(out)
+            print("Unrecognized units:", args.units[0], file=stderr)
+            exit(1)
+    else:
+        units = "oxDNA su"
+        conversion_factor = 1
+        print("INFO: no units specified, assuming oxDNA su", file=stderr)
 
-        count += 1
-        mysystem = myreader._get_system()
+    ctx = ComputeContext(traj_info, top_info, inputfile, visualize, conversion_factor)
+
+    energies = np.zeros((ctx.top_info.nbases, 9))
+    def callback(i, r):
+        nonlocal visualize, energies
+        if visualize:
+            energies += r
+        else:
+            print(r)
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     if visualize:
-        energies *= (41.42/count)
-        with open(outfile, "w+") as file:
-            file.write("{\n\"Energy (pN nm)\" : [")
-            file.write(str(energies[0]))
-            for n in energies[1:]:
-                file.write(", {}".format(n))
-            file.write("] \n}")
+        energies /= traj_info.nconfs
+        for i, potential in enumerate(["FENE","bexc", "stack", "nexc", "hb", "cr_stack", "cx_stack", "Debye-Huckel", "Total"]):
+            if '.json' in outfile:
+                fname = '.'.join(outfile.split('.')[:-1])+"_"+potential+'.json'
+            else:
+                fname = outfile+"_"+potential+'.json'
+            with open(fname, 'w+') as f:
+                f.write("{{\n\"{} ({})\" : [".format(potential, units))
+                f.write(', '.join([str(x) for x in energies[:,i]]))
+                f.write("]\n}")
+            print("INFO: Wrote oxView overlay to:", fname)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()
-
-

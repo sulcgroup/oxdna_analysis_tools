@@ -1,110 +1,64 @@
-#!/usr/bin/env python3
-
 from sys import stderr
-try:
-    from Bio.SVDSuperimposer import SVDSuperimposer
-except:
-    from bio.SVDSuperimposer import SVDSuperimposer
+from collections import namedtuple
 import numpy as np
 import argparse
 import os
-from json import load
-from oxDNA_analysis_tools.UTILS import parallelize_erik_onefile
-from oxDNA_analysis_tools.UTILS.readers import ErikReader, cal_confs
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf, write_conf
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
+from oxDNA_analysis_tools.align import align
+import time
+start_time = time.time()
 
-def compute_centroid(reader, mean_structure, indexes, num_confs, start=None, stop=None):
-    """
-        Compares each structure to the mean and returns the one with the lowest RMSF
+ComputeContext = namedtuple("ComputeContext",["traj_info",
+                                              "top_info",
+                                              "ref_coords",
+                                              "indexes"])
 
-        Parameters:
-            reader (readers.LorenzoReader2): An active reader on the trajectory file to analyze.
-            mean_structure (numpy.array): The position of each particle in the mean configuration.  A 3xN array.
-            num_confs (int): The number of configurations in the reader.  
-            <optional> start (int): The starting configuration ID to begin averaging at.  Used if parallel.
-            <optional> stop (int): The configuration ID on which to end the averaging.  Used if parallel.
 
-        Returns:
-            centroid (numpy.array): The positions corresponding to the structure with the lowest RMSF to the mean.
-    """
-    if stop is None:
-        stop = num_confs
-    else: stop = int(stop)
-    if start is None:
-        start = 0
-    else: start = int(start)
-    confid = 0
+def compute_centroid(ctx:ComputeContext, chunk_size, chunk_id:int):
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
+    confs = [inbox(c) for c in confs]
+    np_confs = np.asarray([[c.positions, c.a1s, c.a3s] for c in confs])
+    centroid_candidate = np.zeros_like(np_confs[0])
+    min_RMSD = np.inf
+    centroid_id = -1
 
-    # Use the single-value decomposition method for superimposing configurations 
-    sup = SVDSuperimposer()
-    lowest_rmsf = 100000 #if you have a larger number than this, we need to talk...
-    centroid_candidate = np.zeros_like(mean_structure)
-    centroid_a1 = np.zeros_like(mean_structure)
-    centroid_a3 = np.zeros_like(mean_structure)
+    for i, c in enumerate(np_confs):
+        c[0] -= np.mean(c[0][ctx.indexes], axis=0) #didn't center earlier because you have to center on the indexed particles
+        aligned_conf = align(ctx.ref_coords.positions[ctx.indexes], c, ctx.indexes)[0]
+        RMSD = np.sqrt(np.mean(np.linalg.norm(aligned_conf[ctx.indexes] - ctx.ref_coords.positions[ctx.indexes], axis=1)**2))
+        if RMSD < min_RMSD:
+            min_RMSD = RMSD
+            centroid_candidate = c
+            centroid_id = i
 
-    mysystem = reader.read(n_skip = start)
-    
-    while mysystem != False and confid < stop:
-        mysystem.inbox()
-        # calculate alignment transform
-        cur_conf = mysystem.positions
-        indexed_cur_conf = mysystem.positions[indexes]
-        cur_conf_a1 = mysystem.a1s
-        cur_conf_a3 = mysystem.a3s
-        sup.set(mean_structure, indexed_cur_conf)
-        sup.run()
-        rot, tran = sup.get_rotran()
+    t = confs[centroid_id].time
 
-        cur_conf = np.einsum('ij, ki -> kj', rot, cur_conf) + tran
-        cur_conf_a1 = np.einsum('ij, ki -> kj', rot, cur_conf_a1)
-        cur_conf_a3 = np.einsum('ij, ki -> kj', rot, cur_conf_a3)
-        RMSF = sup.get_rms()
-        print("Frame number:",confid, "RMSF:", RMSF)
-        if RMSF < lowest_rmsf:
-            centroid_candidate = cur_conf
-            centroid_a1 = cur_conf_a1
-            centroid_a3 = cur_conf_a3
-            lowest_rmsf = RMSF
-            centroid_t = mysystem.time
-        
-        confid += 1
-        mysystem = reader.read()
-
-    return centroid_candidate, centroid_a1, centroid_a3, lowest_rmsf, centroid_t
+    return (centroid_candidate, min_RMSD, t)
 
 def main():
     #handle commandline arguments
-    #the positional arguments for this are: 
-    # 1. the mean structure from compute_mean.py in json format
-    # 2. the trajectory from which to compute the centroid
-    # 3. the name of the file to write out the centroid to.  Should be a .dat because oxView uses file extensions
-    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Compute the RMSD of each nucleotide from the mean structure produced by compute_mean.py")
-    parser.add_argument('mean_structure', type=str, nargs=1, help="The mean structure .json file from compute_mean.py")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Find the configuration in a trajectory closest to a provided reference configuration")
+    parser.add_argument('reference_structure', type=str, nargs=1, help="The reference structure to search against")
     parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
     parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The filename to save the centroid to')
-    parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Compute mean structure of a subset of particles from a space-separated list in the provided file')
+    parser.add_argument('-i', metavar='index_file', dest='index_file', nargs=1, help='Alignment and RMSD based on a subset of particles given in a space-separated list in the provided file')
     args = parser.parse_args()
 
     #system check
     from oxDNA_analysis_tools.config import check_dependencies
-    check_dependencies(["python", "Bio", "numpy"])
+    check_dependencies(["python", "numpy"])
 
-    #-o names the output file
-    if args.output:
-        outfile = args.output[0].strip()
-    else: 
-        outfile = "centroid.dat"
-        print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
+    #Get file paths
+    ref = args.reference_structure[0].strip()
+    traj = args.trajectory[0].strip()
+    _, ref_info = describe(None, ref)
+    top_info, traj_info = describe(None, traj)
 
-    #prepare the data files and calculate how many configurations there are to run
-    traj_file = args.trajectory[0]
-    parallel = args.parallel
-    if parallel:
-        n_cpus = args.parallel[0]
-    num_confs = cal_confs(traj_file)
-
-    #-i will make it only run on a subset of nucleotides.
-    #The index file is a space-separated list of particle IDs
+    # -i comes with a list of particles indices representing a subset to compute the mean against.
+    # Get the index list which is a space-separated list of particle ids.
     if args.index_file:
         index_file = args.index_file[0]
         with open(index_file, 'r') as f:
@@ -113,56 +67,57 @@ def main():
                 indexes = [int(i) for i in indexes]
             except:
                 print("ERROR: The index file must be a space-seperated list of particles.  These can be generated using oxView by clicking the \"Download Selected Base List\" button")
-    else: 
-        with ErikReader(traj_file) as r:
-            indexes = list(range(len(r.read().positions)))
+    else:
+        indexes = list(range(top_info.nbases))
 
-    # load mean structure 
-    mean_file = args.mean_structure[0]
-    if mean_file.split(".")[-1] == "json":
-        with open(mean_file) as file:
-            mean_structure = load(file)['g_mean'][indexes]
+    if args.parallel:
+        ncpus = args.parallel[0]
+    else:
+        ncpus = 1
 
-    elif mean_file.split(".")[-1] == "dat":
-        with ErikReader(mean_file) as reader:
-            s = reader.read()
-            mean_structure = s.positions[indexes]
-    print("INFO: mean structure loaded", file=stderr)
+    # get the mean structure from the file path
+    ref_conf = get_confs(ref_info.idxs, ref_info.path, 0, 1, top_info.nbases)[0]
+    ref_conf = inbox(ref_conf)
+    ref_cms = np.mean(ref_conf.positions[indexes], axis=0)
+    ref_conf.positions -= ref_cms
 
-    #Calculate centroid, in parallel if available
-    if not parallel:
-        print("INFO: Computing centroid from the mean of {} configurations using 1 core.".format(num_confs), file=stderr)
-        r = ErikReader(traj_file)
-        centroid, centroid_a1s, centroid_a3s, centroid_rmsf, centroid_time = compute_centroid(r, mean_structure, indexes, num_confs)
+    # create a ComputeContext which defines the problem to pass to the worker processes
+    ctx = ComputeContext(
+        traj_info, top_info, ref_conf, indexes
+    )
 
-    #If parallel, the trajectory is split into a number of chunks equal to the number of CPUs available.
-    #Each of those chunks is then calculated seperatley and the results are compiled .
-    if parallel:
-        print("INFO: Computing centroid from the mean of {} configurations using {} cores.".format(num_confs, n_cpus), file=stderr)
-        candidates = []
-        rmsfs = []
-        a1s = []
-        a3s = []
-        ts = []
-        out = parallelize_erik_onefile.fire_multiprocess(traj_file, compute_centroid, num_confs, n_cpus, mean_structure, indexes)
-        [candidates.append(i[0]) for i in out]
-        [rmsfs.append(i[3]) for i in out]
-        [a1s.append(i[1]) for i in out]
-        [a3s.append(i[2]) for i in out]
-        [ts.append(i[4]) for i in out]
-        min_id = rmsfs.index(min(rmsfs))
-        centroid = candidates[min_id]
-        centroid_a1s = a1s[min_id]
-        centroid_a3s = a3s[min_id]
-        centroid_time = ts[min_id]
-        centroid_rmsf = rmsfs[min_id]
+    # What do we do with the output from the worker processes?
+    min_RMSD = np.inf
+    centroid_candidate = Configuration(0, ref_conf.box, np.zeros(3), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions))
+    centroid_time = -1
+    def callback(i, r):
+        nonlocal min_RMSD, centroid_candidate, centroid_time
+        centroid, RMSD, t = r
+        if RMSD < min_RMSD:
+            min_RMSD = RMSD
+            centroid_time = t
+            centroid_candidate.positions = centroid[0]
+            centroid_candidate.a1s = centroid[1]
+            centroid_candidate.a3s = centroid[2]
 
-    print("INFO: Centroid configuration found at configuration t = {}, RMSF = {}".format(centroid_time, centroid_rmsf), file=stderr)
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute_centroid, callback, ctx)
     
-    from oxDNA_analysis_tools.mean2dat import make_dat
+    min_RMSD *= 0.8518
+    centroid_candidate.time = centroid_time
 
-    make_dat({'g_mean' : centroid, 'a1_mean': centroid_a1s, 'a3_mean': centroid_a3s}, outfile)
+    #-o names the output file
+    if args.output:
+        outfile = args.output[0].strip()
+    else: 
+        outfile = "centroid.dat"
+        print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
+
+    write_conf(outfile, centroid_candidate)
+    print("INFO: Wrote centroid to {}".format(outfile), file=stderr)
+    print("INFO: Min RMSD: {} nm".format(min_RMSD), file=stderr)
+    print("INFO: Centroid time: {}".format(centroid_time), file=stderr)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()
-    

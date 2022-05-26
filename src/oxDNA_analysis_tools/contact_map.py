@@ -1,110 +1,99 @@
-#!/usr/bin/env python3
-
-from os import environ, path
-import sys
-import subprocess
-import tempfile
+import os
 import numpy as np
-
-from oxDNA_analysis_tools.config import set_analysis_path
-PROCESSPROGRAM = set_analysis_path()
-
+import argparse
+import matplotlib.pyplot as plt
+from sys import stderr
+from multiprocess import Pool
+from collections import namedtuple
+from oxDNA_analysis_tools.UTILS.RyeReader import describe, get_confs
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.config import check_dependencies
-check_dependencies(["numpy"])
+from oxDNA_analysis_tools.distance import vectorized_min_image
 
-def contact_map (inputfile, mysystem, return_full_matrix):
+from time import time
+
+ComputeContext = namedtuple("ComputeContext",["traj_info",
+                                              "top_info"])
+
+def contact_map(ctx:ComputeContext, chunk_size:int,  chunk_id:int):
     """
-    Computes the distance between every pair of nucleotides and creates a matrix of these distances.
+    Computes the average distance between every pair of nucleotides and creates a matrix of these distances.
 
     Parameters:
-        inputfile (string): the input file with which the simulation was run,
-        mysystem (base.System): a base.py system object containing the system to analyze.
-        return_full_matrix (bool): The matrix is symmetric. Return only the lower half or the whole matrix?
+        ctx (ComputeContext): A named tuple containing trajectory info, topology info, and the number of configurations to process.
+        chunk_id (int): The id of the chunk to process.
     
     Returns:
-        distances (numpy.array): The matrix containing pairwise distances between every pair of nucleotides.
+        distances (numpy.array): A NxN matrix containing pairwise distances between every pair of nucleotides.
     """
-    tempfile_obj = tempfile.NamedTemporaryFile()
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
 
-    #the algorithm to find the distances is written into an oxDNA observable for improved speed on large systems.
-    command_for_data =  'analysis_data_output_1 = { \n name = stdout \n print_every = 1 \n col_1 = { \n type=contact_map \n } \n}'
-    launchargs = [PROCESSPROGRAM, inputfile ,'trajectory_file='+tempfile_obj.name,command_for_data]
-    n = mysystem.N
+    np_poses = np.asarray([c.positions for c in confs])
+    distances = np.zeros((ctx.top_info.nbases, ctx.top_info.nbases))
+    for c in np_poses:
+        distances += vectorized_min_image(c, c, confs[0].box)
 
-    #write the system to a tempfile so it can be fed to oxDNA in a subprocess
-    mysystem.print_lorenzo_output(tempfile_obj.name,'/dev/null')
-    tempfile_obj.flush()
-    process = subprocess.run(launchargs,stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
-    
-    #process output
-    out = process.stdout.strip()
-    err = process.stderr.strip()
-    for line in err.split("\n"):
-        if "CRITICAL" in line or "ERROR" in line or "Error" in line:
-           print (err)
-           sys.exit(1)
-    distances = np.array(out.split(' '), dtype=float)
-
-    #the distance matrix is diagonal, so the observable only calculates half in a compressed format
-    #if the full matrix is needed, this copies it out.
-    if return_full_matrix:
-        full_matrix = np.empty((n, n))
-        for i in range(n):
-            for j in range(n):
-                if i==j:
-                    full_matrix[i][j] = 0
-                elif j > i:
-                    full_matrix[i][j] = distances[int(i*n - ((i*i)+i)*0.5 + (j-i-1))]
-                elif i > j:
-                    full_matrix[i][j] = distances[int(j*n - ((j*j)+j)*0.5 + (i-j-1))]
-        return(full_matrix)
-    else:
-        return(distances)
+    return distances
 
 def main():
-    import argparse
-    import matplotlib.pyplot as plt
-    from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, get_input_parameter
-
-    from oxDNA_analysis_tools.config import check_dependencies
     check_dependencies(["python", "numpy", "matplotlib"])
 
     #get commandline arguments
-    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculate and display the contact map for a structure")
-    parser.add_argument('inputfile', type=str, nargs=1, help="The inputfile used to run the simulation")
+    parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Calculate and display the contact map for a structure")
     parser.add_argument('trajectory', type=str, nargs=1, help="The file containing the configurations of which the contact map is needed")
-    parser.add_argument('-v', dest='visualize', action='store_const', const=True, default=False, help="should we display the contact map once its calculated? Only recommend if there are few confs.")
+    parser.add_argument('-g', metavar='graph', dest='graph', nargs=1, type=str, help='Filename for the plot')
+    parser.add_argument('-d', metavar='data', dest='data', nargs=1, help='The name of the file to save the contact map as a pickle.')
+    parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
 
+    # Get arguments and file metadata
     args = parser.parse_args()
-    visualize = args.visualize
-    inputfile = args.inputfile[0]
-    traj_file = args.trajectory[0]
+    traj = args.trajectory[0]
+    top_info, traj_info = describe(None, traj)
 
-    #process files
-    top_file = get_input_parameter(inputfile, "topology")
-    if "RNA" in get_input_parameter(inputfile, "interaction_type"):
-        environ["OXRNA"] = "1"
+    if args.parallel:
+        ncpus = args.parallel[0]
     else:
-        environ["OXRNA"] = "0"
+        ncpus = 1
 
-    #create system object from first configuration in the trajectory
-    r = LorenzoReader2(traj_file, top_file)
-    system = r._get_system()
+    ctx = ComputeContext(traj_info, top_info)
 
-    #for every configuration, create a graphical contact map
-    while system:
-        m = contact_map(inputfile, system, True)
-        if visualize:
-            fig, ax = plt.subplots()
-            a = ax.imshow(m, cmap='viridis', origin='lower')
-            ax.set(title = "interaction network",
-                ylabel="nucleotide id",
-                xlabel="nucleotide id")
-            b = fig.colorbar(a, ax=ax)
-            b.set_label("distance", rotation = 270)
-            plt.show()
-        system = r._get_system()
+    distances = np.zeros((top_info.nbases, top_info.nbases))
+    def callback(i, r):
+        nonlocal distances
+        distances += r
 
-if __name__ == '__main__':
+    oat_multiprocesser(traj_info.nconfs, ncpus, contact_map, callback, ctx)
+
+    # Normalize the distances and convert to nm
+    distances /= traj_info.nconfs
+    distances *= 0.8518
+
+    # Plot the contact map
+    if args.graph:
+        graph_name = args.graph[0]
+    else:
+        print("INFO: No graph name provided, defaulting to 'contact_map.png'", file=stderr)
+        graph_name = "contact_map.png"
+
+    fig, ax = plt.subplots()
+    a = ax.imshow(distances, cmap='viridis', origin='lower')
+    ax.set(title = "interaction network",
+    ylabel="nucleotide id",
+    xlabel="nucleotide id")
+    b = fig.colorbar(a, ax=ax)
+    b.set_label("distance (nm)", rotation = 270, labelpad=15)
+    plt.tight_layout()
+    print("INFO: Saving contact map to '{}'".format(graph_name), file=stderr)
+    plt.savefig(graph_name)
+
+    # Save the contact map as a pickle
+    if args.data:
+        data_name = args.data[0]
+    else:
+        print("INFO: No data name provided, defaulting to 'contact_map.pkl'", file=stderr)
+        data_name = "contact_map.pkl"
+    print("INFO: Saving contact map to '{}'".format(data_name), file=stderr)
+    np.save(data_name, distances)
+
+if __name__ == "__main__":
     main()
-    

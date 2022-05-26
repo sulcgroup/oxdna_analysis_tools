@@ -1,13 +1,21 @@
-#!/usr/bin/env python3
-
-import numpy as np
-from oxDNA_analysis_tools.UTILS.readers import LorenzoReader2, cal_confs, get_input_parameter
-from oxDNA_analysis_tools.UTILS import parallelize_lorenzo_onefile
 import os
 import argparse
 from json import dumps
+from collections import namedtuple
+from sys import stderr
+import numpy as np
+import matplotlib.pyplot as plt
+from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
+from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, strand_describe
 
-def rad2degree(angle):
+import time
+start_time = time.time()
+
+ComputeContext = namedtuple("ComputeContext",["traj_info",
+                                              "top_info",
+                                              "system"])
+
+def rad2degree(angle:float):
     """
     Convert radians to degrees
 
@@ -19,123 +27,122 @@ def rad2degree(angle):
     """
     return (angle * 180 / np.pi)
 
-def get_internal_coords(reader, num_confs, start = None, stop = None):
-    """
-    Get the internal coordinates of the nucleic acid backbone
+def get_internal_coords():
+    pass
 
-    Parameters:
-        reader (LorenzoReader2): the reader object attached to a trajectory file
-        num_confs (int): the number of conformations in the trajectory
-        start (int): the starting frame to read in
-        stop (int): the last frame to read in
+def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
+    torsions = np.zeros(ctx.top_info.nbases-(2*len(ctx.system.strands)))
+    dihedrals = np.zeros(ctx.top_info.nbases-(3*len(ctx.system.strands)))
 
-    Returns:
-        torsions (list[]): the torsion angles for each configuration
-        dihedrals (list[]): the dihedral angles for each configuration
-    """
-    if stop is None:
-        stop = num_confs
-    else: stop = int(stop)
-    if start is None:
-        start = 0
-    else: start = int(start)
-
-    confid = 0
-
-    mysystem = reader._get_system(N_skip = start)
-    torsions = np.zeros((len(mysystem._nucleotides)-2, stop))
-    dihedrals = np.zeros((len(mysystem._nucleotides)-3, stop))
-
-    while mysystem != False and confid < stop:
-        for i, strand in enumerate(mysystem._strands):
-            for j, n in enumerate(strand._nucleotides):
-                #store first nucleotide
+    confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
+    for conf in confs:
+        for i, strand in enumerate(ctx.system):
+            for j, n in enumerate(strand):
                 if j == 0:
-                    back3 = n.cm_pos
+                    back3 = conf.positions[n.id]
                     continue
                 #store second nucleotide
                 if j == 1:
-                    back2 = n.cm_pos
+                    back2 = conf.positions[n.id]
                     continue
                 #store third nucleotide and calculate first torsion
                 if j == 2:
-                    back1 = n.cm_pos
+                    back1 = conf.positions[n.id]
                     A = back2 - back3
                     B = back2 - back1
-                    torsions[n.index-2][confid] = rad2degree(
+                    torsions[n.id-(2*(i+1))] += rad2degree(
                         np.arccos((np.dot(A, B))/(np.linalg.norm(A)*np.linalg.norm(B))))
                     continue
 
                 #actually begin the loop of calculating torsions and dihedrals
-                curr = n.cm_pos
+                curr = conf.positions[n.id]
                 A = back3 - back2
                 B = back2 - back1
                 C = back1 - curr
 
                 #get torsion angle
-                torsions[n.index-2][confid] = rad2degree(
+                torsions[n.id-(2*(i+1))] += rad2degree(
                     np.arccos((np.dot(B, -C))/(np.linalg.norm(B)*np.linalg.norm(-C))))
 
                 #get dihedral angle
                 n1 = np.cross(A, B)
                 n2 = np.cross(B, C)
-                dihedrals[n.index-3][confid] = rad2degree(
+                dihedrals[n.id-(3*(i+1))] += rad2degree(
                     np.arccos(np.linalg.norm(np.dot(n1, n2)) / (np.linalg.norm(n1)*np.linalg.norm(n2))))
                 back3 = back2
                 back2 = back1
                 back1 = curr
-        confid += 1
-        mysystem = reader._get_system()
-    
+
     return(torsions, dihedrals)
 
 def main():
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Computes the deviations in the backbone torsion angles")
-    parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('topology', type=str, nargs=1, help="The topology file associated with the trajectory file")
-    parser.add_argument('outfile', type=str, nargs=1, help='The file name for the output .json file.')
+    parser.add_argument('trajectory', type=str, nargs=1, help='the trajectory file you wish to analyze')
     parser.add_argument('-p', metavar='num_cpus', nargs=1, type=int, dest='parallel', help="(optional) How many cores to use")
+    parser.add_argument('-o', metavar='output_file', nargs=1, type=str, dest='output', help="(optional) The name of the file to write the graph to")
+    parser.add_argument('-d', metavar='data_file', nargs=1, type=str, dest='data', help="(optional) The name of the file to write the data to")
     args = parser.parse_args()
 
     #run system checks
     from oxDNA_analysis_tools.config import check_dependencies
-    check_dependencies(["python", "numpy"])
+    check_dependencies(["python", "numpy", "matplotlib"])
 
     top_file  = args.topology[0]
     traj_file = args.trajectory[0]
-    parallel = args.parallel
-    if parallel:
-        n_cpus = args.parallel[0]
+    top_info, traj_info = describe(top_file, traj_file)
 
-    num_confs = cal_confs(traj_file)
+    system, monomers = strand_describe(top_file)
 
-    r = LorenzoReader2(traj_file, top_file)
+    if args.parallel:
+        ncpus = args.parallel[0]
+    else:
+        ncpus = 1
 
-    if not parallel:
-        torsions, dihedrals = get_internal_coords(r, num_confs)
+    # Create a ComputeContext which defines the problem to pass to the worker processes 
+    ctx = ComputeContext(traj_info, top_info, system)
 
-    if parallel:
-        out = parallelize_lorenzo_onefile.fire_multiprocess(traj_file, top_file, get_internal_coords, num_confs, n_cpus)
-        # Out Dims: 1 Processor, 2 Torsion or Dihedrals, 3 Specific list of torsions listed by conf
-        torsions = np.concatenate([out[i][0] for i in range(n_cpus)], axis=1)
-        dihedrals = np.concatenate([out[i][1] for i in range(n_cpus)], axis=1)
+    # Allocate memory to store the results
+    torsions = np.zeros(ctx.top_info.nbases-(2*len(system.strands)))
+    dihedrals = np.zeros(ctx.top_info.nbases-(3*len(system.strands)))
+    def callback(i, r):
+        nonlocal torsions, dihedrals
+        t, d = r
+        torsions += t
+        dihedrals += d
 
-    torsion_mean = np.mean(torsions, axis=1).tolist()
-    dihedral_mean = np.mean(dihedrals, axis=1).tolist()
-    #make something akin to a ramachandran plot for DNA origami??
-    import matplotlib.pyplot as plt
-    plt.scatter(torsion_mean[1:], dihedral_mean)
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    torsions /= traj_info.nconfs
+    dihedrals /= traj_info.nconfs
+
+    torsions = torsions.tolist()
+    dihedrals = dihedrals.tolist()
+
+    if args.output:
+        out = args.output[0]
+    else:
+        out = "ramachandran.png"
+        print("INFO: No output file specified, writing to {}".format(out), file=stderr)
+
+    plt.scatter(torsions[len(system.strands):], dihedrals)
     plt.xlabel("torsion_angle")
     plt.ylabel("dihedral_angle")
-    plt.show()
+    plt.savefig(out)
+    print("INFO: Wrote plot to {}".format(out), file=stderr)
 
-    torsion_mean.insert(0, torsion_mean[0])
-    torsion_mean.insert(0, torsion_mean[0])
-    with open(args.outfile[0], "w") as file:
-        file.write(dumps({
-            "torsion" : torsion_mean
-        }))
+    if args.data:
+        out = args.data[0]
+        with open(out, "w") as f:
+            f.write(dumps({
+                "torsions": torsions,
+                "dihedrals": dihedrals
+            }))
+        print("INFO: Wrote angle data to {}".format(out), file=stderr)
+
+    # Maybe some sort of overlay file?  Hard to do since there is 2*nstrands fewer torsions than particles.
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()
-            

@@ -18,12 +18,13 @@ delta_rotation = 0.2
 T = 35C  
 verlet_skin = 0.2
 mismatch_repulsion = 1
-use_average_seq = 1
+use_average_seq = 0
+seq_dep_file = rna_sequence_dependent_parameters.txt
 
-umbrella_sampling = 1
-op_file = op.txt
-weights_file = wfile.txt
-extrapolate_hist =  24C, 26C, 28C, 30C, 32C, 34C, 36C, 38C, 40C, 42C, 44C, 46C, 48C, 50C, 52C, 54C, 54C, 58C, 60C
+#umbrella_sampling = 1
+#op_file = op.txt
+#weights_file = wfile.txt
+#extrapolate_hist =  24C, 26C, 28C, 30C, 32C, 34C, 36C, 38C, 40C, 42C, 44C, 46C, 48C, 50C, 52C, 54C, 54C, 58C, 60C
 maxclust = 30
 small_system = 1
 ####    INPUT / OUTPUT    ####
