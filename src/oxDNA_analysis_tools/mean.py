@@ -5,7 +5,7 @@ import numpy as np
 from sys import stderr
 from collections import namedtuple
 from random import randrange
-from oxDNA_analysis_tools.align import align
+from oxDNA_analysis_tools.align import align, compute
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
@@ -23,11 +23,24 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
 # This function will be parallelized. 
 # All parallelized functions MUST have these same three arguments                                             
 def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
+    """
+        Compute the sum of of positions and orientations for a chunk of configurations
+
+        Parameters:
+            ctx (ComputeContext): A namedtuple containing file information, the reference conf and the indexes to compute.
+            chunk_size (int): The number of confs to compute in a chunk.
+            chunk_id (int): The id of the chunk to compute.
+    """
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
+    
+    # Because of fix_diffusion, anything that performs alignment must be inboxed first.
     confs = (inbox(c, center=True) for c in confs)
-    # convert to numpy repr
+    
+    # convert to numpy repr for easier math
     np_coords = np.asarray([[c.positions, c.a1s, c.a3s] for c in confs])
     sub_mean = np.zeros(shape=[3,ctx.top_info.nbases,3])
+    
+    # sum over confs
     for c in np_coords:
         sub_mean += align(ctx.centered_ref_coords, c, ctx.indexes)
     
