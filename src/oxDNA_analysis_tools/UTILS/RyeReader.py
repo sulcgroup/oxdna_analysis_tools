@@ -2,6 +2,7 @@ from sys import stderr
 import numpy as np
 from pickle import loads, dumps
 from os.path import exists
+from typing import List, Tuple
 import os
 from oxDNA_analysis_tools.UTILS.data_structures import *
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import get_chunk_size
@@ -11,7 +12,7 @@ from oxDNA_analysis_tools.UTILS.get_confs import cget_confs
 ##########                             FILE READERS                       ##########
 ####################################################################################
 
-def Chunker(file, fsize, size=1000000):
+def Chunker(file, fsize, size=1000000) -> Chunk:
     """
         Generator that yields chunks of a fixed number of bytes
 
@@ -32,7 +33,7 @@ def Chunker(file, fsize, size=1000000):
         yield Chunk(b,current_chunk*size, current_chunk * size + size > fsize, fsize)
         current_chunk+=1
 
-def linear_read(traj_info:TrajInfo, top_info:TopInfo, chunk_size:int=None):
+def linear_read(traj_info:TrajInfo, top_info:TopInfo, chunk_size:int=None) -> List[Configuration]:
     """
         Read a trajecory without multiprocessing.  
 
@@ -60,7 +61,7 @@ def linear_read(traj_info:TrajInfo, top_info:TopInfo, chunk_size:int=None):
         current_chunk += 1
 
 #calculates the length of a trajectory file
-def _index(traj_file): 
+def _index(traj_file) -> List[ConfInfo]: 
     """
         Finds conf starts in a trajectory file.
 
@@ -96,7 +97,7 @@ def _index(traj_file):
     idxs.append(ConfInfo(conf_starts[-1], fsize - conf_starts[-1], len(conf_starts)-1))
     return idxs
 
-def get_confs(indexes, traj_file, start_conf, n_confs, n_bases):
+def get_confs(indexes:list, traj_file:str, start_conf:int, n_confs:int, n_bases:int) -> List[Configuration]:
     """
         Read a chunk of confs from a trajectory file.
 
@@ -119,7 +120,7 @@ def get_confs(indexes, traj_file, start_conf, n_confs, n_bases):
 ##########                             FILE PARSERS                       ##########
 ####################################################################################
 
-def get_top_info(top : str):
+def get_top_info(top : str) -> TopInfo:
     """
         bare bones of topology info
 
@@ -142,7 +143,7 @@ def get_top_info(top : str):
             exit()
     return TopInfo(top, int(nbases))
 
-def get_top_info_from_traj(traj : str):
+def get_top_info_from_traj(traj : str) -> TopInfo:
     """
         Retrieve top and traj info without providing a topology. 
 
@@ -170,7 +171,7 @@ def get_top_info_from_traj(traj : str):
 
     return TopInfo("", int(n_bases))
 
-def get_traj_info(traj : str):
+def get_traj_info(traj : str) -> TrajInfo:
     """
         Get the information of a trajectory file
 
@@ -194,7 +195,7 @@ def get_traj_info(traj : str):
             idxs = loads(file.read())
     return TrajInfo(traj,len(idxs),idxs)
 
-def describe(top : str, traj : str):
+def describe(top : str, traj : str) -> Tuple[TopInfo, TrajInfo]:
     """
         retrieve top and traj info for a provided pair
 
@@ -211,11 +212,11 @@ def describe(top : str, traj : str):
         (TopInfo, TrajInfo) : topology and trajectory info
     """
     if top is None:
-        return get_top_info_from_traj(traj), get_traj_info(traj)
+        return (get_top_info_from_traj(traj), get_traj_info(traj))
     else:
-        return get_top_info(top), get_traj_info(traj)
+        return (get_top_info(top), get_traj_info(traj))
 
-def strand_describe(top):
+def strand_describe(top) -> Tuple[System, list]:
     """
         Retrieve all information from topology file mapping nucleotides to strands.
         
@@ -273,7 +274,7 @@ def strand_describe(top):
 
     return system, monomers
 
-def get_input_parameter(input_file, parameter):
+def get_input_parameter(input_file, parameter) -> str:
     """
     Gets the value of a parameter in an oxDNA input file
     Parameters:
@@ -299,7 +300,7 @@ def get_input_parameter(input_file, parameter):
 ##########                              CONF UTILS                        ##########
 ####################################################################################
 
-def inbox(conf : Configuration, center=False):
+def inbox(conf : Configuration, center=False) -> Configuration:
     """
         Modify the positions attribute such that all positions are inside the box.
 
@@ -340,7 +341,7 @@ def inbox(conf : Configuration, center=False):
 ##########                             FILE WRITERS                       ##########
 ####################################################################################
 
-def write_conf(path : str, conf : Configuration, append=False):
+def write_conf(path : str, conf : Configuration, append=False) -> None:
     """
         write the conf to a file
 
@@ -361,7 +362,7 @@ def write_conf(path : str, conf : Configuration, append=False):
     with open(path,mode) as f:
         f.write("\n".join(out))
 
-def conf_to_str(conf : Configuration):
+def conf_to_str(conf : Configuration) -> str:
     """
     Write configuration as a string
 
@@ -378,7 +379,7 @@ def conf_to_str(conf : Configuration):
     header = f't = {int(conf.time)}\nb = {" ".join(conf.box.astype(str))}\nE = {" ".join(conf.energy.astype(str))}\n'
     return(''.join([header, ''.join([('{} {} {} 0 0 0 0 0 0\n'.format(' '.join(p.astype(str)), ' '.join(a1.astype(str)), ' '.join(a3.astype(str)))) for p, a1, a3 in zip(conf.positions, conf.a1s, conf.a3s)])]))
 
-def get_top_string(system):
+def get_top_string(system) -> str:
     """
         Write topology file from system object.
 

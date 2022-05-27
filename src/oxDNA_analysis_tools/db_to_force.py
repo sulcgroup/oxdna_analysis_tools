@@ -4,13 +4,14 @@ from sys import stderr
 from re import finditer
 
 import argparse
+from typing import List
 import numpy as np
 
 from oxDNA_analysis_tools.external_force_utils.force_reader import write_force_file
 from oxDNA_analysis_tools.external_force_utils.forces import mutual_trap
 
 # Copied from ExpertRNA
-def parse_dot_bracket(input):
+def parse_dot_bracket(input:str) -> List[int]:
     """
     Converts a dot-bracket string to a list of paired nucleotides
 

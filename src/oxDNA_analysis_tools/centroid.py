@@ -1,5 +1,6 @@
 from sys import stderr
 from collections import namedtuple
+from typing import Tuple
 import numpy as np
 import argparse
 import os
@@ -16,7 +17,7 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "indexes"])
 
 
-def compute_centroid(ctx:ComputeContext, chunk_size, chunk_id:int):
+def compute_centroid(ctx:ComputeContext, chunk_size, chunk_id:int) -> Tuple[np.array, float, int]:
     confs = get_confs(ctx.traj_info.idxs, ctx.traj_info.path, chunk_id*chunk_size, chunk_size, ctx.top_info.nbases)
     confs = [inbox(c) for c in confs]
     np_confs = np.asarray([[c.positions, c.a1s, c.a3s] for c in confs])

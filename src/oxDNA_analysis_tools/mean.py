@@ -149,7 +149,7 @@ def main():
         #this is probably horrible practice, but to maintain the ability to call things from the command line, I cannot pass arguments between main() calls.
         #so instead we're gonna spoof argv, which is in the global scope, to make it look like deviations was called explicitally
         argv.clear()
-        argv.extend(['rye_deviations.py', '-o', dev_file, "-r", dev_file.split('.')[0]+"_rmsd.png", "-d", dev_file.split('.')[0]+"_rmsd_data.json"])
+        argv.extend(['deviations.py', '-o', dev_file, "-r", dev_file.split('.')[0]+"_rmsd.png", "-d", dev_file.split('.')[0]+"_rmsd_data.json"])
         if args.index_file:
             argv.append("-i")
             argv.append(index_file)

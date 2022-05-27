@@ -18,13 +18,14 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "p2s"])
 
 #Calculates distance taking PBC into account
-def min_image(p1, p2, box):
+def min_image(p1:np.array, p2:np.array, box:float) -> float:
     """
     Calculates distance between two particles taking PBC into account
 
     Parameters:
         p1 (np.array): The first particle's position
         p2 (np.array): The second particle's position
+        box (float): The size of the box (assumes a cubic box)
 
     Returns:
         distance (float): The distance between the two particles
@@ -35,13 +36,14 @@ def min_image(p1, p2, box):
     diff = diff - (np.round(diff/box)*box)
     return np.linalg.norm(diff)
 
-def vectorized_min_image(p1s, p2s, box):
+def vectorized_min_image(p1s:np.array, p2s:np.array, box:float) -> np.array:
     """
     Calculates all mutual distances between two sets of points taking PBC into account
     
     Paramters:
         p1s (np.array): the first set of points (Nx3 array)
         p2s (np.array): the second set of points (Mx3 array)
+        box (float): The size of the box (assumes a cubic box)
 
     returns:
         distances (np.array): the distances between the points (NxM array)
@@ -62,8 +64,6 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
         distances[:,i] = [min_image(conf.positions[p1], conf.positions[p2], box)* 0.85 for p1, p2 in zip(ctx.p1s, ctx.p2s)]
     
     return distances
-
-
 
 def main():
     #handle commandline arguments

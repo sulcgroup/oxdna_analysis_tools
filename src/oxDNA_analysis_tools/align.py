@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+from typing import List
 import numpy as np
 from sys import stderr
 from collections import namedtuple
@@ -14,7 +15,7 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "centered_ref_coords",
                                               "indexes"])
 
-def align(centered_ref_coords, coords, indexes):
+def align(centered_ref_coords:np.array, coords:np.array, indexes:List[int]) -> List[int]:
     """
     Single-value decomposition-based alignment of configurations
 

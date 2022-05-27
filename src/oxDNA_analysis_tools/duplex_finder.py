@@ -1,3 +1,4 @@
+from typing import List
 import numpy as np
 import argparse
 from os import path
@@ -6,6 +7,7 @@ from dataclasses import dataclass
 from collections import namedtuple
 import oxpy
 from oxDNA_analysis_tools.UTILS import geom
+from oxDNA_analysis_tools.UTILS.data_structures import Monomer
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, strand_describe, get_input_parameter
 
@@ -41,7 +43,7 @@ class Duplex:
     pos : np.array
 
 
-def find_duplex(monomers):
+def find_duplex(monomers:List[Monomer]) -> List[Duplex]:
     def terminating_conditions(m):
         if m.id in assigned_monomers: # already assigned this nucleotide to another duplex
             return True

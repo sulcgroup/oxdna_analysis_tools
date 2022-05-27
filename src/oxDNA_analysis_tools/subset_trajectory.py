@@ -3,9 +3,10 @@ import argparse
 from sys import stderr
 from collections import namedtuple
 from copy import deepcopy
+from typing import List
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, strand_describe, conf_to_str, get_top_string
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration, System
 
 
 
@@ -23,7 +24,7 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
 
     return [''.join(out) for out in outstr]
 
-def write_topologies(system, indexes, outfiles):
+def write_topologies(system:System, indexes:List[int], outfiles:List[str]):
     top_names = [o+ ".top" for o in outfiles]
     for idx, top_name in zip(indexes, top_names):
         idx = set(idx)
