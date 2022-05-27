@@ -15,7 +15,7 @@ from time import time
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info"])
 
-def contact_map(ctx:ComputeContext, chunk_size:int,  chunk_id:int):
+def contact_map(ctx:ComputeContext, chunk_size:int,  chunk_id:int) -> np.array:
     """
     Computes the average distance between every pair of nucleotides and creates a matrix of these distances.
 

@@ -15,7 +15,7 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info",
                                               "system"])
 
-def rad2degree(angle:float):
+def rad2degree(angle:float) -> float:
     """
     Convert radians to degrees
 

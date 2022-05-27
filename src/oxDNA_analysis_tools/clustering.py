@@ -2,6 +2,7 @@ import numpy as np
 import argparse
 from os import environ, remove, path
 from sys import stderr
+from typing import List
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
 from sklearn.cluster import DBSCAN
@@ -64,7 +65,7 @@ def find_element(n, x, array):
             c += 1
     return -1
 
-def get_centroid(points, metric_name, labs, traj_info, top_info):
+def get_centroid(points, metric_name, labs, traj_info, top_info) -> List[int]:
     """
     Takes the output from DBSCAN and produces the trajectory and centroid from each cluster.
 

@@ -5,7 +5,7 @@ from sys import stderr, exit
 from os import environ, path
 import argparse
 
-def rad2degree(angle):
+def rad2degree(angle:float) -> float:
     """
     Convert radians to degrees
 
@@ -17,7 +17,7 @@ def rad2degree(angle):
     """
     return (angle * 180 / np.pi)
 
-def angle_between (axis1, axis2):
+def angle_between (axis1:np.array, axis2:np.array) -> float:
     """
     Find the angle between two vectors.
 

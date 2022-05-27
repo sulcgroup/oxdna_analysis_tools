@@ -1,44 +1,33 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
 from os import path
 from sys import exit, stderr
+from typing import List
 import argparse
 
-#set the path to your compiled copy of DNAnalysis here
-def set_analysis_path():
-    PROCESSPROGRAM = '/home/erik/software/oxDNA/build/bin/DNAnalysis'
-
-    if not path.isfile(PROCESSPROGRAM):
-        print ("ERROR: Cannot execute DNAnalysis program. Please edit config.py to point to your compiled DNAnalysis. Current target:", PROCESSPROGRAM, file=stderr)
-        print()
-        print("config.py can be found in", path.realpath(__file__), file=stderr)
-        exit()
-    return PROCESSPROGRAM
-
 #checking dependencies to make sure everything is correct
-def check_dependencies(to_check):
+def check_dependencies(to_check:List[str]):
     flag = False
     dependencies = {
         "numpy": 1.14,
         "matplotlib": 3.0,
         "Bio": 1.73,
         "sklearn": 0.21,
-        "pathos": 0.2,
+        "oxpy": 3.2,
     }
     real_names = {
         "numpy": "Numpy",
         "matplotlib": "MatPlotLib",
         "Bio": "BioPython",
         "sklearn": "SciKit-Learn",
-        "pathos": "Pathos"
+        "oxpy": "oxpy"
     }
     websites = {
         "numpy": "numpy.org", 
         "matplotlib": "matplotlib.org",
         "Bio": "biopython.org",
         "sklearn": "scikit-learn.org",
-        "pathos": "pypi.org/project/pathos/"
+        "oxpy": ""
     }
 
     #get version of this package
@@ -87,7 +76,7 @@ def check_dependencies(to_check):
 
     return flag
 
-def set_chunk_size(chunk_size):
+def set_chunk_size(chunk_size:int):
     with open(path.realpath(__file__).strip('config.py')+"UTILS/chunksize.py", 'w') as f:
         f.write("CHUNKSIZE = "+str(chunk_size))
 
@@ -99,9 +88,7 @@ def main():
         set_chunk_size(args.chunk_size)
         print("INFO: future analyses will calculate in blocks of {} confs at a time".format(args.chunk_size), file=stderr)
 
-    check_dependencies(["python", "numpy", "matplotlib", "Bio", "sklearn", "pathos"])
-    p = set_analysis_path()
-    print("INFO: DNAnalysis found at:", p, file=stderr)
+    check_dependencies(["python", "numpy", "matplotlib", "Bio", "sklearn", "oxpy"])
 
 if __name__ == '__main__':
     main()
