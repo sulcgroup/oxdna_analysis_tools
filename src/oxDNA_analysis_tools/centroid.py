@@ -7,7 +7,7 @@ import os
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
-from oxDNA_analysis_tools.align import align
+from oxDNA_analysis_tools.align import svd_align
 import time
 start_time = time.time()
 
@@ -27,7 +27,7 @@ def compute_centroid(ctx:ComputeContext, chunk_size, chunk_id:int) -> Tuple[np.a
 
     for i, c in enumerate(np_confs):
         c[0] -= np.mean(c[0][ctx.indexes], axis=0) #didn't center earlier because you have to center on the indexed particles
-        aligned_conf = align(ctx.ref_coords.positions[ctx.indexes], c, ctx.indexes)[0]
+        aligned_conf = svd_align(ctx.ref_coords.positions[ctx.indexes], c, ctx.indexes)[0]
         RMSD = np.sqrt(np.mean(np.linalg.norm(aligned_conf[ctx.indexes] - ctx.ref_coords.positions[ctx.indexes], axis=1)**2))
         if RMSD < min_RMSD:
             min_RMSD = RMSD

@@ -6,7 +6,7 @@ from collections import namedtuple
 from json import dumps
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser, get_chunk_size
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, get_confs
-from oxDNA_analysis_tools.align import align
+from oxDNA_analysis_tools.align import svd_align
 import matplotlib.pyplot as plt
 import time
 start_time = time.time()
@@ -23,7 +23,7 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
 
     SFs = np.empty((len(confs), ctx.top_info.nbases))
     for i, c in enumerate(confs):
-        aligned_conf = align(ctx.mean_coords.positions[ctx.indexes], c, ctx.indexes)[0]
+        aligned_conf = svd_align(ctx.mean_coords.positions[ctx.indexes], c, ctx.indexes)[0]
         SFs[i] = np.power(np.linalg.norm(aligned_conf - ctx.mean_coords.positions, axis=1), 2)
 
     return SFs

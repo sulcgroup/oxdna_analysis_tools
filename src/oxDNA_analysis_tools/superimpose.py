@@ -3,7 +3,7 @@ import os
 import numpy as np
 from sys import stderr
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf
-from oxDNA_analysis_tools.align import align
+from oxDNA_analysis_tools.align import svd_align
 
 
 def main():
@@ -49,7 +49,7 @@ def main():
 
         np_coords = np.asarray([conf.positions, conf.a1s, conf.a3s])
 
-        conf.positions, conf.a1s, conf.a3s = align(reference_coords, np_coords, indexes)
+        conf.positions, conf.a1s, conf.a3s = svd_align(reference_coords, np_coords, indexes)
 
         write_conf("aligned{}.dat".format(i), conf)
         print("INFO: Wrote file aligned{}.dat".format(i), file=stderr)

@@ -5,7 +5,7 @@ import numpy as np
 from sys import stderr
 from collections import namedtuple
 from random import randrange
-from oxDNA_analysis_tools.align import align, compute
+from oxDNA_analysis_tools.align import svd_align, compute
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration
@@ -42,7 +42,7 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     
     # sum over confs
     for c in np_coords:
-        sub_mean += align(ctx.centered_ref_coords, c, ctx.indexes)
+        sub_mean += svd_align(ctx.centered_ref_coords, c, ctx.indexes)
     
     return sub_mean
 

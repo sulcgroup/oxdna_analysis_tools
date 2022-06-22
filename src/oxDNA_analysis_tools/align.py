@@ -1,7 +1,7 @@
 import argparse
 import os
 import time
-from typing import List
+from typing import List, Tuple
 import numpy as np
 from sys import stderr
 from collections import namedtuple
@@ -16,7 +16,7 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "centered_ref_coords",
                                               "indexes"])
 
-def align(centered_ref_coords:np.array, coords:np.array, indexes:List[int]) -> List[int]:
+def svd_align(centered_ref_coords:np.array, coords:np.array, indexes:List[int]) -> Tuple[np.array]:
     """
     Single-value decomposition-based alignment of configurations
 
@@ -53,7 +53,7 @@ def compute(ctx:ComputeContext, chunk_size, chunk_id:int):
 
     # align
     for i, c in enumerate(np_coords):
-        c[0], c[1], c[2] = align(ctx.centered_ref_coords, c, ctx.indexes)
+        c[0], c[1], c[2] = svd_align(ctx.centered_ref_coords, c, ctx.indexes)
         confs[i].positions = c[0]
         confs[i].a1s = c[1]
         confs[i].a3s = c[2]
@@ -61,7 +61,7 @@ def compute(ctx:ComputeContext, chunk_size, chunk_id:int):
     out = ''.join([conf_to_str(c) for c in confs])
     return out
 
-def run_align(traj:str=None, outfile:str=None, ncpus:int=1, indexes:List[int]=None, ref_conf:Configuration=None):
+def align(traj:str, outfile:str, ncpus:int=1, indexes:List[int]=None, ref_conf:Configuration=None):
     """
         Align a trajectory to a ref_conf and print the result to a file.
 
@@ -71,6 +71,8 @@ def run_align(traj:str=None, outfile:str=None, ncpus:int=1, indexes:List[int]=No
             ncpus (int) : (optional) How many cpus to parallelize the operation. default=1
             indexes (List[int]) : (optional) IDs of a subset of particles to consider for the alignment. default=all
             ref_conf (Configuration) : (optional) The configuration to align to. default=first conf
+
+        Writes the aligned configuration to outfile
     """
     
     top_info, traj_info = describe(None, traj)
@@ -145,7 +147,7 @@ def main():
     else:
         ncpus = 1
 
-    run_align(traj=traj_file, outfile=outfile, ncpus=ncpus, indexes=indexes, ref_conf=ref_conf)
+    align(traj=traj_file, outfile=outfile, ncpus=ncpus, indexes=indexes, ref_conf=ref_conf)
 
 if __name__ == '__main__':
     main()
