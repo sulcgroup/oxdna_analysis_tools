@@ -3,8 +3,10 @@ import argparse
 from json import dumps
 from collections import namedtuple
 from sys import stderr
+from typing import Tuple
 import numpy as np
 import matplotlib.pyplot as plt
+from oxDNA_analysis_tools.UTILS.data_structures import System, TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, strand_describe
 
@@ -75,6 +77,41 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
 
     return(torsions, dihedrals)
 
+def backbone_flexibility(traj_info:TrajInfo, top_info:TopInfo,system:System, ncpus=1) -> Tuple[np.array]: 
+    '''
+        Calculate backbone flexibility of a trajectory.
+
+        Parameters:
+            traj_info (TrajInfo): Trajectory information
+            top_info (TopInfo): Topology information
+            system (System): System information
+            ncpus (int): (optional) Number of CPUs to use
+
+        Returns:
+            torsions (np.array): Torsion angles
+            dihedrals (np.array): Dihedral angles
+
+    '''
+    # Create a ComputeContext which defines the problem to pass to the worker processes 
+    ctx = ComputeContext(traj_info, top_info, system)
+
+    # Allocate memory to store the results
+    torsions = np.zeros(ctx.top_info.nbases-(2*len(system.strands)))
+    dihedrals = np.zeros(ctx.top_info.nbases-(3*len(system.strands)))
+    def callback(i, r):
+        nonlocal torsions, dihedrals
+        t, d = r
+        torsions += t
+        dihedrals += d
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    torsions /= traj_info.nconfs
+    dihedrals /= traj_info.nconfs
+
+    return (torsions, dihedrals)
+
+
 def main():
     parser = argparse.ArgumentParser(prog = os.path.basename(__file__), description="Computes the deviations in the backbone torsion angles")
     parser.add_argument('topology', type=str, nargs=1, help="The topology file associated with the trajectory file")
@@ -99,22 +136,7 @@ def main():
     else:
         ncpus = 1
 
-    # Create a ComputeContext which defines the problem to pass to the worker processes 
-    ctx = ComputeContext(traj_info, top_info, system)
-
-    # Allocate memory to store the results
-    torsions = np.zeros(ctx.top_info.nbases-(2*len(system.strands)))
-    dihedrals = np.zeros(ctx.top_info.nbases-(3*len(system.strands)))
-    def callback(i, r):
-        nonlocal torsions, dihedrals
-        t, d = r
-        torsions += t
-        dihedrals += d
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
-
-    torsions /= traj_info.nconfs
-    dihedrals /= traj_info.nconfs
+    torsions, dihedrals = backbone_flexibility(traj_info, top_info, system, ncpus)
 
     torsions = torsions.tolist()
     dihedrals = dihedrals.tolist()

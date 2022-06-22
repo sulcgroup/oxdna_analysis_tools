@@ -1,9 +1,11 @@
-import numpy as np
 import argparse
 from sys import exit, stderr
 from os import path
 from collections import namedtuple
+from typing import Tuple
+import numpy as np
 import oxpy
+from oxDNA_analysis_tools.UTILS.data_structures import TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, get_input_parameter
 
@@ -53,7 +55,45 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
         return(tot_bonds, count_correct_bonds, count_incorrect_bonds, out_array)
 
 
+def bond_analysis(traj_info:TrajInfo, top_info:TopInfo, pairs:dict[int, int], inputfile:str, ncpus:int=1) -> Tuple[int, int, int, np.ndarray]:
+    '''
+        Compare the bond occupancy of a trajectory with a designed structure
 
+        Parameters: 
+            traj_info: TrajInfo object containing the trajectory information
+            top_info: TopInfo object containing the topology information
+            pairs: dict of the designed pairs
+            inputfile: the input file used to run the simulation
+            ncpus: (optional) number of cores to use
+
+        Returns:
+            total_bonds: average number of bonds per configuraiton
+            incorrect_bonds: average number of incorrect bonds per configuration
+            correct_bonds: average number of correct bonds per configuration
+            nt_array: per-nucleotide correct bond occupancy
+    '''
+    ctx = ComputeContext(traj_info, top_info, pairs, inputfile)
+
+    total_bonds = 0
+    correct_bonds = 0
+    incorrect_bonds = 0
+    nt_array = np.zeros(ctx.top_info.nbases, dtype=int)
+
+    def callback(i, r):
+        nonlocal total_bonds, correct_bonds, incorrect_bonds, nt_array
+        total_bonds += r[0]
+        correct_bonds += r[1]
+        incorrect_bonds += r[2]
+        nt_array += r[3]
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    total_bonds /= traj_info.nconfs
+    correct_bonds /= traj_info.nconfs
+    incorrect_bonds /= traj_info.nconfs
+    nt_array  = nt_array / traj_info.nconfs
+
+    return(total_bonds, correct_bonds, incorrect_bonds, nt_array)
 
 def main():
     #read data from files
@@ -87,25 +127,7 @@ def main():
     else:
         ncpus = 1
 
-    ctx = ComputeContext(traj_info, top_info, pairs, inputfile)
-
-    total_bonds = 0
-    correct_bonds = 0
-    incorrect_bonds = 0
-    nt_array = np.zeros(ctx.top_info.nbases, dtype=int)
-    def callback(i, r):
-        nonlocal total_bonds, correct_bonds, incorrect_bonds, nt_array
-        total_bonds += r[0]
-        correct_bonds += r[1]
-        incorrect_bonds += r[2]
-        nt_array += r[3]
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
-
-    total_bonds /= traj_info.nconfs
-    correct_bonds /= traj_info.nconfs
-    incorrect_bonds /= traj_info.nconfs
-    nt_array  = nt_array / traj_info.nconfs
+    total_bonds, incorrect_bonds, correct_bonds, nt_array = bond_analysis(traj_info, top_info, pairs, inputfile, ncpus)
 
     print("\nSummary:\navg bonds: {}\navg_missbonds: {}".format(total_bonds, incorrect_bonds))
 
