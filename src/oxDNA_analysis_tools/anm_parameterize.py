@@ -23,6 +23,18 @@ def calculate_deviations(positions, reference_configuration):
     return devs
 
 def anm_parameterize(particles_array:np.array, trajectory:str, ref_conf:Configuration) -> np.array:
+    """
+        Computes the coarse-grained RMSF for a given trajectory.
+
+        Parameters:
+            particles_array (np.array): An array containing the indices of the particles in each super particle.
+            trajectory (str): The path to the trajectory to evaluate.
+            ref_conf (Configuration): The reference configuration.
+
+        Returns:
+            np.array: The RMSF for each super particle.
+    """
+    
     ref_conf = inbox(ref_conf, center=True)
     ref_particles = get_superparticle_positions(ref_conf, particles_array)
         # Get trajectory information

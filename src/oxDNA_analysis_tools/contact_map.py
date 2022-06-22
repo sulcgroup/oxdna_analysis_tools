@@ -6,16 +6,18 @@ from sys import stderr
 from multiprocess import Pool
 from collections import namedtuple
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, get_confs
+from oxDNA_analysis_tools.UTILS.data_structures import TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.distance import vectorized_min_image
 
 from time import time
+start_time = time()
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info"])
 
-def contact_map(ctx:ComputeContext, chunk_size:int,  chunk_id:int) -> np.array:
+def compute_contact_map(ctx:ComputeContext, chunk_size:int,  chunk_id:int) -> np.array:
     """
     Computes the average distance between every pair of nucleotides and creates a matrix of these distances.
 
@@ -32,6 +34,25 @@ def contact_map(ctx:ComputeContext, chunk_size:int,  chunk_id:int) -> np.array:
     distances = np.zeros((ctx.top_info.nbases, ctx.top_info.nbases))
     for c in np_poses:
         distances += vectorized_min_image(c, c, confs[0].box)
+
+    return distances
+
+def contact_map(traj_info:TrajInfo, top_info:TopInfo, ncpus=1) -> np.array: 
+    """
+    
+    """
+    ctx = ComputeContext(traj_info, top_info)
+
+    distances = np.zeros((top_info.nbases, top_info.nbases))
+    def callback(i, r):
+        nonlocal distances
+        distances += r
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute_contact_map, callback, ctx)
+
+    # Normalize the distances and convert to nm
+    distances /= traj_info.nconfs
+    distances *= 0.8518
 
     return distances
 
@@ -55,18 +76,7 @@ def main():
     else:
         ncpus = 1
 
-    ctx = ComputeContext(traj_info, top_info)
-
-    distances = np.zeros((top_info.nbases, top_info.nbases))
-    def callback(i, r):
-        nonlocal distances
-        distances += r
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, contact_map, callback, ctx)
-
-    # Normalize the distances and convert to nm
-    distances /= traj_info.nconfs
-    distances *= 0.8518
+    distances = contact_map(traj_info, top_info, ncpus)
 
     # Plot the contact map
     if args.graph:
@@ -94,6 +104,8 @@ def main():
         data_name = "contact_map.pkl"
     print("INFO: Saving contact map to '{}'".format(data_name), file=stderr)
     np.save(data_name, distances)
+
+    print("--- %s seconds ---" % (time() - start_time))
 
 if __name__ == "__main__":
     main()

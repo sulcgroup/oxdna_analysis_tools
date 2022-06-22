@@ -14,7 +14,7 @@ from json import dumps
 from collections import namedtuple
 from sklearn.manifold import MDS
 from oxDNA_analysis_tools.config import check_dependencies
-from oxDNA_analysis_tools.contact_map import contact_map
+from oxDNA_analysis_tools.contact_map import compute_contact_map
 from oxDNA_analysis_tools.distance import vectorized_min_image
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, write_conf
@@ -95,7 +95,7 @@ def main():
         nonlocal distances
         distances += r
 
-    oat_multiprocesser(traj_info.nconfs, ncpus, contact_map, callback, ctx)
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute_contact_map, callback, ctx)
 
     mean_distances = distances / traj_info.nconfs
     masked_mean = np.ma.masked_array(mean_distances, ~(mean_distances < CUTOFF))

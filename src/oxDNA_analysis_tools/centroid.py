@@ -1,11 +1,11 @@
 from sys import stderr
 from collections import namedtuple
-from typing import Tuple
+from typing import Tuple, List
 import numpy as np
 import argparse
 import os
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf, write_conf
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration, TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.align import svd_align
 import time
@@ -37,6 +37,50 @@ def compute_centroid(ctx:ComputeContext, chunk_size, chunk_id:int) -> Tuple[np.a
     t = confs[centroid_id].time
 
     return (centroid_candidate, min_RMSD, t)
+
+def centroid(traj_info:TrajInfo, top_info:TopInfo, ref_conf:Configuration, indexes:List[int]=None, ncpus=1) -> Tuple[Configuration, float]:
+    '''
+        Find the configuration in a trajectory closest to a provided reference configuration
+
+        Parameters:
+            traj_info: TrajInfo object containing information about the trajectory
+            top_info: TopInfo object containing information about the topology
+            ref_conf: Configuration object containing the reference configuration
+            indexes: (optional) List of indexes of the particles to be used for alignment
+            ncpus: (optional) Number of CPUs to use for alignment
+    '''
+    if indexes is None:
+        indexes = list(range(top_info.nbases))
+
+    ref_conf = inbox(ref_conf)
+    ref_cms = np.mean(ref_conf.positions[indexes], axis=0)
+    ref_conf.positions -= ref_cms
+
+    # create a ComputeContext which defines the problem to pass to the worker processes
+    ctx = ComputeContext(
+        traj_info, top_info, ref_conf, indexes
+    )
+
+    # What do we do with the output from the worker processes?
+    min_RMSD = np.inf
+    centroid_candidate = Configuration(0, ref_conf.box, np.zeros(3), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions))
+    centroid_time = -1
+    def callback(i, r):
+        nonlocal min_RMSD, centroid_candidate, centroid_time
+        centroid, RMSD, t = r
+        if RMSD < min_RMSD:
+            min_RMSD = RMSD
+            centroid_time = t
+            centroid_candidate.positions = centroid[0]
+            centroid_candidate.a1s = centroid[1]
+            centroid_candidate.a3s = centroid[2]
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute_centroid, callback, ctx)
+    
+    min_RMSD *= 0.8518
+    centroid_candidate.time = centroid_time
+
+    return centroid_candidate, min_RMSD
 
 def main():
     #handle commandline arguments
@@ -78,33 +122,8 @@ def main():
 
     # get the mean structure from the file path
     ref_conf = get_confs(ref_info.idxs, ref_info.path, 0, 1, top_info.nbases)[0]
-    ref_conf = inbox(ref_conf)
-    ref_cms = np.mean(ref_conf.positions[indexes], axis=0)
-    ref_conf.positions -= ref_cms
-
-    # create a ComputeContext which defines the problem to pass to the worker processes
-    ctx = ComputeContext(
-        traj_info, top_info, ref_conf, indexes
-    )
-
-    # What do we do with the output from the worker processes?
-    min_RMSD = np.inf
-    centroid_candidate = Configuration(0, ref_conf.box, np.zeros(3), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions), np.zeros_like(ref_conf.positions))
-    centroid_time = -1
-    def callback(i, r):
-        nonlocal min_RMSD, centroid_candidate, centroid_time
-        centroid, RMSD, t = r
-        if RMSD < min_RMSD:
-            min_RMSD = RMSD
-            centroid_time = t
-            centroid_candidate.positions = centroid[0]
-            centroid_candidate.a1s = centroid[1]
-            centroid_candidate.a3s = centroid[2]
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute_centroid, callback, ctx)
     
-    min_RMSD *= 0.8518
-    centroid_candidate.time = centroid_time
+    centroid_candidate, min_RMSD = centroid(traj_info, top_info, ref_conf, indexes, ncpus)
 
     #-o names the output file
     if args.output:
@@ -116,7 +135,7 @@ def main():
     write_conf(outfile, centroid_candidate)
     print("INFO: Wrote centroid to {}".format(outfile), file=stderr)
     print("INFO: Min RMSD: {} nm".format(min_RMSD), file=stderr)
-    print("INFO: Centroid time: {}".format(centroid_time), file=stderr)
+    print("INFO: Centroid time: {}".format(centroid_candidate.time), file=stderr)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 

@@ -102,9 +102,10 @@ def align(traj:str, outfile:str, ncpus:int=1, indexes:List[int]=None, ref_conf:C
             f.write(r)
 
         oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
-
+    
     print(f"INFO: Wrote aligned trajectory to {outfile}", file=stderr)
-    print("--- %s seconds ---" % (time.time() - start_time))
+
+    return
 
 def main():
     #handle commandline arguments
@@ -148,6 +149,8 @@ def main():
         ncpus = 1
 
     align(traj=traj_file, outfile=outfile, ncpus=ncpus, indexes=indexes, ref_conf=ref_conf)
+
+    print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':
     main()
