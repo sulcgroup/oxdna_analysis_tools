@@ -27,7 +27,7 @@ It can also be installed from the [GitHub repository](https://github.com/sulcgro
    `python setup.py install`  
 
 If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:  
-[Python](https://www.python.org/): 3.7 (minimum version 3.6),<br/>
+[Python](https://www.python.org/): 3.7,<br/>
 [oxDNA compiled with oxpy](https://github.com/lorenzo-rovigatti/oxDNA): (minimum version 3.2.2)<br/>
 [NumPy](https://numpy.org/): 1.16,<br/>
 [MatPlotLib](https://matplotlib.org/index.html): 3.0.3 (minimum version 3.0),<br/>
