@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+from typing import List, Tuple
 import numpy as np
 from sys import stderr, exit
 from os import environ, path
@@ -30,65 +31,22 @@ def angle_between (axis1:np.array, axis2:np.array) -> float:
     """
     return (np.arccos(np.dot(axis1, axis2)/(np.linalg.norm(axis1)*np.linalg.norm(axis2))))
 
-def main():
-    #Get command line arguments.
-    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Finds the ensemble of angles between any two duplexes defined by a starting or ending nucleotide in the system")
-    parser.add_argument('-i', '--input', metavar='angle_file', dest='input', nargs='+', action='append', help='An angle file from duplex_angle_finder.py and a list of duplex-end particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
-    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
-    parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
-    parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a json to this filename for loading in oxView or your own scripts')
-    parser.add_argument('-n', '--names', metavar='names', nargs='+', action='append', help='Names of the data series.  Will default to particle ids if not provided')
+def get_angle_between(files:List[str], p1s:List[List[int]], p2s:List[List[int]]) -> Tuple[List[List[np.array]], List[List[float]], List[List[float]], List[List[float]], List[List[float]]]:
+    """
+        Read in a duplex list file and return the angles between specified duplexes.
 
-    args = parser.parse_args()
+        Parameters:
+            files (List[str]): The list of duplex files to read.
+            p1s (List[List[int]]): The list of start1 nucleotide indices for each file.
+            p2s (List[List[int]]): The list of start2 nucleotide indices for each file.
 
-    from oxDNA_analysis_tools.config import check_dependencies
-    check_dependencies(["python", "numpy", "matplotlib"])
-
-    try:
-        files = [i[0] for i in args.input]
-        p1s = [i[1::2] for i in args.input]
-        p2s = [i[2::2] for i in args.input]
-    except Exception as e:
-        print("ERROR: Failed to read files")
-        print(e)
-        parser.print_help()
-        exit(1)
-
-    n_angles = sum(len(p) for p in p1s)
-
-    #Make sure that the input is correctly formatted
-    if(len(files) != len(p1s) != len(p2s)):
-        print("ERROR: bad input arguments\nPlease supply an equal number of trajectory and particle pairs", file=stderr)
-        exit(1)
-
-    #-o names the output file
-    if args.output:
-        outfile = args.output[0]
-    else: 
-        if environ.get('DISPLAY', None) != "":
-            print("INFO: No display detected, outputting to \"angle.png\"", file=stderr)
-            outfile=False
-        else:
-            print("INFO: No outfile name provided, defaulting to \"angle.png\"", file=stderr)
-            outfile = "angle.png"
-
-    #-f defines which type of graph to produce
-    hist = False
-    line = False
-    if args.format:
-        if "histogram" in args.format:
-            hist = True
-        if "trajectory" in args.format:
-            line = True
-        if "both" in args.format:
-            hist = line = True
-        if hist == line == False:
-            print("ERROR: unrecognized graph format\nAccepted formats are \"histogram\", \"trajectory\", and \"both\"", file=stderr)
-            exit(1)
-    else:
-        print("INFO: No graph format specified, defaulting to histogram", file=stderr)
-        hist = True
-
+        Returns:
+            angles (List[List[np.array]]): The list of angles between the specified duplexes.
+            means (List[float]): The mean angle between each pair of duplexes.
+            medians (List[float]): The median angle between each pair of duplexes.
+            stdevs (List[float]): The standard deviation of the angle between each pair of duplexes.
+            representations (List[float]): The percentage of confs that have the duplexes.
+    """
     all_angles = [[] for _ in files]
     means = [[] for _ in files]
     medians = [[] for _ in files]
@@ -183,6 +141,69 @@ def main():
         medians[i] = median
         stdevs[i] = stdev
         representations[i] = representation
+
+    return (all_angles, means, medians, stdevs, representations)
+
+def main():
+    #Get command line arguments.
+    parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Finds the ensemble of angles between any two duplexes defined by a starting or ending nucleotide in the system")
+    parser.add_argument('-i', '--input', metavar='angle_file', dest='input', nargs='+', action='append', help='An angle file from duplex_angle_finder.py and a list of duplex-end particle pairs to compare.  Can call -i multiple times to plot multiple datasets.')
+    parser.add_argument('-o', '--output', metavar='output_file', nargs=1, help='The name to save the graph file to')
+    parser.add_argument('-f', '--format', metavar='<histogram/trajectory/both>', nargs=1, help='Output format for the graphs.  Defaults to histogram.  Options are \"histogram\", \"trajectory\", and \"both\"')
+    parser.add_argument('-d', '--data', metavar='data_file', nargs=1, help='If set, the output for the graphs will be dropped as a json to this filename for loading in oxView or your own scripts')
+    parser.add_argument('-n', '--names', metavar='names', nargs='+', action='append', help='Names of the data series.  Will default to particle ids if not provided')
+
+    args = parser.parse_args()
+
+    from oxDNA_analysis_tools.config import check_dependencies
+    check_dependencies(["python", "numpy", "matplotlib"])
+
+    try:
+        files = [i[0] for i in args.input]
+        p1s = [i[1::2] for i in args.input]
+        p2s = [i[2::2] for i in args.input]
+    except Exception as e:
+        print("ERROR: Failed to read files")
+        print(e)
+        parser.print_help()
+        exit(1)
+
+    n_angles = sum(len(p) for p in p1s)
+
+    #Make sure that the input is correctly formatted
+    if(len(files) != len(p1s) != len(p2s)):
+        print("ERROR: bad input arguments\nPlease supply an equal number of trajectory and particle pairs", file=stderr)
+        exit(1)
+
+    #-o names the output file
+    if args.output:
+        outfile = args.output[0]
+    else: 
+        if environ.get('DISPLAY', None) != "":
+            print("INFO: No display detected, outputting to \"angle.png\"", file=stderr)
+            outfile=False
+        else:
+            print("INFO: No outfile name provided, defaulting to \"angle.png\"", file=stderr)
+            outfile = "angle.png"
+
+    #-f defines which type of graph to produce
+    hist = False
+    line = False
+    if args.format:
+        if "histogram" in args.format:
+            hist = True
+        if "trajectory" in args.format:
+            line = True
+        if "both" in args.format:
+            hist = line = True
+        if hist == line == False:
+            print("ERROR: unrecognized graph format\nAccepted formats are \"histogram\", \"trajectory\", and \"both\"", file=stderr)
+            exit(1)
+    else:
+        print("INFO: No graph format specified, defaulting to histogram", file=stderr)
+        hist = True
+
+    all_angles, means, medians, stdevs, representations = get_angle_between(files, p1s, p2s)
 
     #for i, m in enumerate(means):
     #    if m > 90:

@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from collections import namedtuple
 import oxpy
 from oxDNA_analysis_tools.UTILS import geom
-from oxDNA_analysis_tools.UTILS.data_structures import Monomer
+from oxDNA_analysis_tools.UTILS.data_structures import Monomer, TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, strand_describe, get_input_parameter
 
@@ -126,6 +126,17 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
 
         return duplexes_at_step
 
+def duplex_finder(traj_info:TrajInfo, top_info:TopInfo, inputfile:str, monomers:List[Monomer], ncpus=1) -> List[List[Duplex]]:
+    ctx = ComputeContext(traj_info, top_info, inputfile, monomers)
+
+    duplexes_at_step = []
+    def callback(i, r):
+        duplexes_at_step.extend(r)
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    return duplexes_at_step
+
 def main():
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Fit vectors to every duplex in the structure")
     parser.add_argument('input', type=str, nargs=1, help="The inputfile used to run the simulation")
@@ -157,13 +168,7 @@ def main():
     top_info, traj_info = describe(top_file, traj_file)
     system, monomers = strand_describe(top_file)
 
-    ctx = ComputeContext(traj_info, top_info, inputfile, monomers)
-
-    duplexes_at_step = []
-    def callback(i, r):
-        duplexes_at_step.extend(r)
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+    duplexes_at_step = duplex_finder(traj_info, top_info, inputfile, monomers, ncpus)
 
     #print duplexes to a file
     print("INFO: Writing duplex data to {}.  Use duplex_angle_plotter to graph data".format(outfile), file=stderr)

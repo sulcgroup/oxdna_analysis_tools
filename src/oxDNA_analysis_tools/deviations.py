@@ -1,9 +1,11 @@
 import argparse
 import os
+from typing import List, Tuple
 import numpy as np
 from sys import stderr
 from collections import namedtuple
 from json import dumps
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration, TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser, get_chunk_size
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, inbox, get_confs
 from oxDNA_analysis_tools.align import svd_align
@@ -27,6 +29,47 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
         SFs[i] = np.power(np.linalg.norm(aligned_conf - ctx.mean_coords.positions, axis=1), 2)
 
     return SFs
+
+def deviations(traj_info:TrajInfo, top_info:TopInfo, mean_conf:Configuration, indexes:List[int]=None, ncpus:int=1) -> Tuple[np.array, np.array]:
+    """
+        Find the deviations of a trajectory from a mean configuration
+
+        Parameters:
+            traj_info (TrajInfo): Information about the trajectory
+            top_info (TopInfo): Information about the topology
+            mean_conf (Configuration): The mean configuration
+            indexes (List[int]): (optional) List of indexes of the particles to be used for alignment
+            ncpus (int): (optional) Number of CPUs to use for alignment
+        
+        Returns:
+            RMSDs: Root mean squared deviation for each configuration in the trajectory
+            RMSFs: Average deviation for each particle in the structure
+    """
+    if indexes is None:
+        indexes = list(range(top_info.nbases))
+
+    mean_conf = inbox(mean_conf)
+    ref_cms = np.mean(mean_conf.positions[indexes], axis=0)
+    mean_conf.positions -= ref_cms
+
+    # create a ComputeContext which defines the problem to pass to the worker processes
+    ctx = ComputeContext(
+        traj_info, top_info, mean_conf, indexes
+    )
+
+    chunk_size = get_chunk_size()
+    MFs = np.empty((traj_info.nconfs, top_info.nbases))
+    def callback(i, r):
+        nonlocal MFs, chunk_size
+        MFs[i*chunk_size:i*chunk_size+len(r)] = r
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    # Compute RMSDs and RMSF
+    RMSDs = np.sqrt(np.mean(MFs, axis=1)) * 0.8518
+    RMSFs = np.sqrt(np.mean(MFs, axis=0)) * 0.8518
+
+    return (RMSDs, RMSFs)
 
 def main():
     #handle commandline arguments
@@ -74,26 +117,7 @@ def main():
 
     # get the mean structure from the file path
     mean_conf = get_confs(mean_info.idxs, mean_info.path, 0, 1, top_info.nbases)[0]
-    mean_conf = inbox(mean_conf)
-    ref_cms = np.mean(mean_conf.positions[indexes], axis=0)
-    mean_conf.positions -= ref_cms
-
-    # create a ComputeContext which defines the problem to pass to the worker processes
-    ctx = ComputeContext(
-        traj_info, top_info, mean_conf, indexes
-    )
-
-    chunk_size = get_chunk_size()
-    MFs = np.empty((traj_info.nconfs, top_info.nbases))
-    def callback(i, r):
-        nonlocal MFs, chunk_size
-        MFs[i*chunk_size:i*chunk_size+len(r)] = r
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
-
-    # Compute RMSDs and RMSF
-    RMSDs = np.sqrt(np.mean(MFs, axis=1)) * 0.8518
-    RMSFs = np.sqrt(np.mean(MFs, axis=0)) * 0.8518
+    RMSDs, RMSFs = deviations(traj_info, top_info, mean_conf, indexes, ncpus)
 
     #-o names the output file
     if args.output:

@@ -3,9 +3,11 @@
 import numpy as np
 from sys import exit, stderr
 from collections import namedtuple
+from typing import List
 import argparse
 import os
 import matplotlib.pyplot as plt
+from oxDNA_analysis_tools.UTILS.data_structures import TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import get_chunk_size, oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe, get_confs
 
@@ -63,6 +65,27 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
     for i, conf in enumerate(confs):
         distances[:,i] = [min_image(conf.positions[p1], conf.positions[p2], box)* 0.85 for p1, p2 in zip(ctx.p1s, ctx.p2s)]
     
+    return distances
+
+def distance(traj_infos:List[TrajInfo], top_infos:List[TopInfo], p1ss:List[List[int]], p2ss:List[List[int]], ncpus:int=1) -> List[List[float]]:
+    """
+    
+    """
+    distances = [[] for _ in traj_infos]
+    for i, (traj_info, top_info, p1s, p2s) in enumerate(zip(traj_infos, top_infos, p1ss, p2ss)):
+        
+        ctx = ComputeContext(traj_info, top_info, p1s, p2s)
+        
+        chunk_size = get_chunk_size()
+        distances[i] = [[None]*traj_info.nconfs for _ in p1s]
+        def callback(j, r):
+            nonlocal distances
+            for k, d in enumerate(r):
+                distances[i][k][chunk_size*j:chunk_size*j+len(d)] = d
+        print("INFO: Working on trajectory: {}".format(traj_info.path), file=stderr)
+
+        oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
     return distances
 
 def main():
@@ -144,20 +167,7 @@ def main():
     else:
         ncpus = 1
 
-    distances = [[] for _ in trajectories]
-    for i, (traj_info, top_info, p1s, p2s) in enumerate(zip(traj_infos, top_infos, p1ss, p2ss)):
-        
-        ctx = ComputeContext(traj_info, top_info, p1s, p2s)
-        
-        chunk_size = get_chunk_size()
-        distances[i] = [[None]*traj_info.nconfs for _ in p1s]
-        def callback(j, r):
-            nonlocal distances
-            for k, d in enumerate(r):
-                distances[i][k][chunk_size*j:chunk_size*j+len(d)] = d
-        print("INFO: Working on trajectory: {}".format(traj_info.path), file=stderr)
-
-        oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+    distances = distance(traj_infos, top_infos, p1ss, p2ss, ncpus)
 
     # -n sets the names of the data series
     if args.names:
