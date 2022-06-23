@@ -22,7 +22,7 @@ ComputeContext_map = namedtuple("ComputeContext_map",["traj_info",
                                                       "centered_ref_coords",
                                                       "components"])
 
-def align_positions(centered_ref_coords:np.array, coords:np.array) -> np.array:
+def align_positions(centered_ref_coords:np.ndarray, coords:np.ndarray) -> np.array:
     """
     Single-value decomposition-based alignment of configurations
 
@@ -50,7 +50,7 @@ def align_positions(centered_ref_coords:np.array, coords:np.array) -> np.array:
     tran = av1 - np.dot(av2, rot)
     return  np.dot(coords, rot) + tran
 
-def make_heatmap(covariance:np.array):
+def make_heatmap(covariance:np.ndarray):
     """
         Produces a heatmat plot of the covariance between every particle
 

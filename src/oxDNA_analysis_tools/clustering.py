@@ -183,7 +183,7 @@ def make_plot(op, labels, centroid_ids):
     print("INFO: Saved cluster plot to {}".format(plot_file), file=stderr)
 
 
-def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.array, metric:str, eps:float, min_samples:int):
+def perform_DBSCAN(traj_info:TrajInfo, top_info:TopInfo, op:np.ndarray, metric:str, eps:float, min_samples:int):
     check_dependencies(["python", "sklearn", "matplotlib"])
     
     #dump the input as a json file so you can iterate on eps and min_samples

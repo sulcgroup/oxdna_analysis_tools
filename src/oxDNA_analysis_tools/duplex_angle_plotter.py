@@ -18,7 +18,7 @@ def rad2degree(angle:float) -> float:
     """
     return (angle * 180 / np.pi)
 
-def angle_between (axis1:np.array, axis2:np.array) -> float:
+def angle_between (axis1:np.ndarray, axis2:np.ndarray) -> float:
     """
     Find the angle between two vectors.
 

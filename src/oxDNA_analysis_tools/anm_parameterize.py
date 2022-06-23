@@ -22,7 +22,7 @@ def calculate_deviations(positions, reference_configuration):
     devs = np.sqrt(np.sum(np.square(d), axis=1)) # sqrt(dx**2 + dy**2 + dz**2)
     return devs
 
-def anm_parameterize(particles_array:np.array, trajectory:str, ref_conf:Configuration) -> np.array:
+def anm_parameterize(particles_array:np.ndarray, trajectory:str, ref_conf:Configuration) -> np.array:
     """
         Computes the coarse-grained RMSF for a given trajectory.
 

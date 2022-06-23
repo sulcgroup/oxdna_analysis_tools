@@ -20,7 +20,7 @@ ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "p2s"])
 
 #Calculates distance taking PBC into account
-def min_image(p1:np.array, p2:np.array, box:float) -> float:
+def min_image(p1:np.ndarray, p2:np.ndarray, box:float) -> float:
     """
     Calculates distance between two particles taking PBC into account
 
@@ -38,7 +38,7 @@ def min_image(p1:np.array, p2:np.array, box:float) -> float:
     diff = diff - (np.round(diff/box)*box)
     return np.linalg.norm(diff)
 
-def vectorized_min_image(p1s:np.array, p2s:np.array, box:float) -> np.array:
+def vectorized_min_image(p1s:np.ndarray, p2s:np.ndarray, box:float) -> np.array:
     """
     Calculates all mutual distances between two sets of points taking PBC into account
     

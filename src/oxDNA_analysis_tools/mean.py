@@ -1,6 +1,7 @@
 import argparse
 import os
 import time
+from typing import List
 import numpy as np
 from sys import stderr
 from collections import namedtuple
@@ -8,7 +9,7 @@ from random import randrange
 from oxDNA_analysis_tools.align import svd_align, compute
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration, TopInfo, TrajInfo
 start_time = time.time()
 
 # A compute context is a single variable (in this case a namedtuple, but could also be a dict or a dataclass)
@@ -45,6 +46,61 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
         sub_mean += svd_align(ctx.centered_ref_coords, c, ctx.indexes)
     
     return sub_mean
+
+def mean(traj_info:TrajInfo, top_info:TopInfo, ref_conf:Configuration=None, indexes:List[int]=None, ncpus:int=1) -> Configuration:
+    """
+        Compute the mean structure of a trajectory.
+
+        Parameters:
+            traj_info (TrajInfo): Information about the trajectory
+            top_info (TopInfo): Information about the topology
+            ref_conf (Configuration): (optional) The reference configuration to align to. If None, a random configuraiton will be used.
+            indexes (List[int]): (optional) The indexes of the configurations to use. If None, all configurations will be used.
+            ncpus (int): (optional) The number of CPUs to use. If None, 1 CPU will be used.
+        
+        Returns:
+            Configuration (Configuration): The mean structure of the trajectory.
+    """
+
+    # Handle case where function was called from another script with incomplete arguments
+    if indexes == None:
+        indexes = list(range(top_info.nbases))
+    if ref_conf == None:
+        ref_conf_id = int(randrange(0, traj_info.nconfs))
+        ref_conf = get_confs(traj_info.idxs, traj_info.path, ref_conf_id, 1, top_info.nbases)[0]
+    
+    # alignment requires the ref to be centered at 0
+    reference_coords = ref_conf.positions[indexes]
+    ref_cms = np.mean(reference_coords, axis=0) # cms prior to centering
+    reference_coords = reference_coords - ref_cms
+
+    # The compute context is a single variable containin the arguments needed for the parallelized function. 
+    ctx = ComputeContext(
+        traj_info, top_info, reference_coords, indexes
+    )
+
+    # The callback function is called after each chunk is computed.
+    # For computing the mean structure, we just add the sum of particle positions to a running total
+    # we'll divide by the number of confs later.
+    mean = np.zeros([3, top_info.nbases, 3])
+    def callback(i, r):
+        nonlocal mean
+        mean += r
+
+    # The parallelizer will call the "compute" function with ctx as an argument using "ncpus".
+    # The "callback" function is called after each chunk is computed.
+    # Chunk size is a global variable which can be set by calling `oat config -n <chunk_size>`
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    # divide the sum by the number of confs to get the mean 
+    mean /= traj_info.nconfs
+    pos, a1s, a3s = mean
+
+    # renormalize a1 and a3 because weird things happen if they aren't
+    a1s = np.array([v/np.linalg.norm(v) for v in a1s])
+    a3s = np.array([v/np.linalg.norm(v) for v in a3s])
+
+    return Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s)
 
 # All scripts in oat must have a main method with no arguments to work with the command line interface.
 def main():
@@ -96,36 +152,7 @@ def main():
     else:
         ncpus = 1
 
-    # alignment requires the ref to be centered at 0
-    reference_coords = ref_conf.positions[indexes]
-    ref_cms = np.mean(reference_coords, axis=0) # cms prior to centering
-    reference_coords = reference_coords - ref_cms
-
-    # The compute context is a single variable containin the arguments needed for the parallelized function. 
-    ctx = ComputeContext(
-        traj_info, top_info, reference_coords, indexes
-    )
-
-    # The callback function is called after each chunk is computed.
-    # For computing the mean structure, we just add the sum of particle positions to a running total
-    # we'll divide by the number of confs later.
-    mean = np.zeros([3, top_info.nbases, 3])
-    def callback(i, r):
-        nonlocal mean
-        mean += r
-
-    # The parallelizer will call the "compute" function with ctx as an argument using "ncpus".
-    # The "callback" function is called after each chunk is computed.
-    # Chunk size is a global variable which can be set by calling `oat config -n <chunk_size>`
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
-
-    # divide the sum by the number of confs to get the mean 
-    mean /= traj_info.nconfs
-    pos, a1s, a3s = mean
-
-    # renormalize a1 and a3 because weird things happen if they aren't
-    a1s = np.array([v/np.linalg.norm(v) for v in a1s])
-    a3s = np.array([v/np.linalg.norm(v) for v in a3s])
+    mean_conf = mean(traj_info, top_info, ref_conf, indexes, ncpus)
 
     #-o names the output file
     if args.output:
@@ -136,32 +163,17 @@ def main():
 
     # Create the mean configuration from the numpy arrays containing the positions and orientations
     # And write it to the outfile
-    write_conf(outfile,Configuration(0,ref_conf.box,np.array([0,0,0]), pos, a1s , a3s))
+    write_conf(outfile, mean_conf)
     print("--- %s seconds ---" % (time.time() - start_time))
 
-    # -d runs compute_deviations.py after computing the mean
+    # -d runs deviations.py after computing the mean
     if args.deviations:
-        from sys import argv
         from oxDNA_analysis_tools import deviations
         dev_file = args.deviations[0]
         print("INFO: Launching compute_deviations")
 
-        #this is probably horrible practice, but to maintain the ability to call things from the command line, I cannot pass arguments between main() calls.
-        #so instead we're gonna spoof argv, which is in the global scope, to make it look like deviations was called explicitally
-        argv.clear()
-        argv.extend(['deviations.py', '-o', dev_file, "-r", dev_file.split('.')[0]+"_rmsd.png", "-d", dev_file.split('.')[0]+"_rmsd_data.json"])
-        if args.index_file:
-            argv.append("-i")
-            argv.append(index_file)
-        if args.parallel:
-            argv.append("-p") 
-            argv.append(str(ncpus))
-        argv.append(outfile)
-        argv.append(traj)
-
-        # Call the main method from deviations.
-        # It will see the spoofed argv as if it was called from the command line.
-        deviations.main()
+        RMSDs, RMSFs = deviations.deviations(traj_info, top_info, mean_conf, indexes, ncpus)
+        deviations.output(RMSDs, RMSFs, dev_file, dev_file.split('.')[0]+"_rmsd.png", dev_file.split('.')[0]+"_rmsd_data.json")
 
 # This makes the script executable via the python interpreter since everything is inside the main() function.
 if __name__ == '__main__':

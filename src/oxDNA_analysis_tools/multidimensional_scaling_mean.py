@@ -30,7 +30,7 @@ DevsContext = namedtuple("DevsContext",["traj_info",
 #at 2.5 you start to see the hard edges caused by end-loops and see some loop interactions
 CUTOFF = 2.5
 
-def make_heatmap(contact_map:np.array):
+def make_heatmap(contact_map:np.ndarray):
     """
     Convert a matrix of contact distances to a visual contact map.
 

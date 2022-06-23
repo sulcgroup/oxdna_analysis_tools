@@ -71,6 +71,43 @@ def deviations(traj_info:TrajInfo, top_info:TopInfo, mean_conf:Configuration, in
 
     return (RMSDs, RMSFs)
 
+def output(RMSDs:np.ndarray, RMSFs:np.ndarray, outfile:str='devs.json', plot_name:str='rmsd.png', data_file:str='rmsd_op.json'):
+    """
+        Create RMSF oxView overlay and RMSD plot
+
+        Parameters:
+            RMSDs (np.array): Root mean squared deviation for each configuration in the trajectory
+            RMSFs (np.array): Average deviation for each particle in the structure
+            outfile (str): (optional) Name of the oxView overlay file for the RMSF
+            plot_name (str): (optional) Name of the RMSD plot
+            data_file (str): (optional) Name of the oxView order parameter file for the RMSD
+    """
+    # Save the RMSDs and RMSFs to json files
+    print("INFO: writing deviations to {}".format(outfile), file=stderr)
+    with open(outfile, 'w') as f:
+        f.write(
+            dumps({
+                "RMSF (nm)" : RMSFs.tolist()
+            })
+        )
+
+    print("INFO: writing RMSDs to oxView order parameter file, {}".format(data_file))
+    with open(data_file, 'w') as f:
+        f.write(
+            dumps({
+                "RMSD (nm)" : RMSDs.tolist()
+            })
+        )
+
+    print("INFO: writing RMSD plot to {}".format(plot_name))
+    plt.plot(RMSDs)
+    plt.axhline(np.mean(RMSDs), color='red')
+    plt.xlabel('Configuration')
+    plt.ylabel('RMSD (nm)')
+    plt.savefig(plot_name)
+
+    return
+
 def main():
     #handle commandline arguments
     #the positional arguments for this are: 
@@ -140,29 +177,7 @@ def main():
     else:
         data_file = 'rmsd_op.json'
 
-    # Save the RMSDs and RMSFs to json files
-    print("INFO: writing deviations to {}".format(outfile), file=stderr)
-    with open(outfile, 'w') as f:
-        f.write(
-            dumps({
-                "RMSF (nm)" : RMSFs.tolist()
-            })
-        )
-
-    print("INFO: writing RMSDs to oxView order parameter file, {}".format(data_file))
-    with open(data_file, 'w') as f:
-        f.write(
-            dumps({
-                "RMSD (nm)" : RMSDs.tolist()
-            })
-        )
-
-    print("INFO: writing RMSD plot to {}".format(plot_name))
-    plt.plot(RMSDs)
-    plt.axhline(np.mean(RMSDs), color='red')
-    plt.xlabel('Configuration')
-    plt.ylabel('RMSD (nm)')
-    plt.savefig(plot_name)
+    output()
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
