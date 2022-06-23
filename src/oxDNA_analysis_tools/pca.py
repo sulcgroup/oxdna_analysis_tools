@@ -1,4 +1,5 @@
 import argparse
+from typing import Tuple
 import numpy as np 
 import matplotlib.pyplot as plt
 from sys import exit, stderr
@@ -6,6 +7,7 @@ from json import dumps
 from warnings import catch_warnings, simplefilter
 from os import path
 from collections import namedtuple
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration, TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser, get_chunk_size
 from oxDNA_analysis_tools.config import check_dependencies
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox
@@ -104,6 +106,67 @@ def map_confs_to_pcs(ctx:ComputeContext_map, chunk_size:int, chunk_id:int):
     
     return coordinates
 
+def pca(traj_info:TrajInfo, top_info:TopInfo, mean_conf:Configuration, ncpus:int=1) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """
+        Performs a PCA on a trajectory
+
+        Parameters:
+            traj_info (TrajInfo) : Information about the trajectory
+            top_info (TopInfo) : Information about the topology
+            mean_conf (Configuration) : The mean structure of the trajectory
+            ncpus (int) : (optional) The number of CPUs to use for the computation
+
+        Returns:
+            (np.ndarray, np.ndarray, np.ndarray) : The structures mapped to coordinate space, the eigenvalues and the eigenvectors
+
+    """
+    
+    # Create a ComputeContext which defines the problem to pass to the worker processes 
+    ctx = ComputeContext_cov(
+        traj_info, top_info, mean_conf.positions)
+
+    covariation_matrix = np.zeros((ctx.top_info.nbases*3, ctx.top_info.nbases*3))
+    def callback(i, r):
+        nonlocal covariation_matrix
+        covariation_matrix += r
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute_cov, callback, ctx)
+
+    covariation_matrix /= (traj_info.nconfs-1)
+
+    #now that we have the covatiation matrix we're going to use eigendecomposition to get the principal components.
+    #make_heatmap(covariance)
+    print("INFO: calculating eigenvectors", file=stderr)
+    evalues, evectors = np.linalg.eig(covariation_matrix) #these eigenvalues are already sorted
+    evectors = evectors.T #vectors come out as the columns of the array
+    print("INFO: eigenvectors calculated", file=stderr)
+
+    print("INFO: Saving scree plot to scree.png", file=stderr)
+    plt.scatter(range(0, len(evalues)), evalues, s=25)
+    plt.xlabel("component")
+    plt.ylabel("eigenvalue")
+    plt.savefig("scree.png")
+
+    total = sum(evalues)
+    running = 0
+    i = 0
+    while running < 0.9:
+        running += (evalues[i] / total)
+        i += 1
+    print("90% of the variance is found in the first {} components".format(i))
+
+    ctx = ComputeContext_map(traj_info, top_info, mean_conf.positions, evectors)
+
+    chunk_size = get_chunk_size()
+    coordinates = np.zeros((traj_info.nconfs, ctx.top_info.nbases*3))
+    def callback(i, r):
+        nonlocal coordinates, chunk_size
+        coordinates[i*chunk_size:(i*chunk_size)+len(r)] = r
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, map_confs_to_pcs, callback, ctx)
+
+    return (coordinates, evalues, evectors)
+
 
 def main():
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Calculates a principal component analysis of nucleotide deviations over a trajectory")
@@ -139,49 +202,7 @@ def main():
     #-c makes it run the clusterer on the output
     cluster = args.cluster
 
-    # Create a ComputeContext which defines the problem to pass to the worker processes 
-    ctx = ComputeContext_cov(
-        traj_info, top_info, align_conf.positions)
-
-    covariation_matrix = np.zeros((ctx.top_info.nbases*3, ctx.top_info.nbases*3))
-    def callback(i, r):
-        nonlocal covariation_matrix
-        covariation_matrix += r
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute_cov, callback, ctx)
-
-    covariation_matrix /= (traj_info.nconfs-1)
-
-    #now that we have the covatiation matrix we're going to use eigendecomposition to get the principal components.
-    #make_heatmap(covariance)
-    print("INFO: calculating eigenvectors", file=stderr)
-    evalues, evectors = np.linalg.eig(covariation_matrix) #these eigenvalues are already sorted
-    evectors = evectors.T #vectors come out as the columns of the array
-    print("INFO: eigenvectors calculated", file=stderr)
-
-    print("INFO: Saving scree plot to scree.png", file=stderr)
-    plt.scatter(range(0, len(evalues)), evalues, s=25)
-    plt.xlabel("component")
-    plt.ylabel("eigenvalue")
-    plt.savefig("scree.png")
-
-    total = sum(evalues)
-    running = 0
-    i = 0
-    while running < 0.9:
-        running += (evalues[i] / total)
-        i += 1
-    print("90% of the variance is found in the first {} components".format(i))
-
-    ctx = ComputeContext_map(traj_info, top_info, align_conf.positions, evectors)
-
-    chunk_size = get_chunk_size()
-    coordinates = np.zeros((traj_info.nconfs, ctx.top_info.nbases*3))
-    def callback(i, r):
-        nonlocal coordinates, chunk_size
-        coordinates[i*chunk_size:(i*chunk_size)+len(r)] = r
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, map_confs_to_pcs, callback, ctx)
+    coordinates, evalues, evectors = pca(traj_info, top_info, align_conf, ncpus)
 
     #make a quick plot from the first three components
     print("INFO: Creating coordinate plot from first three eigenvectors.  Saving to coordinates.png", file=stderr)

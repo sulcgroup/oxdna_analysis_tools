@@ -2,6 +2,7 @@ import numpy as np
 from os import path
 from sys import stderr
 from collections import namedtuple
+from oxDNA_analysis_tools.UTILS.data_structures import TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import describe
 import oxpy
@@ -67,6 +68,39 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
         else:
             return
                 
+def output_bonds(traj_info:TrajInfo, top_info:TopInfo, inputfile:str, visualize:bool=False, conversion_factor:float=1, ncpus:int=1):
+    """
+        Computes the potentials in a trajectory
+
+        Parameters:
+            traj_info (TrajInfo): Information about the trajectory.
+            top_info (TopInfo): Information about the topology.
+            inputfile (str): Path to the input file.
+            visualize (bool): (optional) If True, the energies are saved as a mean-per-particle oxView file.  If False, they are printed to the screen.
+            conversion_factor (float): (optional) Conversion factor for the energies. 1 for oxDNA SU, 41.42 for pN nm.
+            ncpus (int): (optional) Number of CPUs to use.
+
+        Returns:
+            energies (np.array): If visualize is True, the energies are saved as a mean-per-particle oxView file.  If False, they are printed to the screen and None is returned.
+    """
+    
+    ctx = ComputeContext(traj_info, top_info, inputfile, visualize, conversion_factor)
+
+    energies = np.zeros((ctx.top_info.nbases, 9))
+    def callback(i, r):
+        nonlocal visualize, energies
+        if visualize:
+            energies += r
+        else:
+            print(r)
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    if visualize:
+        return energies
+    else:
+        return None
+
 def main():
     import argparse
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="List all the interactions between nucleotides")
@@ -116,17 +150,7 @@ def main():
         conversion_factor = 1
         print("INFO: no units specified, assuming oxDNA su", file=stderr)
 
-    ctx = ComputeContext(traj_info, top_info, inputfile, visualize, conversion_factor)
-
-    energies = np.zeros((ctx.top_info.nbases, 9))
-    def callback(i, r):
-        nonlocal visualize, energies
-        if visualize:
-            energies += r
-        else:
-            print(r)
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+    energies = output_bonds(traj_info, top_info, inputfile, visualize, conversion_factor, ncpus)
 
     if visualize:
         energies /= traj_info.nconfs
