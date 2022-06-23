@@ -17,7 +17,7 @@ start_time = time()
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info"])
 
-def compute_contact_map(ctx:ComputeContext, chunk_size:int,  chunk_id:int) -> np.array:
+def compute(ctx:ComputeContext, chunk_size:int,  chunk_id:int) -> np.array:
     """
     Computes the average distance between every pair of nucleotides and creates a matrix of these distances.
 
@@ -48,7 +48,7 @@ def contact_map(traj_info:TrajInfo, top_info:TopInfo, ncpus=1) -> np.array:
         nonlocal distances
         distances += r
 
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute_contact_map, callback, ctx)
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
 
     # Normalize the distances and convert to nm
     distances /= traj_info.nconfs

@@ -3,6 +3,7 @@ from os import remove, path
 from sys import stderr
 from collections import namedtuple
 from numpy import round
+from oxDNA_analysis_tools.UTILS.data_structures import TopInfo, TrajInfo
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, conf_to_str
 import time
@@ -27,6 +28,37 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
 
     out = ''.join([conf_to_str(c) for c in confs])
     return out
+
+def minify(traj_info:TrajInfo, top_info:TopInfo, out:str, d:int=None, a:bool=False):
+    """
+        Make a trajectory smaller by discarding some precision.
+
+        Parameters:
+            traj_info (TrajInfo): Information about the trajectory
+            top_info (TopInfo): Information about the topology
+            out (str): Path to the output file
+            d (int): Number of digits to round to
+            a (bool): Discard the a vectors
+        
+        The output will be written to out.
+    """
+    try:
+        remove(out)
+    except:
+        pass
+
+    ctx = ComputeContext(traj_info, top_info, d, a)
+
+    with open(out, 'w+') as f:
+        def callback(i, r):
+            nonlocal f
+            f.write(r)
+
+        oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    print(f"INFO: Wrote aligned trajectory to {out}", file=stderr)
+
+    return
 
 def main():
     parser = argparse.ArgumentParser(prog = path.basename(__file__), description="Compress given configuration.")
@@ -61,21 +93,8 @@ def main():
     else:
         a = False
 
-    try:
-        remove(out)
-    except:
-        pass
-
-    ctx = ComputeContext(traj_info, top_info, d, a)
-
-    with open(out, 'w+') as f:
-        def callback(i, r):
-            nonlocal f
-            f.write(r)
-
-        oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
-
-    print(f"INFO: Wrote aligned trajectory to {out}", file=stderr)
+    minify(traj_info, top_info, out, d, a)
+    
     print("--- %s seconds ---" % (time.time() - start_time))
 
 if __name__ == '__main__':

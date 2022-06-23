@@ -12,13 +12,14 @@ from os import path
 from sys import exit, stderr
 from json import dumps
 from collections import namedtuple
+from typing import Tuple
 from sklearn.manifold import MDS
 from oxDNA_analysis_tools.config import check_dependencies
-from oxDNA_analysis_tools.contact_map import compute_contact_map
+from oxDNA_analysis_tools.contact_map import contact_map
 from oxDNA_analysis_tools.distance import vectorized_min_image
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, write_conf
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration, TopInfo, TrajInfo
 
 ComputeContext = namedtuple("ComputeContext",["traj_info",
                                               "top_info"])
@@ -68,7 +69,48 @@ def devs_mds(ctx:DevsContext, chunk_size:int, chunk_id:int, ):
 
     return devs
 
+def multidimensional_scaling_mean(traj_info:TrajInfo, top_info:TopInfo, ncpus:int=1) -> Tuple[Configuration, np.ndarray]:
+    """
+        Compute the mean configuration of a trajectory using MDS.
 
+        Parameters:
+            traj_info (TrajInfo): Information about the trajectory.
+            top_info (TopInfo): Information about the topology.
+            ncpus (int): (optional) Number of CPUs to use.
+    """
+    example_conf = get_confs(traj_info.idxs, traj_info.path, 1, 1, top_info.nbases)[0]
+    
+    distances = contact_map(traj_info, top_info, ncpus)
+
+    mean_distances = distances / traj_info.nconfs
+    masked_mean = np.ma.masked_array(mean_distances, ~(mean_distances < CUTOFF))
+
+    print("INFO: fitting local distance data", file=stderr)
+    mds = MDS(n_components=3, metric=True, max_iter=3000, eps=1e-12, dissimilarity="precomputed", n_jobs=1, n_init=1)
+    out_coords = mds.fit_transform(masked_mean, init=example_conf.positions) #without the init you can get a left-handed structure.
+    a1s = np.zeros((top_info.nbases, 3))
+    a3s = np.zeros((top_info.nbases, 3))
+    mean_conf = Configuration(0,example_conf.box, np.array([0,0,0]), out_coords, a1s , a3s)
+
+    return mean_conf, masked_mean
+
+def distance_deviations(traj_info:TrajInfo, top_info:TopInfo, masked_mean:np.ndarray, ncpus:int=1) -> np.ndarray:
+    # Compute the deviations from the mean
+    ctx = DevsContext(traj_info, top_info, masked_mean)
+    
+    devs = np.zeros((top_info.nbases, top_info.nbases))
+    def callback(i, r):
+        nonlocal devs
+        devs += r
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, devs_mds, callback, ctx)
+
+    devs = np.ma.masked_array(devs, ~(devs != 0.0))
+    devs = devs / traj_info.nconfs
+    devs = np.mean(devs, axis=0)
+    devs = np.sqrt(devs)
+
+    return devs
 
 def main():
     #get commandline arguments
@@ -80,7 +122,6 @@ def main():
     args = parser.parse_args()
     traj = args.trajectory[0]
     top_info, traj_info = describe(None, traj)
-    example_conf = get_confs(traj_info.idxs, traj_info.path, 1, 1, top_info.nbases)[0]
 
     if args.parallel:
         ncpus = args.parallel[0]
@@ -89,22 +130,7 @@ def main():
 
     check_dependencies(['python', 'numpy'])
 
-    ctx = ComputeContext(traj_info, top_info)
-    distances = np.zeros((top_info.nbases, top_info.nbases))
-    def callback(i, r):
-        nonlocal distances
-        distances += r
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute_contact_map, callback, ctx)
-
-    mean_distances = distances / traj_info.nconfs
-    masked_mean = np.ma.masked_array(mean_distances, ~(mean_distances < CUTOFF))
-
-    print("INFO: fitting local distance data", file=stderr)
-    mds = MDS(n_components=3, metric=True, max_iter=3000, eps=1e-12, dissimilarity="precomputed", n_jobs=1, n_init=1)
-    out_coords = mds.fit_transform(masked_mean, init=example_conf.positions) #without the init you can get a left-handed structure.
-    a1s = np.zeros((top_info.nbases, 3))
-    a3s = np.zeros((top_info.nbases, 3))
+    mean_conf, masked_mean = multidimensional_scaling_mean(traj_info, top_info, ncpus)
 
     #-o names the output file
     if args.output:
@@ -113,23 +139,10 @@ def main():
         outfile = "mean_mds.dat"
         print("INFO: No outfile name provided, defaulting to \"{}\"".format(outfile), file=stderr)
 
-    write_conf(outfile,Configuration(0,example_conf.box, np.array([0,0,0]), out_coords, a1s , a3s))
+    write_conf(outfile,mean_conf)
     print("INFO: Wrote mean to {}".format(outfile), file=stderr)
 
-    # Compute the deviations from the mean
-    ctx = DevsContext(traj_info, top_info, masked_mean)
-    
-    devs = np.zeros((top_info.nbases, top_info.nbases))
-    def callback(i, r):
-        nonlocal devs
-        devs += r
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, devs_mds, callback, ctx)
-
-    np.ma.masked_array(devs, ~(devs != 0.0))
-    devs = devs / traj_info.nconfs
-    devs = np.mean(devs, axis=0)
-    devs = np.sqrt(devs)
+    devs = distance_deviations(traj_info, top_info, masked_mean, ncpus)
 
     #-d names the deviations file
     if args.dev_file:
