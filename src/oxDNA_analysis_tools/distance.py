@@ -69,7 +69,16 @@ def compute(ctx:ComputeContext, chunk_size:int, chunk_id:int):
 
 def distance(traj_infos:List[TrajInfo], top_infos:List[TopInfo], p1ss:List[List[int]], p2ss:List[List[int]], ncpus:int=1) -> List[List[float]]:
     """
-    
+        Compute the distance between two lists of particles
+
+        Parameters:
+            traj_infos (List[TrajInfo]): A list of TrajInfo objects
+            top_infos (List[TopInfo]): A list of TopInfo objects
+            p1ss (List[List[int]]): A list of particle indices for each trajectory
+            p2ss (List[List[int]]): A list of particle indices for each trajectory
+
+        Returns:
+            distances (List[List[float]]): A list of distances for each trajectory
     """
     distances = [[] for _ in traj_infos]
     for i, (traj_info, top_info, p1s, p2s) in enumerate(zip(traj_infos, top_infos, p1ss, p2ss)):
@@ -175,7 +184,7 @@ def main():
         if len(names) < n_dists:
             print("WARNING: Names list too short.  There are {} items in names and {} distances were calculated.  Will pad with particle IDs".format(len(names), n_dists), file=stderr)
             for i in range(len(names), len(distances)):
-                names.append("{}-{}".format([j for sl in p1s for j in sl][i], [j for sl in p2s for j in sl][i]))
+                names.append("{}-{}".format([j for sl in p1ss for j in sl][i], [j for sl in p2ss for j in sl][i]))
         if len(names) > n_dists:
             print("WARNING: Names list too long. There are {} items in names and {} distances were calculated.  Truncating to be the same as distances".format(len(names), n_dists), file=stderr)
             names = names[:n_dists]
