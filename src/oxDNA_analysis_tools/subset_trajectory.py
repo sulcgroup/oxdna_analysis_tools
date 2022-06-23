@@ -6,7 +6,7 @@ from copy import deepcopy
 from typing import List
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, strand_describe, conf_to_str, get_top_string
-from oxDNA_analysis_tools.UTILS.data_structures import Configuration, System
+from oxDNA_analysis_tools.UTILS.data_structures import Configuration, System, TopInfo, TrajInfo
 
 
 
@@ -41,6 +41,39 @@ def write_topologies(system:System, indexes:List[int], outfiles:List[str]):
 
     return top_names
 
+def subset(traj_info:TrajInfo, top_info:TopInfo, system:System, indexes:List[List[int]], outfiles:List[str], ncpus=1):
+    """
+        Splits a trajectory into multiple trajectories, each containing a subset of the particles in the original configuration.
+
+        Parameters:
+            traj_info (TrajInfo): Information about the trajectory
+            top_info (TopInfo): Information about the topology
+            system (System): The system object describing the topology of the original structure.
+            indexes (List[List[int]]): A list of lists of indexes.  Each list corresponds to one set of particles to include in one of the output trajectories.
+            outfiles (List[str]): A list of output file names.  The number of elements in this list must match the number of elements in the indexes list.
+            ncpus (int): (optional) The number of CPUs to use
+
+        The output trajectories will be written to the files specified in outfiles.
+    """
+    # Create a ComputeContext which defines the problem to pass to the worker processes 
+    ctx = ComputeContext(traj_info, top_info, indexes)
+
+    dat_names = [o+ ".dat" for o in outfiles]
+    files = [open(f, 'w+') for f in dat_names]
+    def callback(i, r):
+        for f, subset in zip(files, r):
+            f.write(subset)
+
+    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
+
+    for f in files:
+        f.close()
+
+    # Write topology files
+    top_names = write_topologies(system, indexes, outfiles)
+
+    print("INFO: Wrote trajectories: {}".format(dat_names), file=stderr)
+    print("INFO: Wrote topologies: {}".format(top_names), file=stderr)
 
 def main():
     #command line arguments
@@ -74,25 +107,7 @@ def main():
     else:
         ncpus = 1
 
-    # Create a ComputeContext which defines the problem to pass to the worker processes 
-    ctx = ComputeContext(traj_info, top_info, indexes)
-
-    dat_names = [o+ ".dat" for o in outfiles]
-    files = [open(f, 'w+') for f in dat_names]
-    def callback(i, r):
-        for f, subset in zip(files, r):
-            f.write(subset)
-
-    oat_multiprocesser(traj_info.nconfs, ncpus, compute, callback, ctx)
-
-    for f in files:
-        f.close()
-
-    # Write topology files
-    top_names = write_topologies(system, indexes, outfiles)
-
-    print("INFO: Wrote trajectories: {}".format(dat_names), file=stderr)
-    print("INFO: Wrote topologies: {}".format(top_names), file=stderr)
+    subset(traj_info, top_info, system, indexes, outfiles, ncpus)
 
 if __name__ == '__main__':
     main()
