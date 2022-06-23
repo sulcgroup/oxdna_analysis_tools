@@ -1,10 +1,12 @@
-# oxDNA Analysis Tools
+# oxDNA Analysis Tools v 2.0
 
 A suite of command line Python tools for performing generic structural analyses of oxDNA simulations.
 Our goal in developing these tools is to provide a foundation of common analyses applicable to most simulations and to provide code examples for researchers looking to implement tools to meet their own research needs.
 Running any script without arguments will print a brief description and list of required files.
 
 An overarching description can be found in this paper: https://academic.oup.com/nar/article/48/12/e72/5843822.
+
+All scripts have been completley rewritten to be 10-100x faster, however in the process most of the names have changed and the coding style is very different than v1, please make sure you update your autocompletes and take a look at `mean.py` for an example of how to use the new framework. 
 
 
 ## Dependencies and installation
@@ -48,9 +50,6 @@ Or add it to your global completions with:
 Running `oat` with no arguments will list all available scripts.
 
 -------------------------------------------------------------------
-## oxDNA Analysis Tools v 2.0 is now out.  Updated documentation coming soon!
-
-All scripts have been completley rewritten to be 10-100x faster, however in the process most of the names have changed and the coding style is very different, please make sure you update your autocompletes and for now, take a look at `mean.py` for an example of how to use the new framework. 
 
 ## Using oxDNA analysis tools
 Once installed, all standalone scripts can be called from the command line via the following invocation:  
