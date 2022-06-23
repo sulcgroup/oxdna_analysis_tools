@@ -80,6 +80,16 @@ def set_chunk_size(chunk_size:int):
     with open(path.realpath(__file__).strip('config.py')+"UTILS/chunksize.py", 'w') as f:
         f.write("CHUNKSIZE = "+str(chunk_size))
 
+def get_chunk_size():
+    with open(path.realpath(__file__).strip('config.py')+"UTILS/chunksize.py", 'r') as f:
+        chunksize = f.read()
+    try:
+        chunksize = int(chunksize.split("=")[1].strip())
+        print("INFO: Analyses will be computed in chunks of {} configurations at a time".format(chunksize), file=stderr)
+        print("INFO: You can modify this number by running oat config -n <number>, which will be persistent between analyses.", file=stderr)
+    except:
+        raise Exception("Unable to read chunksize from file. UTILS/chunksize.py should contain a line like CHUNKSIZE = 100")
+
 def main():
     parser = argparse.ArgumentParser(description='Configure oxDNA_analysis_tools')
     parser.add_argument('-n', '--chunk_size', type=int, help='Number of configurations to per chunk.  Persistent across analyses.')
@@ -89,6 +99,9 @@ def main():
         print("INFO: future analyses will calculate in blocks of {} confs at a time".format(args.chunk_size), file=stderr)
 
     check_dependencies(["python", "numpy", "matplotlib", "Bio", "sklearn", "oxpy"])
+
+    print()
+    get_chunk_size()
 
 if __name__ == '__main__':
     main()
