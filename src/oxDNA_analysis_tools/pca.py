@@ -233,14 +233,14 @@ def main():
     print("--- %s seconds ---" % (time.time() - start_time))
 
     #If we're running clustering, feed the linear terms into the clusterer
-    #if cluster:
+    if cluster:
     #    print("INFO: Mapping configurations to component space...", file=stderr)
 #
     #    #If you want to cluster on only some of the components, uncomment this
     #    #out = out[:,0:3]
 #
-    #    from oxDNA_analysis_tools.clustering import perform_DBSCAN
-    #    labs = perform_DBSCAN(coordinates, num_confs, traj_file, inputfile, "euclidean", 12, 8)
+        from oxDNA_analysis_tools.clustering import perform_DBSCAN
+        labs = perform_DBSCAN(traj_info, top_info, coordinates, "euclidean", 12, 8)
 
 if __name__ == '__main__':
     main()    
