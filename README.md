@@ -101,17 +101,34 @@ Running instructions can be obtained for all scripts by running them with no arg
 ### UTILS
 The UTILS directory contains utility modules used by other scripts in this package.
 
-* `all_vectors.py` A wrapper for the all_vectors observable in oxDNA that computes the relative position of all particles in a configuration. <br/>
-* `base.py` A python3 update of the `base.py` script found in the oxDNA distribution.  This contains class definitions for nucleotide/strand/system.  These are used to create, modify and write oxDNA systems in a Python environment. <br/>
-* `geom.py` A set of algorithms to find various geometric parameters of DNA/RNA helices.  Currently only the axis fitting function is used. <br/>
+* `base.py` **DEPRECIATED** A python3 update of the `base.py` script found in the oxDNA distribution.  This contains class definitions for nucleotide/strand/system.  Only used by the PDB converter. <br/>
+* `chunksize.py` Sets the size of chunks read in by the `oat_multiprocesser`.  The chunk size determines how many configurations are loaded into memory at a time (ncpus * chunk_size configurations will be loaded).  For small systems this number can be increased to improve performance. <br/>
+* `data_structures.py` Contains definitions for common data structures used in the scripts.  Includes definitions such as `Trajinfo`, `TopInfo`, and `System`
+* `dd12_na.pdb` Used during pdb conversion script
+* `geom.py` A set of algorithms to find various geometric parameters of DNA/RNA helices.<br/>
 * `model.h` The model parameters of the oxDNA model.  Used by base.py. <br/>
-* `parallelize.py` The parallelization module used by the analysis scripts.  Splits the trajectory file into temporary files and attaches a reader managed by a different CPU to each chunk.  Each reader then feeds successive configurations into a specified function.<br/>
-* `parallelize_old.py` An older implementation of the parallelizer that does not split into temporary files.  Certain multiprocessing architectures can have issues with reader congestion when using this scheme.  Left in place in case of use cases where memory usage is an issue.
+* `oat_multiprocessor.py` Parallelization method which uses partial function composition to distribute functions and configuration blocks to processors and accumulate the results.
 * `pdb.py` Helper Functions/Classes for pdb conversion <br/>
 * `protein_to_pdb` Contains protein specific functions for protein to pdb conversion<br/>
-* `readers.py` Contains utility functions for working with oxDNA files, including extracting input file parameters, calculating the number of configurations in a trajectory and creating a system as defined in `base.py` from a configuration/topology pair.<br/>
+* `readers.py` **DEPRECIATED** Contains utility functions for working with oxDNA files, including extracting input file parameters, calculating the number of configurations in a trajectory and creating a system as defined in `base.py` from a configuration/topology pair. Only used by the PDB converter.<br/>
+* `rna_model.h` The model parameters of the oxRNA model.  Used by base.py. <br/>
+* `RyeReader.py` File handling functions. `describe` is used to extract metadata from oxDNA files while `get_confs` is used to read trajectories.
 * `utils.py` Contains utility functions for pdb conversion<br/>
-* `dd12_na.pdb` Used during pdb conversion script
+
+### Cython utils
+The file reader is written in Cython for maximum speed.  Did you know the built-in Python file readers are **really** slow??
+* `copy_build.sh` Local build pipeline used for development.
+* `get_confs.pyx` Optimized file reader for oxDNA trajectories
+* `get_confs.c` get_confs transpiled to C.  Distributed for compatibility purposes.
+* `setup.py` Cython build instructions.
+
+### External Force Utils (WIP)
+The external_force_utils directory contains function definitions for working with external forces.
+
+* `exclude_force <force_file> <index_file>` A script which removes forces on the particles specified in the index file.
+* `force_reader` Reader functions for reading oxDNA external force files.
+* `forces` Definitions for all force types used by oxDNA.
+
 ## Output files and visualization
 
 Many scripts in this package produce data overlay json files that can be used with [oxView](https://github.com/sulcgroup/oxdna-viewer).
@@ -122,17 +139,17 @@ By default scripts in this package that produce graphs save them as .png files. 
 ## File formats
 
 This package mostly uses the oxDNA files as described in [the oxDNA documentation](https://dna.physics.ox.ac.uk/index.php/Documentation).  A brief description of each file is provided here for easy reference:  
-**trajectory** - A file containing a sequence of oxDNA configurations.  Each configuration starts with a three line header containing the timestep, box size and energy information.  There is then one line per particle with 15 values corresponding to the position, orientation and velocity of each particle.  
-**topology** - A file containing sequence and connectivity information of the simulated structure.  The first line defines the number of particles and the number of strands.  There is then one line per particle with 4 values corresponding to the strand ID, the base type, the 3' neighbor and the 5' neighbor of each particle.  Note that oxDNA files are written 3'-5' rather than the traditional 5'-3'.  
-**input** - The input file used to run oxDNA.  This contains simulation information such as number of steps, simulation method and temperature as well as I/O information.  Example files can be found in the "example_input_files" and "paper_examples" directories.  
-**force file**: An oxDNA mutual trap file that defines an external force between two particles in a simulation.  This is also defined in [the oxDNA documentation](https://dna.physics.ox.ac.uk/index.php/Documentation).  
+* **trajectory** - A file containing a sequence of oxDNA configurations.  Each configuration starts with a three line header containing the timestep, box size and energy information.  There is then one line per particle with 15 values corresponding to the position, orientation and velocity of each particle. 
+* **topology** - A file containing sequence and connectivity information of the simulated structure.  The first line defines the number of particles and the number of strands.  There is then one line per particle with 4 values corresponding to the strand ID, the base type, the 3' neighbor and the 5' neighbor of each particle.  Note that oxDNA files are written 3'-5' rather than the traditional 5'-3'.  
+* **input** - The input file used to run oxDNA.  This contains simulation information such as number of steps, simulation method and temperature as well as I/O information.  Example files can be found in the "example_input_files" and "paper_examples" directories.  
+* **force file**: An oxDNA mutual trap file that defines an external force between two particles in a simulation.  This is also defined in [the oxDNA documentation](https://dna.physics.ox.ac.uk/index.php/Documentation).  
 
 The Following files are unique to this package:  
-**oxView json file**: This file contains overlay information that can be read by [oxView](https://github.com/sulcgroup/oxdna-viewer).  There are two different formats that are produced by these scripts.  The first is a one-value-per-particle file that creates a colormap overlay with extreme colors corresponding to the minimum and maximum values in the file.  The second is a three-values-per-particle file that oxView uses to draw arrows on the scene.  OxView automatically differentiates files based on the number of values corresponding to each particle.  
-**designed pairs file**: This file contains a list of particle pairs in the intended design.  Each line corresponds to a pair and each pair is a space-separated pair of particle IDs.  Designed pairs files can be generated by forces2pairs.py and generate_force.py.  
-**angle file**: The output file generated by duplex_angle_finder.py.  Details on the format can be found in a comment in the duplex_angle_plotter.py script, but briefly each line contains starting and ending nucleotides and orientation data for a duplex in the structure.  Like trajectories, this contains information for every configuration in a trajectory.  
-**index file**: A space-seperated list of particle IDs that can be used by compute_mean.py for subset alignment.  It can be generated by the "Download Selected Base List" button in oxView.  
-**serialized data input**: To make it easy to adjust clustering parameters, the clustering script serializes its input in json format so the script can be re-launched quickly with this file as the only input. 
+* **oxView json file**: This file contains overlay information that can be read by [oxView](https://github.com/sulcgroup/oxdna-viewer).  There are two different formats that are produced by these scripts.  The first is a one-value-per-particle file that creates a colormap overlay with extreme colors corresponding to the minimum and maximum values in the file.  The second is a three-values-per-particle file that oxView uses to draw arrows on the scene.  OxView automatically differentiates files based on the number of values corresponding to each particle.  
+* **designed pairs file**: This file contains a list of particle pairs in the intended design.  Each line corresponds to a pair and each pair is a space-separated pair of particle IDs.  Designed pairs files can be generated by `forces2pairs` and `generate_force`.  
+* **angle file**: The output file generated by `duplex_finder`.  Details on the format can be found in a comment in the `duplex_angle_plotter` script, but briefly each line contains starting and ending nucleotides and orientation data for a duplex in the structure.  Like trajectories, this contains information for every configuration in a trajectory.  
+* **index file**: A space-seperated list of particle IDs used for subset alignment.  It can be generated by the "Download Selected Base List" button in oxView.  
+* **serialized data input**: To make it easy to adjust clustering parameters, the clustering script serializes its input in json format so the script can be re-launched quickly with this file as the only input. 
 
 ## Citation
 
