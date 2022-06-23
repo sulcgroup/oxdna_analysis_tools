@@ -81,11 +81,9 @@ def set_chunk_size(chunk_size:int):
         f.write("CHUNKSIZE = "+str(chunk_size))
 
 def get_chunk_size():
-    with open(path.realpath(__file__).strip('config.py')+"UTILS/chunksize.py", 'r') as f:
-        chunksize = f.read()
     try:
-        chunksize = int(chunksize.split("=")[1].strip())
-        print("INFO: Analyses will be computed in chunks of {} configurations at a time".format(chunksize), file=stderr)
+        from oxDNA_analysis_tools.UTILS.chunksize import CHUNKSIZE
+        print("INFO: Analyses will be computed in chunks of {} configurations at a time".format(CHUNKSIZE), file=stderr)
         print("INFO: You can modify this number by running oat config -n <number>, which will be persistent between analyses.", file=stderr)
     except:
         raise Exception("Unable to read chunksize from file. UTILS/chunksize.py should contain a line like CHUNKSIZE = 100")
