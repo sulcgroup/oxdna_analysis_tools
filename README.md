@@ -6,8 +6,7 @@ Running any script without arguments will print a brief description and list of 
 
 An overarching description can be found in this paper: https://academic.oup.com/nar/article/48/12/e72/5843822.
 
-All scripts have been completley rewritten to be 10-100x faster, however in the process most of the names have changed and the coding style is very different than v1, please make sure you update your autocompletes and take a look at `mean.py` for an example of how to use the new framework. 
-
+All scripts have been completley rewritten to be 10-100x faster, however in the process most of the names have changed and the coding style is very different, please make sure you update your autocompletes and for now, take a look at `mean.py` for an example of how to use the new framework. 
 
 ## Dependencies and installation
 
@@ -31,14 +30,14 @@ It can also be installed from the [GitHub repository](https://github.com/sulcgro
    `python setup.py install`  
 
 If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:  
-[Python](https://www.python.org/): 3.7,<br/>
+[Python](https://www.python.org/): 3.9 (minimum version 3.8),<br/>
 [oxDNA compiled with oxpy](https://github.com/lorenzo-rovigatti/oxDNA): (minimum version 3.2.2)<br/>
 [NumPy](https://numpy.org/): 1.16,<br/>
 [MatPlotLib](https://matplotlib.org/index.html): 3.0.3 (minimum version 3.0),<br/>
 [BioPython](https://biopython.org/): 1.73,<br/>
 [Scikit-Learn](https://scikit-learn.org/stable/): 0.21.2,<br/>
 
-## Numpy header error
+#### Numpy header error
 If you get an error regarding the number of bytes in the `numpy.array` header, this happens when the version of Numpy on your system doesn't match the version that pip downloads from PyPi when installing OAT with its isolated environment (most commonly because you installed Numpy using Conda which tends to be a few versions behind PyPi).  To fix this, try installing OAT with:  
    `python -m pip install . --no-build-isolation`
 
