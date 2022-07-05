@@ -1,10 +1,12 @@
-# oxDNA Analysis Tools
+# oxDNA Analysis Tools v 2.0
 
 A suite of command line Python tools for performing generic structural analyses of oxDNA simulations.
 Our goal in developing these tools is to provide a foundation of common analyses applicable to most simulations and to provide code examples for researchers looking to implement tools to meet their own research needs.
 Running any script without arguments will print a brief description and list of required files.
 
 An overarching description can be found in this paper: https://academic.oup.com/nar/article/48/12/e72/5843822.
+
+All scripts have been completley rewritten to be 10-100x faster, however in the process most of the names have changed and the coding style is very different than v1, please make sure you update your autocompletes and take a look at `mean.py` for an example of how to use the new framework. 
 
 
 ## Dependencies and installation
@@ -29,7 +31,7 @@ It can also be installed from the [GitHub repository](https://github.com/sulcgro
    `python setup.py install`  
 
 If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:  
-[Python](https://www.python.org/): 3.7 (minimum version 3.6),<br/>
+[Python](https://www.python.org/): 3.7,<br/>
 [oxDNA compiled with oxpy](https://github.com/lorenzo-rovigatti/oxDNA): (minimum version 3.2.2)<br/>
 [NumPy](https://numpy.org/): 1.16,<br/>
 [MatPlotLib](https://matplotlib.org/index.html): 3.0.3 (minimum version 3.0),<br/>
@@ -56,9 +58,6 @@ Or add it to your global completions with:
 Running `oat` with no arguments will list all available scripts.
 
 -------------------------------------------------------------------
-## oxDNA Analysis Tools v 2.0 is now out.  Updated documentation coming soon!
-
-All scripts have been completley rewritten to be 10-100x faster, however in the process most of the names have changed and the coding style is very different, please make sure you update your autocompletes and for now, take a look at `mean.py` for an example of how to use the new framework. 
 
 ## Using oxDNA analysis tools
 Once installed, all standalone scripts can be called from the command line via the following invocation:  
