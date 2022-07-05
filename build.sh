@@ -6,6 +6,6 @@ mv ./src/oxDNA_analysis_tools/__init__.py.tmp ./src/oxDNA_analysis_tools/__init_
 rm dist/*
 python -m build
 auditwheel repair dist/*cp39-cp39-linux_x86_64.whl
-mv dist/wheelhouse/* dist
-rm -r dist/wheelhouse
+mv wheelhouse/* dist/
+rm -r wheelhouse
 python -m pip install .
