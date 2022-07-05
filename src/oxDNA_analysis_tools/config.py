@@ -27,7 +27,7 @@ def check_dependencies(to_check:List[str]):
         "matplotlib": "matplotlib.org",
         "Bio": "biopython.org",
         "sklearn": "scikit-learn.org",
-        "oxpy": ""
+        "oxpy": "https://github.com/lorenzo-rovigatti/oxDNA"
     }
 
     #get version of this package

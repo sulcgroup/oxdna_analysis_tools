@@ -17,7 +17,7 @@ oxDNA analysis tools can be installed from PyPi via pip:
 
 This will also install all dependencies.  Bash autocompletes will not be set up, see below for setting up autocompletion.
 
-**Installation from PyPi will only work on Linux and OSX.  If you want to use OAT on Windows, please install from source**
+**Installation from PyPi will only work on Linux and OSX.  If you want to use OAT on Windows, please install from source (or install on WSL)**
 
 ### Installation from source
 It can also be installed from the [GitHub repository](https://github.com/sulcgroup/oxdna_analysis_tools) or the zip file of the source code available on PyPi via the following method:  
