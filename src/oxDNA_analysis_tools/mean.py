@@ -6,7 +6,7 @@ import numpy as np
 from sys import stderr
 from collections import namedtuple
 from random import randrange
-from oxDNA_analysis_tools.align import svd_align, compute
+from oxDNA_analysis_tools.align import svd_align
 from oxDNA_analysis_tools.UTILS.oat_multiprocesser import oat_multiprocesser
 from oxDNA_analysis_tools.UTILS.RyeReader import get_confs, describe, inbox, write_conf
 from oxDNA_analysis_tools.UTILS.data_structures import Configuration, TopInfo, TrajInfo

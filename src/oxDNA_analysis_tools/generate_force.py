@@ -54,7 +54,6 @@ def main():
         pairs = backend.config_info().get_observable_by_id("my_obs").get_output_string(0).strip().split('\n')
         
     bonded = {}
-    print(pairs)
     for p in pairs[1:]:
         p = p.split()
         bonded[int(p[0])] = int(p[1])

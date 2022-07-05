@@ -5,4 +5,7 @@ awk -F'.' '{printf("%s.%s.%s'\''",$1,$2,$3+1)}' ./src/oxDNA_analysis_tools/__ini
 mv ./src/oxDNA_analysis_tools/__init__.py.tmp ./src/oxDNA_analysis_tools/__init__.py
 rm dist/*
 python -m build
+auditwheel repair dist/*cp39-cp39-linux_x86_64.whl
+mv dist/wheelhouse/* dist
+rm -r dist/wheelhouse
 python -m pip install .

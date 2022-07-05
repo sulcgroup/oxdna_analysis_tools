@@ -16,12 +16,16 @@ oxDNA analysis tools can be installed from PyPi via pip:
 
 This will also install all dependencies.  Bash autocompletes will not be set up, see below for setting up autocompletion.
 
+**Installation from PyPi will only work on Linux and OSX.  If you want to use OAT on Windows, please install from source**
+
 ### Installation from source
 It can also be installed from the [GitHub repository](https://github.com/sulcgroup/oxdna_analysis_tools) or the zip file of the source code available on PyPi via the following method:  
 
 1. Clone the repository or download and inflate the zip file.  
-2. Run one of the following commands (pip to automatically install dependencies or setup.py if you would like to manage them yourself):  
-   `pip install .`  
+2. Build the Cython code for your system:  
+   `python -m build`
+3. Run one of the following commands (pip to automatically install dependencies or setup.py if you would like to manage them yourself):  
+   `python -m pip install .`  
    `python setup.py install`  
 
 If you are not installing via pip, the following dependencies are required and can all be obtained from either pip or conda:  
@@ -31,6 +35,10 @@ If you are not installing via pip, the following dependencies are required and c
 [MatPlotLib](https://matplotlib.org/index.html): 3.0.3 (minimum version 3.0),<br/>
 [BioPython](https://biopython.org/): 1.73,<br/>
 [Scikit-Learn](https://scikit-learn.org/stable/): 0.21.2,<br/>
+
+## Numpy header error
+If you get an error regarding the number of bytes in the `numpy.array` header, this happens when the version of Numpy on your system doesn't match the version that pip downloads from PyPi when installing OAT with its isolated environment (most commonly because you installed Numpy using Conda which tends to be a few versions behind PyPi).  To fix this, try installing OAT with:  
+   `python -m pip install . --no-build-isolation`
 
 ### Test your installation
 To check your installation run:  

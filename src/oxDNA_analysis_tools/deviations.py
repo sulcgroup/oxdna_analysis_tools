@@ -177,7 +177,7 @@ def main():
     else:
         data_file = 'rmsd_op.json'
 
-    output()
+    output(RMSDs, RMSFs, outfile, plot_name, data_file)
 
     print("--- %s seconds ---" % (time.time() - start_time))
 
