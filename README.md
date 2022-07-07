@@ -1,4 +1,9 @@
-# oxDNA Analysis Tools v 2.0
+# oxDNA ANALYSIS TOOLS HAS BEEN MERGED WITH THE [MAIN oxDNA REPOSITORY](https://github.com/lorenzo-rovigatti/oxDNA).  THIS REPOSITORY WILL BE KEPT AS A HISTORICAL ARCHIVE BUT WILL NO LONGER BE UPDATED.
+
+You can find the new oxDNA Analysis Tools in [oxDNA/analysis](https://github.com/lorenzo-rovigatti/oxDNA/tree/master/analysis) and it will now automatically install alongside `oxpy` during oxDNA installation with the `-DPython` option.  The new documentation can be found [here](https://lorenzo-rovigatti.github.io/oxDNA/oat/index.html).
+
+-------------------------------------------------
+# Old README:
 
 A suite of command line Python tools for performing generic structural analyses of oxDNA simulations.
 Our goal in developing these tools is to provide a foundation of common analyses applicable to most simulations and to provide code examples for researchers looking to implement tools to meet their own research needs.
